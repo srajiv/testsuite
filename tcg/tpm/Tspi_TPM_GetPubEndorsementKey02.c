@@ -99,7 +99,7 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Get Public EndorsementKey
-	result = Tspi_TPM_GetPubEndorsementKey(hTPM, 0, &hEndorsement);
+	result = Tspi_TPM_GetPubEndorsementKey(hTPM, 0, NULL, &hEndorsement);
 	if (result != TSS_E_INVALID_HANDLE) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);

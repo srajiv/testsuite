@@ -104,7 +104,7 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Get Public EndorsementKey
-	result = Tspi_TPM_GetPubEndorsementKey(hTPM, -1, NULL);
+	result = Tspi_TPM_GetPubEndorsementKey(hTPM, -1, NULL, NULL);
 	if (result != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);

@@ -152,7 +152,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_TPM_GetPubEndorsementKey( hTPM, 0, &hEndorsement );
+	result = Tspi_TPM_GetPubEndorsementKey( hTPM, 0, NULL, &hEndorsement );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetPubEndorsementKey", result );
