@@ -23,15 +23,13 @@
  *
  * DESCRIPTION
  *	This test will verify that Tspi_TPM_ClearOwner
- *		returns TSS_SUCCESS.
- *	This function requires presence and cannot otherwise
- *		be called.
+ *		returns TSS_E_INVALID_HANDLE.
  *
  * ALGORITHM
  *	Setup:
  *		Create Context
  *		Connect Context
- *		Get TPM Object
+ *		Pass in invalid TPM handle
  *
  *	Test:
  *		Call TPM_ClearOwner then if it does not succeed
@@ -50,6 +48,7 @@
  *
  * HISTORY
  *      Megan Schneider, mschnei@us.ibm.com, 6/04.
+ *      Kent Yoder, shpedoikal@gmail.com, 01/05
  *
  * RESTRICTIONS
  *	None.
@@ -77,7 +76,7 @@ main_v1_1( void )
 {
 	char			*function = "Tspi_TPM_ClearOwner02";
 	TSS_HCONTEXT		hContext;
-	TSS_HTPM		hTPM;
+	TSS_HTPM		hTPM = 0xffffffff;
 	TSS_RESULT		result;
 	UINT32			exitCode;
 
@@ -103,20 +102,10 @@ main_v1_1( void )
 		exit( result );
 	}
 
-		// Retrieve TPM object of context
-	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-/*
-		//Get random number
-	result = Tspi_TPM_ClearOwner( hTPM, TRUE );
-	if ( result != TSS_SUCCESS )
+
+		// Pass in invalid handle
+	result = Tspi_TPM_ClearOwner( hTPM, FALSE );
+	if ( result != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -130,10 +119,10 @@ main_v1_1( void )
 		}
 	}
 	else
-	{ */
+	{
 		print_success( function, result );
 		exitCode = 0;
-	/* } */
+	}
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
