@@ -41,3 +41,4 @@ install:
 
 clean:
 	rm -f *.o ../../bin/$(ALL) *~ $(ALL) *.bbg *.bb *.da
+	for i in $(SUBDIRS) ; do $(MAKE) -C $$i clean ; done
