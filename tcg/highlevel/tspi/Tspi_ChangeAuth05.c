@@ -59,6 +59,14 @@
 #include <tss/tss.h>
 #include "../common/common.h"
 
+#if 0
+#undef OWN_PWD
+#undef KEY_PWD
+
+#define OWN_PWD "KEY PWD"
+#define KEY_PWD "OWN PWD"
+#endif
+
 extern TSS_UUID SRK_UUID;
 extern int commonErrors(TSS_RESULT result);
 
@@ -120,7 +128,7 @@ main_v1_1(void){
 
 		// Set Secret
 	result = Tspi_Policy_SetSecret(hTPMPolicy, TSS_SECRET_MODE_PLAIN,
-			sizeof(OWN_PWD), OWN_PWD);
+			strlen(OWN_PWD), OWN_PWD);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -138,7 +146,7 @@ main_v1_1(void){
 	}
 		// Set Secret
 	result = Tspi_Policy_SetSecret(hNewPolicy, TSS_SECRET_MODE_PLAIN,
-			sizeof(KEY_PWD), KEY_PWD);
+			strlen(KEY_PWD), KEY_PWD);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -166,18 +174,9 @@ main_v1_1(void){
 	}
 	else{
 		printf("Success.  Resetting the owner password...\n");
-		// Change the owner secret back to what it was
-		result = Tspi_Policy_SetSecret(hNewPolicy, TSS_SECRET_MODE_PLAIN,
-				sizeof(OWN_PWD), OWN_PWD);
-		if (result != TSS_SUCCESS) {
-			print_error("Tspi_Policy_SetSecret", result);
-			print_error_exit(nameOfFunction, err_string(result));
-			Tspi_Context_Close(hContext);
-			exit(result);
-		}
 
-		// Call Change Auth
-		result = Tspi_ChangeAuth(hTPM, NULL_HKEY, hNewPolicy);
+		// Call Change Auth, setting the TPM policy
+		result = Tspi_ChangeAuth(hTPM, NULL_HKEY, hTPMPolicy);
 		if (result == TSS_SUCCESS) {
 			print_success(nameOfFunction, result);
 			print_end_test(nameOfFunction);
