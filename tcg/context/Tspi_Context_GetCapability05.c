@@ -77,8 +77,8 @@ main_v1_1(void){
 	char		*nameOfFunction	= "Tspi_Context_GetCapability05";
 	TSS_HCONTEXT	hContext;
 	TSS_FLAG	capArea		= TSS_TCSCAP_ALG;
-	BYTE		rgbSubCap	= TSS_ALG_AES;
-	UINT32		ulSubCapLength	= -1;
+	UINT32		subCap		= TSS_ALG_AES;
+	UINT32		ulSubCapLength	= 0xffffffff;
 	BYTE**		prgbRespData;
 	UINT32*		pulRespDataLength;
 	TSS_RESULT	result;
@@ -99,8 +99,8 @@ main_v1_1(void){
 	}
 		//Get Capability
 	result = Tspi_Context_GetCapability(hContext,
-			capArea, ulSubCapLength, &rgbSubCap, 
-			pulRespDataLength, prgbRespData); 
+			capArea, ulSubCapLength, (BYTE *)&subCap,
+			pulRespDataLength, prgbRespData);
 	if (result != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);

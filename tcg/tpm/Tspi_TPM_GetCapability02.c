@@ -77,7 +77,7 @@ main_v1_1( void )
 	char			*function = "Tspi_TPM_GetCapability02";
 	UINT32			pulRespDataLength;
 	BYTE			*pNumPCRs;
-	BYTE			subCap[4];
+	UINT32			subCap;
 	UINT32			subCapLength;
 	TSS_HCONTEXT		hContext;
 	TSS_HTPM		hTPM;
@@ -117,12 +117,12 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	UINT32ToArray( TSS_TPMCAP_PROP_PCR, subCap );
-	subCapLength = 4;
+	subCap = TSS_TPMCAP_PROP_PCR;
+	subCapLength = sizeof(UINT32);
 
 		//Get random number
 	result = Tspi_TPM_GetCapability( hTPM, TSS_TPMCAP_PROPERTY,
-						subCapLength, subCap,
+						subCapLength, (BYTE *)&subCap,
 						NULL,
 						&pNumPCRs );
 	if ( result != TSS_E_BAD_PARAMETER )
