@@ -27,7 +27,7 @@ else
 	OPTS =
 endif
 ALL = $(shell ls *.c | sed "s/\.c//g")
-LIBS = ../common/common.o -ltspi -lcrypto $(LDFLAGS)
+LIBS = ../common/common.o -ltspi $(LDFLAGS)
 
 .c:
 	$(CC) $(OPTS) -g -o $@ $< $(LIBS)

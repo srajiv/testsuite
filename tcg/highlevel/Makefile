@@ -27,12 +27,14 @@ else
 	OPTS =
 endif
 ALL = $(shell ls *.c | sed "s/\.c//g")
-LIBS = ../common/common.o -ltspi -lcrypto -lpthread $(LDFLAGS)
+SUBDIRS = `ls */Makefile | sed "s/Makefile//g"`
+LIBS = ../common/common.o -ltspi $(LDFLAGS)
 
 .c:
 	$(CC) $(OPTS) -g -o $@ $< $(LIBS)
 
 all: $(ALL)
+	for i in $(SUBDIRS) ; do $(MAKE) -C $$i ; done
 
 install:
 	@set -e; for i in $(ALL); do mv $$i ../../bin/$$i ; done
