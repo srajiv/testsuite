@@ -50,6 +50,8 @@
  *	Author:	Kathy Robertson
  *	Date:	June 2004
  *	Email:	klrobert@us.ibm.com
+ *	Kent Yoder, shpedoikal@gmail.com, 01/05
+ *	  Cleaned up and simplified the testcase
  *
  * RESTRICTIONS
  *	None.
@@ -77,36 +79,16 @@ int main(int argc, char **argv)
 }
 
 main_v1_1(void){
-
-	#define KEYPWD	"KEY PWD"
-	#define SRKPWD	"SRK PWD"
-	
 	char		*nameOfFunction = "Tspi_SetAttribData02";
-	TSS_HKEY	hKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
-	TSS_HPOLICY	hPolicy;
+	TSS_HPOLICY	keyUsagePolicy = 0xffffffff;
 	BYTE*		POPUPSTRING = "bobdbuilder";
 
 	print_begin_test(nameOfFunction);
 
-		//Create Context
-	result = Tspi_Context_Create(&hContext);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_Create", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		exit(result);
-	}
-		//Connect Context
-	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_Connect", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//SetAttribData
-	result = Tspi_SetAttribData(hPolicy, 
+	result = Tspi_SetAttribData(keyUsagePolicy,
 			TSS_TSPATTRIB_POLICY_POPUPSTRING, 
 			0, strlen(POPUPSTRING), POPUPSTRING);
 	if (result != TSS_E_INVALID_HANDLE) {
@@ -114,7 +96,7 @@ main_v1_1(void){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
-			Tspi_Context_CloseObject(hContext, hPolicy);
+			Tspi_Context_CloseObject(hContext, keyUsagePolicy);
 			Tspi_Context_Close(hContext);
 			exit(1);
 		}
@@ -122,7 +104,7 @@ main_v1_1(void){
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
-			Tspi_Context_CloseObject(hContext, hPolicy);
+			Tspi_Context_CloseObject(hContext, keyUsagePolicy);
 			Tspi_Context_Close(hContext);
 			exit(1);
 		}
@@ -131,7 +113,7 @@ main_v1_1(void){
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_CloseObject(hContext, hPolicy);
+		Tspi_Context_CloseObject(hContext, keyUsagePolicy);
 		Tspi_Context_Close(hContext);
 		exit(0);
 	}
