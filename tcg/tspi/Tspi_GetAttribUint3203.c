@@ -281,7 +281,7 @@ main_v1_1( void )
 
 	result = Tspi_GetAttribUint32( hParentKey,
 					TSS_TSPATTRIB_RSAKEY_INFO,
-					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
+					0xffffffff,
 					&ES );
 	if ( result != TSS_E_INVALID_ATTRIB_SUBFLAG )
 	{
@@ -304,7 +304,7 @@ main_v1_1( void )
 		// Set uint, key sig scheme
 	result = Tspi_GetAttribUint32( hParentKey,
 					TSS_TSPATTRIB_KEY_INFO,
-					TSS_TSPATTRIB_KEY_INFO,
+					0xffffffff,
 					&SS );
 	if ( result != TSS_E_INVALID_ATTRIB_SUBFLAG )
 	{
