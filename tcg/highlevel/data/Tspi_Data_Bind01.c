@@ -67,7 +67,7 @@
  */
 
 #include <tss/tss.h>
-#include "../../common/common.h"
+#include "common.h"
 
 extern TSS_UUID SRK_UUID;
 extern int commonErrors(TSS_RESULT result);
@@ -169,7 +169,7 @@ main_v1_1(void){
 
 
 		//SetSecret
-	result = Tspi_Policy_SetSecret(phPolicy, TSS_SECRET_MODE_PLAIN, sizeof(SRK_PWD), SRK_PWD);
+	result = Tspi_Policy_SetSecret(phPolicy, TSS_SECRET_MODE_PLAIN, 0, NULL);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -180,7 +180,7 @@ main_v1_1(void){
 	print_success("Policy Set Secret", result);
 
 		//CreateKey
-	result = Tspi_Key_CreateKey(hKey, hSRK, NULL);
+	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
