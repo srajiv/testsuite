@@ -23,9 +23,7 @@
  *
  * DESCRIPTION
  *	This test will verify that Tspi_ChangeAuth works when changing the
- *	authdata for the SRK itself.  The TSS spec admits openly that using
- *	Tspi_ChangeAuth to change the auth for the SRK is a security risk,
- *	so ChangeAuthAsym should be used, but this *should* work anyway.
+ *	authdata for the SRK itself.
  *
  * ALGORITHM
  *	Setup:
