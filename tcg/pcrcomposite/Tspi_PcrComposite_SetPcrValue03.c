@@ -117,7 +117,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, -1, 20,
+	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, 5, 0,
 							rgbPcrValue );
 	if ( result != TSS_E_BAD_PARAMETER )
 	{
@@ -143,8 +143,8 @@ main_v1_1( void )
 		print_success( function, result );
 	}
 
-	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, 0xffff, 20,
-							rgbPcrValue );
+	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, 5, 20,
+							NULL );
 	if ( result != TSS_E_BAD_PARAMETER )
 	{
 		if( (result == TSS_E_INVALID_HANDLE) ||

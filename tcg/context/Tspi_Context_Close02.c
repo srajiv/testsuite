@@ -24,15 +24,15 @@
  * DESCRIPTION
  *	This test will verify Tspi_Context_Close
  *	This is a test case intended to make Context_Close
- *		return TSS_E_INVALID_HANDLE. This is 
- *		accomplished by not connecting the context.
+ *		return TSS_E_INVALID_HANDLE. This is
+ *		accomplished by passing in an unallocated context handle.
  * ALGORITHM
  *	Setup:
  *		Create Context
  *
- *	Test:	Call Close Context 
+ *	Test:	Call Close Context
  *		Make sure that it returns the proper return codes
- *	
+ *
  *	Cleanup:
  *		Print error/success message
  *
@@ -40,6 +40,7 @@
  *	Author:	Kathy Robertson
  *	Date:	June 2004
  *	Email:	klrobert@us.ibm.com
+ *	Kent Yoder, shpedoikal@gmail.com, 1/05
  *
  * RESTRICTIONS
  *	None.
@@ -68,18 +69,11 @@ int
 main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_Context_Close02";
-	TSS_HCONTEXT	hContext;
+	TSS_HCONTEXT	hContext = 0xffffffff;
 	TSS_RESULT	result;
 
 	print_begin_test(nameOfFunction);
 
-		//Create Context
-	result = Tspi_Context_Create(&hContext);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_Create", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		exit(result);
-	}
 		//Close Context
 	result = Tspi_Context_Close(hContext);
 	if (result != TSS_E_INVALID_HANDLE) {

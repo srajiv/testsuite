@@ -188,7 +188,7 @@ main_v1_1( void )
 
 	result = Tspi_PcrComposite_GetPcrValue( hPcrComposite, 20,
 						&ulPcrValueLength,
-						&prgbPcrValueOut );
+						NULL );
 	if ( result != TSS_E_BAD_PARAMETER )
 	{
 		if( (result == TSS_E_INVALID_HANDLE) ||

@@ -25,7 +25,7 @@
  *	This test will verify Tspi_Context_GetCapability.
  *	The purpose of this test is to get TSS_E_INVALID_HANDLE 
  *		to be returned. This is accomplished in this test  
- *		case by not connecting the context.
+ *		case by passing in a bogus context.
  *
  * ALGORITHM
  *	Setup:
@@ -49,6 +49,7 @@
  *	Author:	Kathy Robertson
  *	Date:	June 2004
  *	Email:	klrobert@us.ibm.com
+ *	Kent Yoder, shpedoikal@gmail.com, 01/05
  *
  * RESTRICTIONS
  *	None.
@@ -76,7 +77,7 @@ int
 main_v1_1(void){
 
 	char		*nameOfFunction	= "Tspi_Context_GetCapability03";
-	TSS_HCONTEXT	hContext;
+	TSS_HCONTEXT	hContext = 0xffffffff;
 	TSS_FLAG	capArea		= TSS_TCSCAP_ALG;
 	UINT32		subCap;
 	UINT32		ulSubCapLength;
@@ -85,13 +86,6 @@ main_v1_1(void){
 	TSS_RESULT	result;
 
 	print_begin_test(nameOfFunction);
-
-		//Create Context
-	result = Tspi_Context_Create(&hContext);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_Create ", result);
-		exit(result);
-	}
 
 	subCap = TSS_ALG_AES;
 	ulSubCapLength = sizeof(UINT32);
