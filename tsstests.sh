@@ -53,7 +53,7 @@ QUIET=0
 export ERR_SUMMARY=../../err.summary
 
 # this variable needs to be changed to testcases/tcg/ for ltp compatibility
-TESTCASEDIR=ltp-tss/tcg/
+TESTCASEDIR=testsuite/tcg/
 
 cd ..
 
