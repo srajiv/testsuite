@@ -79,7 +79,7 @@ main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_GetAttribData02";
 	TSS_FLAGS	initFlags;
-	TSS_HKEY	hKey;
+	TSS_HKEY	hKey = 0xffffffff;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HKEY	hSRK;
