@@ -203,7 +203,7 @@ main_v1_1( void )
 	}
 
 		// Data Seal
-	result = Tspi_Data_Seal( hEncData, hSRK, ulDataLength, rgbDataToSeal, 0 );
+	result = Tspi_Data_Seal( hEncData, hSRK, ulDataLength, rgbDataToSeal, hPcrComposite );
 	//				hPcrComposite );
 	if ( result != TSS_SUCCESS )
 	{
