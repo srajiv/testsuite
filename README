@@ -1,0 +1,13 @@
+These are the testcases that exercise the TSS stack. They use the LTP
+framework.
+
+These testcases have been tested against the 20040304 version of LTP.
+
+To run these testcases 
+	1) Download and expand LTP
+	2) Obtain testcases from CVS (or other package).
+	3) Copy the tcg directory into <ltp>/testcases
+	4) Apply the Makefile patch 
+	5) make
+	6) make install (as root)
+	7) ./runalltests.sh -f </full/path/to/ltp>/runtest/tcg -l ./logfile -p

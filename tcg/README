@@ -1,0 +1,7 @@
+README FOR TSS TESTCASES
+
+To integrate with the ltp framework:
+
+1) Move the tsstests.sh script in opentcg/ltp-tss/ to ltp/testscripts. Make sure to change the TESTCASEDIR variable to testcases/tcg.
+2) Move everything in opentcg/ltp-tss/tcg to ltp/testcases/tcg.
+3) cd into ltp/testcases/tcg and run make install.
