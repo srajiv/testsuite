@@ -69,6 +69,7 @@ TSS_UUID uuid0 = {2,3,5,7,5,{1,9,9,2,7,3}};
 
 /* Storage root key password */
 #define KEY_PWD		"KEY PWD"
+#define NEW_PWD		"NEW PWD"
 #define OWN_PWD		"OWN PWD"
 #define ENCDATA_PWD	"ENC PWD"
 
