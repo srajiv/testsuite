@@ -46,6 +46,7 @@
  *
  * HISTORY
  *	Megan Schneider, mschnei@us.ibm.com, 6/04.
+ *	Kent Yoder, shpedoikal@gmail.com, 1/05
  *
  * RESTRICTIONS
  *	None.
@@ -73,8 +74,8 @@ int
 main_v1_1( void )
 {
 	char			*function = "Tspi_Context_FreeMemory01";
-	BYTE			random;
-	TSS_HCONTEXT		hContext;
+	BYTE			*random;
+	TSS_HCONTEXT		hContext, hTPM;
 	TSS_RESULT		result;
 	UINT32			exitCode;
 
@@ -99,8 +100,29 @@ main_v1_1( void )
 		exit( result );
 	}
 
+		// Retrieve TPM object of context
+	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_GetTpmObject", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+		// get a random number to free
+	result = Tspi_TPM_GetRandom( hTPM, 16, &random );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_TPM_GetRandom", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
 		// Free selected memory
-	result = Tspi_Context_FreeMemory( hContext, &random );
+	result = Tspi_Context_FreeMemory( hContext, random );
 	if ( result != TSS_SUCCESS )
 	{
 		if( !(checkNonAPI(result)) )
