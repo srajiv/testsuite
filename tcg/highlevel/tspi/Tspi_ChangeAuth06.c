@@ -66,8 +66,6 @@
 extern TSS_UUID SRK_UUID;
 extern int commonErrors(TSS_RESULT result);
 
-#define NEW_PWD		"NEW PWD"
-
 int main(int argc, char **argv)
 {
 	char		*version;
