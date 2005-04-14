@@ -52,6 +52,7 @@ int checkNonAPI(TSS_RESULT);
 void print_wrongChar();
 void UINT32ToArray(UINT32 i, BYTE * out);
 UNICODE *get_server(char *);
+void print_hex(BYTE *, UINT32);
 
 int main_v1_1();
 
