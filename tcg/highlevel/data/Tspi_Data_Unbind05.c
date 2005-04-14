@@ -81,7 +81,7 @@ main( int argc, char **argv )
 int
 main_v1_1( void )
 {
-	char		*function = "Kent_Data_Unbind01";
+	char		*function = "Tspi_Data_Unbind05";
 	TSS_HCONTEXT	hContext;
 	TSS_HKEY	hSRK;
 	TSS_HKEY	hKey;
