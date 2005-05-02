@@ -89,21 +89,22 @@ int
 main_v1_1( void )
 {
 	char			*function = "Tspi_PolicyPopup02";
-	char			*srkString = "Put some words here ";
+	char			*hashData = "09876543210987654321";
 	TSS_RESULT		result;
 	TSS_HKEY		hSRK, hKey;
 	TSS_UUID		SRKUUID	= {0,0,0,0,0,0,0,0,0,0,1};
 	TSS_HPOLICY		hPolicy;
 	TSS_HCONTEXT		hContext;
-	BYTE			*popupMsg = "POPUP";
-	BYTE			*gottenMsg;
-	UINT32			popupLength;
+	TSS_HHASH		hHash;
+	UNICODE			*popupMsg = NULL;
 	TSS_HPOLICY		srkUsagePolicy;
 	TSS_FLAGS		initFlags = TSS_KEY_TYPE_SIGNING |
 						TSS_KEY_SIZE_2048 |
 						TSS_KEY_VOLATILE |
-						TSS_KEY_NO_AUTHORIZATION |
+						TSS_KEY_AUTHORIZATION |
 						TSS_KEY_NOT_MIGRATABLE;
+	UINT32			ulSignatureLen;
+	BYTE			*signature;
 
 	print_begin_test( function );
 
@@ -149,31 +150,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-/*	result = Tspi_Policy_SetSecret( srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
-					0, NULL );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	} */
-
-	result = Tspi_SetAttribData( srkUsagePolicy,
-					TSS_TSPATTRIB_POLICY_POPUPSTRING,
-					0, strlen(srkString), srkString );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Policy_SetSecret( srkUsagePolicy,
-					TSS_SECRET_MODE_POPUP,
+	result = Tspi_Policy_SetSecret( srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
 					0, NULL );
 	if ( result != TSS_SUCCESS )
 	{
@@ -196,16 +173,6 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_Key_CreateKey( hKey, hSRK, 0 );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_CreateKey (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
 	result = Tspi_GetPolicyObject ( hKey, TSS_POLICY_USAGE, &hPolicy );
 	if ( result != TSS_SUCCESS )
 	{
@@ -216,12 +183,37 @@ main_v1_1( void )
 		exit( result );
 	}
 
+	popupMsg = char_to_unicode("Enter a password for a new key:");
 	result = Tspi_SetAttribData( hPolicy,
 					TSS_TSPATTRIB_POLICY_POPUPSTRING,
-					0, strlen(popupMsg), popupMsg );
+					0, wcslen(popupMsg) * sizeof(UNICODE),
+					(BYTE *)popupMsg );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_SetAttribData", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+	free(popupMsg);
+
+	result = Tspi_Policy_SetSecret( hPolicy,
+					TSS_SECRET_MODE_POPUP,
+					0, NULL );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Policy_SetSecret", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_Key_CreateKey( hKey, hSRK, 0 );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Key_CreateKey (hKey)", result );
 		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -238,10 +230,71 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_GetPolicyObject ( hKey, TSS_POLICY_USAGE, NULL );
+	result = Tspi_Policy_FlushSecret( hPolicy );
 	if ( result != TSS_SUCCESS )
 	{
-		print_error( "Tspi_GetPolicyObject", result );
+		print_error( "Tspi_Policy_SetSecret", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	popupMsg = char_to_unicode("Re-enter the new key's password:");
+	result = Tspi_SetAttribData( hPolicy,
+					TSS_TSPATTRIB_POLICY_POPUPSTRING,
+					0, wcslen(popupMsg) * sizeof(UNICODE),
+					(BYTE *)popupMsg );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_SetAttribData", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+	free(popupMsg);
+
+	result = Tspi_Policy_SetSecret( hPolicy,
+					TSS_SECRET_MODE_POPUP,
+					0, NULL );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Policy_SetSecret", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	/* now sign some data to test the key's auth data */
+	result = Tspi_Context_CreateObject ( hContext,
+						TSS_OBJECT_TYPE_HASH,
+						TSS_HASH_SHA1, &hHash );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_CreateObject (hKey)", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+
+	result = Tspi_Hash_SetHashValue ( hHash, strlen(hashData), hashData );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Hash_SetHashValue", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_Hash_Sign ( hHash, hKey, &ulSignatureLen, &signature );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Hash_Sign", result );
 		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
