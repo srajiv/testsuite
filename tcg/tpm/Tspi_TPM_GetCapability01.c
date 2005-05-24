@@ -142,8 +142,7 @@ main_v1_1( void )
 		exitCode = 0;
 	}
 
-	numPcrs = Decode_UINT32(pNumPCRs);
-	fprintf( stderr, "\tThere are %d PCRs supported by this TPM\n", numPcrs );
+	fprintf( stderr, "\tThere are %u PCRs supported by this TPM\n", *pNumPCRs );
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
