@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -76,11 +76,12 @@ main_v1_1( void )
 {
 	char			*function = "Tspi_TPM_GetCapability04";
 	UINT32			pulRespDataLength;
-	BYTE			*prgbRespData;
+	BYTE			*pNumPCRs;
+	UINT32			subCap, subCapLength, numPcrs;
 	TSS_HCONTEXT		hContext;
 	TSS_HTPM		hTPM;
 	TSS_RESULT		result;
-	UINT32			exitCode, flag;
+	UINT32			exitCode;
 
 	print_begin_test( function );
 
@@ -115,11 +116,14 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_TPM_GetCapability( hTPM, TSS_TPMCAP_FLAG,
-						0, NULL,
+	subCap = TSS_TPMCAP_PROP_PCR;
+	subCapLength = sizeof(UINT32);
+
+	result = Tspi_TPM_GetCapability( hTPM, TSS_TPMCAP_PROPERTY,
+						subCapLength, (BYTE *)&subCap,
 						&pulRespDataLength,
-						&prgbRespData );
-	if ( result != TSS_E_POLICY_NO_SECRET )
+						&pNumPCRs );
+	if ( result != TSS_SUCCESS )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -131,10 +135,14 @@ main_v1_1( void )
 			print_error_nonapi( function, result );
 			exitCode = 1;
 		}
-	} else {
+	}
+	else
+	{
 		print_success( function, result );
 		exitCode = 0;
 	}
+
+	fprintf( stderr, "\tThere are %u PCRs supported by this TPM\n", *pNumPCRs );
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );

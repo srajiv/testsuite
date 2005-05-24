@@ -19,11 +19,11 @@
 
 /*
  * NAME
- *	Tspi_TPM_GetCapability05.c
+ *	Tspi_TPM_GetCapability07.c
  *
  * DESCRIPTION
  *	This test will verify that Tspi_TPM_GetCapability
- *	gets the number of DIRs correctly.
+ *	gets the TPM manufacturer correctly.
  *
  * ALGORITHM
  *	Setup:
@@ -74,14 +74,14 @@ main( int argc, char **argv )
 int
 main_v1_1( void )
 {
-	char			*function = "Tspi_TPM_GetCapability05";
+	char			*function = "Tspi_TPM_GetCapability07";
 	UINT32			pulRespDataLength;
-	BYTE			*pNumDIRs;
+	BYTE			*pManufacturer;
 	UINT32			subCap, subCapLength, numPcrs;
 	TSS_HCONTEXT		hContext;
 	TSS_HTPM		hTPM;
 	TSS_RESULT		result;
-	UINT32			exitCode;
+	UINT32			exitCode, i;
 
 	print_begin_test( function );
 
@@ -116,13 +116,13 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	subCap = TSS_TPMCAP_PROP_DIR;
+	subCap = TSS_TPMCAP_PROP_MANUFACTURER;
 	subCapLength = sizeof(UINT32);
 
 	result = Tspi_TPM_GetCapability( hTPM, TSS_TPMCAP_PROPERTY,
 						subCapLength, (BYTE *)&subCap,
 						&pulRespDataLength,
-						&pNumDIRs );
+						&pManufacturer );
 	if ( result != TSS_SUCCESS )
 	{
 		if( !(checkNonAPI(result)) )
@@ -142,7 +142,12 @@ main_v1_1( void )
 		exitCode = 0;
 	}
 
-	fprintf( stderr, "\tThere are %u DIRs supported by this TPM\n", *pNumDIRs );
+	fprintf( stderr, "\tThis TPM was manufactured by ");
+
+	for (i = 0; i < pulRespDataLength; i++)
+		fprintf( stderr, "%c", pManufacturer[i] );
+
+	fprintf( stderr, "\n");
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
