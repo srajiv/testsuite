@@ -83,7 +83,7 @@ main_v1_1(void){
 	UINT32		ulEventNumber	= -1;
 	TSS_PCR_EVENT*  prgbPcrEvents;
 	BYTE		*numPcrs;
-	BYTE		subcap[4];
+	UINT32		subcap;
 
 	print_begin_test(nameOfFunction);
 
@@ -111,10 +111,11 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	len = 4;
-	UINT32ToArray(TSS_TPMCAP_PROP_PCR, subcap);
-	result = Tspi_TPM_GetCapability(hTPM, TSS_TPMCAP_PROPERTY, 4, subcap,
-			&len, &numPcrs);
+	len = sizeof(UINT32);
+	subcap = TSS_TPMCAP_PROP_PCR;
+
+	result = Tspi_TPM_GetCapability(hTPM, TSS_TPMCAP_PROPERTY, sizeof(UINT32),
+			(BYTE *)&subcap, &len, &numPcrs);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_GetCapability ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -122,12 +123,12 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	ulNumPcrs = Decode_UINT32(numPcrs);
+	ulNumPcrs = (UINT32)*numPcrs;
 
 	printf("PCR SHA1                 Type Name\n");
-	for (ulPcrIndex = 10; ulPcrIndex < 11/*ulNumPcrs*/; ulPcrIndex++) {
+	for (ulPcrIndex = 10; ulPcrIndex < 11; ulPcrIndex++) {
 		//Get Events
-		result = Tspi_TPM_GetEvents(hTPM, ulPcrIndex, 
+		result = Tspi_TPM_GetEvents(hTPM, ulPcrIndex,
 				ulStartNumber,&ulEventNumber,
 				&prgbPcrEvents);
 		if (result != TSS_SUCCESS) {
