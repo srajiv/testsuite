@@ -126,7 +126,7 @@ main_v1_1(void){
 	ulNumPcrs = (UINT32)*numPcrs;
 
 	printf("PCR SHA1                 Type Name\n");
-	for (ulPcrIndex = 10; ulPcrIndex < 11; ulPcrIndex++) {
+	for (ulPcrIndex = 10; ulPcrIndex < ulNumPcrs; ulPcrIndex++) {
 		//Get Events
 		result = Tspi_TPM_GetEvents(hTPM, ulPcrIndex,
 				ulStartNumber,&ulEventNumber,
