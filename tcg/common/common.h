@@ -92,6 +92,7 @@ TSS_UUID uuid0 = {2,3,5,7,5,{1,9,9,2,7,3}};
 #define print_end_test(function) printf("Cleaning up %s\n<<<end_test>>>\n", function);
 #define print_error_exit(function,result) printf("%s testing failed with %s\n", function, result);
 
+#define char_to_unicode	get_server
 
 #define GLOBALSERVER	NULL
 
