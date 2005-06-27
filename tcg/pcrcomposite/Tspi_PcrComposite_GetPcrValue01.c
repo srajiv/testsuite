@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -55,10 +55,9 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
 
 int
 main( int argc, char **argv )
@@ -83,6 +82,7 @@ main_v1_1( void )
 	BYTE		*prgbPcrValueOut;
 	UINT32		ulPcrValueLength;
 	TSS_RESULT	result;
+	BYTE		value[20] = {19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0};
 
 	print_begin_test( function );
 
@@ -112,6 +112,17 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_PcrComposite_SetPcrValue(hPcrComposite, 8,
+			sizeof(value), value);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_PcrComposite_SetPcrValue", result );
 		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );

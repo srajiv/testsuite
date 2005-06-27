@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -54,11 +54,10 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
 int main(int argc, char **argv)
 {
 	char		*version;
@@ -107,7 +106,7 @@ main_v1_1(void){
 		//Call PcrExtend
 	result = Tspi_TPM_PcrExtend(-1, 9, pcrLength,
 			&pcrValue, NULL, &ulNewPcrValueLength, &NewPcrValue);
-	if (result != TSS_E_INVALID_HANDLE) {
+	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

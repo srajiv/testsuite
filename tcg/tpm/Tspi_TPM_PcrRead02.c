@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 int
@@ -105,7 +105,7 @@ main_v1_1( void )
 	}
 
 	result = Tspi_TPM_PcrRead( whTPM, 8, &ulPcrValueLength, &rgbPcrValue );
-	if ( result != TSS_E_INVALID_HANDLE )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{
