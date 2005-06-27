@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -71,10 +71,9 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
 
 int
 main( int argc, char **argv )
@@ -100,7 +99,7 @@ main_v1_1( void )
 	char		*nameOfFunction = "Tspi_Key_WrapKey01";
 	TSS_HCONTEXT	hContext;
 	TSS_HTPM	hTPM;
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
 	TSS_HKEY	hSRK;
 	TSS_RESULT	result;
@@ -111,6 +110,7 @@ main_v1_1( void )
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
+	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
 
 	print_begin_test( nameOfFunction );
 
@@ -209,7 +209,7 @@ main_v1_1( void )
 		//Set secret
 	result = Tspi_Policy_SetSecret( keyMigPolicy,
 				TSS_SECRET_MODE_SHA1,
-				20, TSS_WELL_KNOWN_SECRET );
+				20, well_known_secret );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret ", result );
@@ -221,7 +221,7 @@ main_v1_1( void )
 		//Set Secret
 	result = Tspi_Policy_SetSecret( keyUsagePolicy,
 				TSS_SECRET_MODE_SHA1,
-				20, TSS_WELL_KNOWN_SECRET );
+				20, well_known_secret );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret ", result );
@@ -280,7 +280,7 @@ main_v1_1( void )
 	} */
 		//Wrap Key
 	result = Tspi_Key_WrapKey( hKey, hSRK, 1 );
-	if ( result != TSS_E_INVALID_HANDLE )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		print_error( "Tspi_Key_WrapKey (2nd)", result );
 		print_error_exit( nameOfFunction, err_string(result) );

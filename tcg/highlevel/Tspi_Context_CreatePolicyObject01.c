@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -35,12 +35,12 @@
  *		1: Create a valid mig policy obj, check SUCCESS
  *		2: Create a valid usage policy obj, check SUCCESS
  *		3: Create an ambiguous policy obj with both policy types, check
- *		   TSS_E_INVALID_OBJECT_INIT_FLAG
+ *		   TSS_E_INVALID_OBJECT_INITFLAG
  *		4: Create an ambiguous policy obj with a valid policy type and a
  *		   flag that doesn't make sense for policies, check
- *		   TSS_E_INVALID_OBJECT_INIT_FLAG
+ *		   TSS_E_INVALID_OBJECT_INITFLAG
  *		5: Create an ambiguous policy obj with no policy type, check
- *		   TSS_E_INVALID_OBJECT_INIT_FLAG
+ *		   TSS_E_INVALID_OBJECT_INITFLAG
  *
  *	Cleanup:
  *		Print errno log and/or timing stats if options given
@@ -59,7 +59,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 int
@@ -166,7 +166,7 @@ main_v1_1( void )
 	/* create an ambiguous policy */
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
 					   (TSS_POLICY_MIGRATION|TSS_POLICY_USAGE), &hObject);
-	if ( result == TSS_E_INVALID_OBJECT_INIT_FLAG )
+	if ( TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_INITFLAG )
 	{
 		print_success( function, result );
 	}
@@ -186,7 +186,7 @@ main_v1_1( void )
 	/* create another ambiguous policy */
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
 					   (TSS_POLICY_MIGRATION | TSS_KEY_VOLATILE), &hObject);
-	if ( result == TSS_E_INVALID_OBJECT_INIT_FLAG )
+	if ( TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_INITFLAG )
 	{
 		print_success( function, result );
 	}
@@ -206,7 +206,7 @@ main_v1_1( void )
 	/* create a migration policy with no init flags */
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
 					   0, &hObject);
-	if ( result == TSS_E_INVALID_OBJECT_INIT_FLAG )
+	if ( TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_INITFLAG )
 	{
 		print_success( function, result );
 	}

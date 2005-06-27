@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
  *	Test:
  *		1: Create a valid default pcrs obj, check SUCCESS
  *		2: Create a pcrs obj with some invalid type, check
- *		   TSS_E_INVALID_OBJECT_INIT_FLAG
+ *		   TSS_E_INVALID_OBJECT_INITFLAG
  *
  *	Cleanup:
  *		Print errno log and/or timing stats if options given
@@ -53,7 +53,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 int
@@ -129,7 +129,7 @@ main_v1_1( void )
 	/* create a pcrs obj with some bogus flag */
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_PCRS,
 					   TSS_HASH_DEFAULT, &hObject);
-	if ( result == TSS_E_INVALID_OBJECT_INIT_FLAG )
+	if ( TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_INITFLAG )
 	{
 		print_success( function, result );
 	}

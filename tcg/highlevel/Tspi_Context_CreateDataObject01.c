@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -36,12 +36,12 @@
  *		2: Create a valid data bind obj, check SUCCESS
  *		3: Create a valid data legacy obj, check SUCCESS
  *		4: Create an ambiguous data obj with 2 types, check
- *		   TSS_E_INVALID_OBJECT_INIT_FLAG
+ *		   TSS_E_INVALID_OBJECT_INITFLAG
  *		5: Create an ambiguous policy obj with a valid type and a
  *		   flag that doesn't make sense for data objs, check
- *		   TSS_E_INVALID_OBJECT_INIT_FLAG
+ *		   TSS_E_INVALID_OBJECT_INITFLAG
  *		5: Create an ambiguous data obj with no type, check
- *		   TSS_E_INVALID_OBJECT_INIT_FLAG
+ *		   TSS_E_INVALID_OBJECT_INITFLAG
  *
  *	Cleanup:
  *		Print errno log and/or timing stats if options given
@@ -60,7 +60,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 int
@@ -186,7 +186,7 @@ main_v1_1( void )
 	/* create an ambiguous obj */
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_ENCDATA,
 					   (TSS_ENCDATA_SEAL|TSS_ENCDATA_LEGACY), &hObject);
-	if ( result == TSS_E_INVALID_OBJECT_INIT_FLAG )
+	if ( TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_INITFLAG )
 	{
 		print_success( function, result );
 	}
@@ -202,7 +202,7 @@ main_v1_1( void )
 	/* create another ambiguous data obj */
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_ENCDATA,
 					   (TSS_ENCDATA_LEGACY | TSS_KEY_VOLATILE), &hObject);
-	if ( result == TSS_E_INVALID_OBJECT_INIT_FLAG )
+	if ( TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_INITFLAG )
 	{
 		print_success( function, result );
 	}
@@ -218,7 +218,7 @@ main_v1_1( void )
 	/* create an obj with no init flags */
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_ENCDATA,
 					   0, &hObject);
-	if ( result == TSS_E_INVALID_OBJECT_INIT_FLAG )
+	if ( TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_INITFLAG )
 	{
 		print_success( function, result );
 	}
