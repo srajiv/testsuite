@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -54,10 +54,12 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <stdlib.h>
+
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern int commonErrors(TSS_RESULT result);
+
 int main(int argc, char **argv)
 {
 	char		*version;
@@ -101,7 +103,7 @@ main_v1_1(void){
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_HASH,
 				TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_SIGNING |
 				TSS_KEY_MIGRATABLE, &hSignatureKey);
-	if (result != TSS_E_INVALID_OBJECT_INIT_FLAG){
+	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJECT_INITFLAG){
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

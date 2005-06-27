@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -48,10 +48,12 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <stdlib.h>
+
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern int commonErrors(TSS_RESULT result);
+
 int main(int argc, char **argv)
 {
 	char		*version;
@@ -74,7 +76,7 @@ main_v1_1(void){
 	print_begin_test(nameOfFunction);
 
 	TSS_RESULT result = Tspi_Context_Create(NULL);
-	if (result != TSS_E_BAD_PARAMETER) {
+	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
