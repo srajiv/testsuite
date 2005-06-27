@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -66,11 +66,10 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "common.h"
 
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv)
 {
@@ -89,14 +88,11 @@ int main(int argc, char **argv)
 main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_Data_Bind01";
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HKEY	hSRK;
-	initFlags	= TSS_KEY_TYPE_BIND | TSS_KEY_TYPE_STORAGE | TSS_KEY_SIZE_2048  |
-			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-			TSS_KEY_NOT_MIGRATABLE;
 	TSS_HENCDATA	hEncData;
 	TSS_HKEY	hEncKey;
 	TSS_HPOLICY	phPolicy;
@@ -105,6 +101,9 @@ main_v1_1(void){
 	BYTE*		rgbDataToBind; 
 	BYTE*		rgbDataUnbound; 
 	int		exitCode=0;
+	initFlags	= TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
+			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
+			TSS_KEY_NOT_MIGRATABLE;
 
 	print_begin_test(nameOfFunction);
 
@@ -252,8 +251,8 @@ main_v1_1(void){
 		print_success("Tspi_Data_Unbind", result);
 		exitCode = 0;
 	}
-	
-	
+
+
 	//compare Original Data with Data returned by Unbind
 	//First compare size
 	if (dataLength == dataUnboundLength)
@@ -262,22 +261,22 @@ main_v1_1(void){
 	  print_success("Unbind data length matches length of original data", result);
 	  if (strcmp(rgbDataToBind, rgbDataUnbound) == 0)
 	  {
-	    	//strings match
-	    	print_success("Unbind data matches original data!", result);
-		exitCode = 0;
+		  //strings match
+		  print_success("Unbind data matches original data!", result);
+		  exitCode = 0;
 	  }
 	  else {
-	     	//string size the same but strings don't match
-		print_error("Unbind data does NOT match original data", result);
-		exitCode = 1;
+		  //string size the same but strings don't match
+		  print_error("Unbind data does NOT match original data", result);
+		  exitCode = 1;
 	  }
 	}
 	else {
-  		//string sizes do not match, so strings do not match
+		//string sizes do not match, so strings do not match
 		print_error("Unbind data size does NOT match original data size", result);
 		exitCode = 1;
 	}
-	
+
 	print_end_test(nameOfFunction);
 	Tspi_Context_FreeMemory(hContext, NULL);
 	Tspi_Context_CloseObject(hContext, hKey);

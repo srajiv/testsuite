@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 int
@@ -128,7 +128,7 @@ main_v1_1( void )
 	}
 
 	if (ulPcrValueLength != sizeof(UINT32)) {
-		printf("GetCapability(TSS_TPMCAP_PROP_PCR) returns value != sizeof(UINT32)!");
+		printf("GetCapability(TSS_TPMCAP_PROP_PCR) returns value != sizeof(UINT32) !");
 		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );

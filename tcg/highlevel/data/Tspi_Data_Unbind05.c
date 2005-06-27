@@ -58,10 +58,9 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
 
 int
 main( int argc, char **argv )
@@ -76,7 +75,7 @@ main( int argc, char **argv )
 		main_v1_1();
 }
 
-#define DATA_SIZE	64
+#define DATA_SIZE	((2048/8) - 11)
 
 int
 main_v1_1( void )
@@ -94,7 +93,7 @@ main_v1_1( void )
 	TSS_UUID	uuid;
 	TSS_RESULT	result;
 	UINT32		exitCode;
-	TSS_FLAGS	initFlags = TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
+	TSS_FLAG	initFlags = TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
 				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 				TSS_KEY_NOT_MIGRATABLE;
 
