@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -44,377 +44,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "tss/tss.h"
+#include "trousers/tss.h"
+#include "common.h"
 
-char
-*err_string(TSS_RESULT r)
-{
-	char *rv;
+TSS_UUID SRK_UUID = TSS_UUID_SRK;
 
-	switch (r) {
-		case TSS_SUCCESS:
-			rv = "TSS_SUCCESS";
-			break;
-		case TSS_E_FAIL:
-			rv = "TSS_E_FAIL";
-			break;
-		case TSS_E_BAD_PARAMETER:
-			rv = "TSS_E_BAD_PARAMETER";
-			break;
-		case TSS_E_INTERNAL_ERROR:
-			rv = "TSS_E_INTERNAL_ERROR";
-			break;
-		case TSS_E_NOTIMPL:
-			rv = "TSS_E_NOTIMPL";
-			break;
-		case TSS_E_PS_KEY_NOTFOUND:
-			rv = "TSS_E_PS_KEY_NOTFOUND";
-			break;
-		case TSS_E_KEY_ALREADY_REGISTERED:
-			rv = "TSS_E_KEY_ALREADY_REGISTERED";
-			break;
-		case TSS_E_CANCELLED:
-			rv = "TSS_E_CANCELLED";
-			break;
-		case TSS_E_TIMEOUT:
-			rv = "TSS_E_TIMEOUT";
-			break;
-		case TSS_E_OUTOFMEMORY:
-			rv = "TSS_E_OUTOFMEMORY";
-			break;
-		case TSS_E_TPM_UNEXPECTED:
-			rv = "TSS_E_TPM_UNEXPECTED";
-			break;
-		case TSS_E_COMM_FAILURE:
-			rv = "TSS_E_COMM_FAILURE";
-			break;
-		case TSS_E_TPM_UNSUPPORTED_FEATURE:
-			rv = "TSS_E_TPM_UNSUPPORTED_FEATURE";
-			break;
-		case TDDL_E_FAIL:
-			rv = "TDDL_E_FAIL";
-			break;
-		case TDDL_E_BAD_PARAMETER:
-			rv = "TDDL_E_BAD_PARAMETER";
-			break;
-		case TDDL_E_COMPONENT_NOT_FOUND:
-			rv = "TDDL_E_COMPONENT_NOT_FOUND";
-			break;
-		case TDDL_E_ALREADY_OPENED:
-			rv = "TDDL_E_ALREADY_OPENED";
-			break;
-		case TDDL_E_BADTAG:
-			rv = "TDDL_E_BADTAG";
-			break;
-		case TDDL_E_TIMEOUT:
-			rv = "TDDL_E_TIMEOUT";
-			break;
-		case TDDL_E_INSUFFICIENT_BUFFER:
-			rv = "TDDL_E_INSUFFICIENT_BUFFER";
-			break;
-		case TDDL_COMMAND_COMPLETED:
-			rv = "TDDL_COMMAND_COMPLETED";
-			break;
-		case TDDL_E_OUTOFMEMORY:
-			rv = "TDDL_E_OUTOFMEMORY";
-			break;
-		case TDDL_E_ALREADY_CLOSED:
-			rv = "TDDL_E_ALREADY_CLOSED";
-			break;
-		case TDDL_E_IOERROR:
-			rv = "TDDL_E_IOERROR	";
-			break;
-		case TDDL_E_COMMAND_ABORTED:
-			rv = "TDDL_E_COMMAND_ABORTED";
-			break;
-		case TCS_E_FAIL:
-			rv = "TCS_E_FAIL";
-			break;
-		case TCS_E_KEY_MISMATCH:
-			rv = "TCS_E_KEY_MISMATCH";
-			break;
-		case TCS_E_KM_LOADFAILED:
-			rv = "TCS_E_KM_LOADFAILED";
-			break;
-		case TCS_E_KEY_CONTEXT_RELOAD:
-			rv = "TCS_E_KEY_CONTEXT_RELOAD";
-			break;
-		case TCS_E_INVALID_CONTEXTHANDLE:
-			rv = "TCS_E_INVALID_CONTEXTHANDLE";
-			break;
-		case TCS_E_INVALID_KEYHANDLE:
-			rv = "TCS_E_INVALID_KEYHANDLE";
-			break;
-		case TCS_E_INVALID_AUTHHANDLE:
-			rv = "TCS_E_INVALID_AUTHHANDLE";
-			break;
-		case TCS_E_INVALID_AUTHSESSION:
-			rv = "TCS_E_INVALID_AUTHSESSION";
-			break;
-		case TCS_E_INVALID_KEY:
-			rv = "TCS_E_INVALID_KEY";
-			break;
-		case TCS_E_KEY_NOT_REGISTERED:
-			rv = "TCS_E_KEY_NOT_REGISTERED";
-			break;
-		case TCS_E_KEY_ALREADY_REGISTERED:
-			rv = "TCS_E_KEY_ALREADY_REGISTERED";
-			break;
-		case TSS_E_INVALID_OBJECT_TYPE:
-			rv = "TSS_E_INVALID_OBJECT_TYPE";
-			break;
-		case TSS_E_INVALID_OBJECT_INIT_FLAG:
-			rv = "TSS_E_INVALID_OBJECT_INIT_FLAG";
-			break;
-		case TSS_E_INVALID_HANDLE:
-			rv = "TSS_E_INVALID_HANDLE";
-			break;
-		case TSS_E_NO_CONNECTION:
-			rv = "TSS_E_NO_CONNECTION";
-			break;
-		case TSS_E_CONNECTION_FAILED:
-			rv = "TSS_E_CONNECTION_FAILED";
-			break;
-		case TSS_E_CONNECTION_BROKEN:
-			rv = "TSS_E_CONNECTION_BROKEN";
-			break;
-		case TSS_E_HASH_INVALID_ALG:
-			rv = "TSS_E_HASH_INVALID_ALG";
-			break;
-		case TSS_E_HASH_INVALID_LENGTH:
-			rv = "TSS_E_HASH_INVALID_LENGTH";
-			break;
-		case TSS_E_HASH_NO_DATA:
-			rv = "TSS_E_HASH_NO_DATA";
-			break;
-		case TSS_E_SILENT_CONTEXT:
-			rv = "TSS_E_SILENT_CONTEXT";
-			break;
-		case TSS_E_INVALID_ATTRIB_FLAG:
-			rv = "TSS_E_INVALID_ATTRIB_FLAG";
-			break;
-		case TSS_E_INVALID_ATTRIB_SUBFLAG:
-			rv = "TSS_E_INVALID_ATTRIB_SUBFLAG";
-			break;
-		case TSS_E_INVALID_ATTRIB_DATA:
-			rv = "TSS_E_INVALID_ATTRIB_DATA";
-			break;
-		case TSS_E_NO_PCRS_SET:
-			rv = "TSS_E_NO_PCRS_SET";
-			break;
-		case TSS_E_KEY_NOT_LOADED:
-			rv = "TSS_E_KEY_NOT_LOADED";
-			break;
-		case TSS_E_KEY_NOT_SET:
-			rv = "TSS_E_KEY_NOT_SET";
-			break;
-		case TSS_E_VALIDATION_FAILED:
-			rv = "TSS_E_VALIDATION_FAILED";
-			break;
-		case TSS_E_TSP_AUTHREQUIRED:
-			rv = "TSS_E_TSP_AUTHREQUIRED";
-			break;
-		case TSS_E_TSP_AUTH2REQUIRED:
-			rv = "TSS_E_TSP_AUTH2REQUIRED";
-			break;
-		case TSS_E_TSP_AUTHFAIL:
-			rv = "TSS_E_TSP_AUTHFAIL";
-			break;
-		case TSS_E_TSP_AUTH2FAIL:
-			rv = "TSS_E_TSP_AUTH2FAIL";
-			break;
-		case TSS_E_KEY_NO_MIGRATION_POLICY:
-			rv = "TSS_E_KEY_NO_MIGRATION_POLICY";
-			break;
-		case TSS_E_POLICY_NO_SECRET:
-			rv = "TSS_E_POLICY_NO_SECRET";
-			break;
-		case TSS_E_INVALID_OBJ_ACCESS:
-			rv = "TSS_E_INVALID_OBJ_ACCESS";
-			break;
-		case TSS_E_INVALID_ENCSCHEME:
-			rv = "TSS_E_INVALID_ENCSCHEME";
-			break;
-		case TSS_E_INVALID_SIGSCHEME:
-			rv = "TSS_E_INVALID_SIGSCHEME";
-			break;
-		case TSS_E_ENC_INVALID_LENGTH:
-			rv = "TSS_E_ENC_INVALID_LENGTH";
-			break;
-		case TSS_E_ENC_NO_DATA:
-			rv = "TSS_E_ENC_NO_DATA";
-			break;
-		case TSS_E_ENC_INVALID_TYPE:
-			rv = "TSS_E_ENC_INVALID_TYPE";
-			break;
-		case TSS_E_INVALID_KEYUSAGE:
-			rv = "TSS_E_INVALID_KEYUSAGE";
-			break;
-		case TSS_E_VERIFICATION_FAILED:
-			rv = "TSS_E_VERIFICATION_FAILED";
-			break;
-		case TSS_E_HASH_NO_IDENTIFIER:
-			rv = "TSS_E_HASH_NO_IDENTIFIER";
-			break;
-		case TCPA_AUTHFAIL:
-			rv = "TCPA_AUTHFAIL";
-			break;
-		case TCPA_BADINDEX:
-			rv = "TCPA_BADINDEX";
-			break;
-		case TCPA_BADPARAMETER:
-			rv = "TCPA_BADPARAMETER";
-			break;
-		case TCPA_AUDITFAILURE:
-			rv = "TCPA_AUDITFAILURE";
-			break;
-		case TCPA_CLEAR_DISABLED:
-			rv = "TCPA_CLEAR_DISABLED";
-			break;
-		case TCPA_DEACTIVATED:
-			rv = "TCPA_DEACTIVATED";
-			break;
-		case TCPA_DISABLED:
-			rv = "TCPA_DISABLED";
-			break;
-		case TCPA_DISABLED_CMD:
-			rv = "TCPA_DISABLED_CMD";
-			break;
-		case TCPA_FAIL:
-			rv = "TCPA_FAIL";
-			break;
-		case TCPA_BAD_ORDINAL:
-			rv = "TCPA_BAD_ORDINAL";
-			break;
-		case TCPA_INSTALL_DISABLED:
-			rv = "TCPA_INSTALL_DISABLED";
-			break;
-		case TCPA_INVALID_KEYHANDLE:
-			rv = "TCPA_INVALID_KEYHANDLE";
-			break;
-		case TCPA_KEYNOTFOUND:
-			rv = "TCPA_KEYNOTFOUND";
-			break;
-		case TCPA_INAPPROPRIATE_ENC:
-			rv = "TCPA_INAPPROPRIATE_ENC";
-			break;
-		case TCPA_MIGRATE_FAIL:
-			rv = "TCPA_MIGRATE_FAIL";
-			break;
-		case TCPA_INVALID_PCR_INFO:
-			rv = "TCPA_INVALID_PCR_INFO";
-			break;
-		case TCPA_NOSPACE:
-			rv = "TCPA_NOSPACE";
-			break;
-		case TCPA_NOSRK:
-			rv = "TCPA_NOSRK";
-			break;
-		case TCPA_NOTSEALED_BLOB:
-			rv = "TCPA_NOTSEALED_BLOB";
-			break;
-		case TCPA_OWNER_SET:
-			rv = "TCPA_OWNER_SET";
-			break;
-		case TCPA_RESOURCES:
-			rv = "TCPA_RESOURCES";
-			break;
-		case TCPA_SHORTRANDOM:
-			rv = "TCPA_SHORTRANDOM";
-			break;
-		case TCPA_SIZE:
-			rv = "TCPA_SIZE";
-			break;
-		case TCPA_WRONGPCRVAL:
-			rv = "TCPA_WRONGPCRVAL";
-			break;
-		case TCPA_BAD_PARAM_SIZE:
-			rv = "TCPA_BAD_PARAM_SIZE";
-			break;
-		case TCPA_SHA_THREAD:
-			rv = "TCPA_SHA_THREAD";
-			break;
-		case TCPA_SHA_ERROR:
-			rv = "TCPA_SHA_ERROR";
-			break;
-		case TCPA_FAILEDSELFTEST:
-			rv = "TCPA_FAILEDSELFTEST";
-			break;
-		case TCPA_AUTH2FAIL:
-			rv = "TCPA_AUTH2FAIL";
-			break;
-		case TCPA_BADTAG:
-			rv = "TCPA_BADTAG";
-			break;
-		case TCPA_IOERROR:
-			rv = "TCPA_IOERROR";
-			break;
-		case TCPA_ENCRYPT_ERROR:
-			rv = "TCPA_ENCRYPT_ERROR";
-			break;
-		case TCPA_DECRYPT_ERROR:
-			rv = "TCPA_DECRYPT_ERROR";
-			break;
-		case TCPA_INVALID_AUTHHANDLE:
-			rv = "TCPA_INVALID_AUTHHANDLE";
-			break;
-		case TCPA_NO_ENDORSEMENT:
-			rv = "TCPA_NO_ENDORSEMENT";
-			break;
-		case TCPA_INVALID_KEYUSAGE:
-			rv = "TCPA_INVALID_KEYUSAGE";
-			break;
-		case TCPA_WRONG_ENTITYTYPE:
-			rv = "TCPA_WRONG_ENTITYTYPE";
-			break;
-		case TCPA_INVALID_POSTINIT:
-			rv = "TCPA_INVALID_POSTINIT";
-			break;
-		case TCPA_INAPPRORIATE_SIG:
-			rv = "TCPA_INAPPRORIATE_SIG";
-			break;
-		case TCPA_BAD_KEY_PROPERTY:
-			rv = "TCPA_BAD_KEY_PROPERTY";
-			break;
-		case TCPA_BAD_MIGRATION:
-			rv = "TCPA_BAD_MIGRATION";
-			break;
-		case TCPA_BAD_SCHEME:
-			rv = "TCPA_BAD_SCHEME";
-			break;
-		case TCPA_BAD_DATASIZE:
-			rv = "TCPA_BAD_DATASIZE";
-			break;
-		case TCPA_BAD_MODE:
-			rv = "TCPA_BAD_MODE";
-			break;
-		case TCPA_BAD_PRESENCE:
-			rv = "TCPA_BAD_PRESENCE";
-			break;
-		case TCPA_BAD_VERSION:
-			rv = "TCPA_BAD_VERSION";
-			break;
-		case TCPA_RETRY:
-			rv = "TCPA_RETRY";
-			break;
-		case 0x99:
-			rv = "0x99";
-			break;
-		case 0x777:
-			rv = "0x777 (unimplemented callback called)";
-			break;
-		case 0x999:
-			rv = "0x999";
-			break;
-		case 0x998:
-			rv = "0x998";
-			break;
-		default:
-			rv = "UNKNOWN";
-			break;
-	}
-	return rv;
-}
 struct option long_options[] = {
 	{"version",	required_argument,	NULL,	'v'},
 	{0,0,0,0}
@@ -468,52 +102,52 @@ char* parseArgs(int argc, char **argv)
 }
 int checkNonAPI(TSS_RESULT result){
 	/* allow all TPM errors to fall within the API */
-	if (   ((result & TSS_ERROR_LAYER_MASK) == TSS_ERROR_LAYER_TPM) ||
-		(result == TSS_E_INVALID_HANDLE) ||
-		(result == TSS_E_INTERNAL_ERROR) ||
-		(result == TSS_E_BAD_PARAMETER) ||
-		(result == TSS_E_KEY_NO_MIGRATION_POLICY) ||
-		(result == TSS_E_FAIL) ||
-		(result == TSS_E_NOTIMPL) ||
-		(result == TSS_E_PS_KEY_NOTFOUND) ||
-		(result == TSS_E_KEY_ALREADY_REGISTERED) ||
-		(result == TSS_E_CANCELLED) ||
-		(result == TSS_E_TIMEOUT) ||
-		(result == TSS_E_OUTOFMEMORY) ||
-		(result == TSS_E_TPM_UNEXPECTED) ||
-		(result == TSS_E_COMM_FAILURE) ||
-		(result == TSS_E_TPM_UNSUPPORTED_FEATURE) ||
-		(result == TSS_E_INVALID_OBJECT_TYPE) ||
-		(result == TSS_E_INVALID_OBJECT_INIT_FLAG) ||
-		(result == TSS_E_NO_CONNECTION) ||
-		(result == TSS_E_CONNECTION_FAILED) ||
-		(result == TSS_E_CONNECTION_BROKEN) ||
-		(result == TSS_E_HASH_INVALID_ALG) ||
-		(result == TSS_E_HASH_INVALID_LENGTH) ||
-		(result == TSS_E_HASH_NO_DATA) ||
-		(result == TSS_E_SILENT_CONTEXT) ||
-		(result == TSS_E_INVALID_ATTRIB_FLAG) ||
-		(result == TSS_E_INVALID_ATTRIB_SUBFLAG) ||
-		(result == TSS_E_NO_PCRS_SET) ||
-		(result == TSS_E_KEY_NOT_LOADED) ||
-		(result == TSS_E_KEY_NOT_SET) ||
-		(result == TSS_E_VALIDATION_FAILED) ||
-		(result == TSS_E_TSP_AUTHREQUIRED) ||
-		(result == TSS_E_TSP_AUTH2REQUIRED) ||
-		(result == TSS_E_TSP_AUTHFAIL) ||
-		(result == TSS_E_TSP_AUTH2FAIL) ||
-		(result == TSS_E_KEY_NO_MIGRATION_POLICY) ||
-		(result == TSS_E_POLICY_NO_SECRET) ||
-		(result == TSS_E_INVALID_OBJ_ACCESS) ||
-		(result == TSS_E_INVALID_ENCSCHEME) ||
-		(result == TSS_E_INVALID_SIGSCHEME) ||
-		(result == TSS_E_ENC_INVALID_LENGTH) ||
-		(result == TSS_E_ENC_NO_DATA) ||
-		(result == TSS_E_ENC_INVALID_TYPE) ||
-		(result == TSS_E_INVALID_KEYUSAGE) ||
-		(result == TSS_E_VERIFICATION_FAILED) ||
-		(result == TSS_E_HASH_NO_IDENTIFIER) ||
-		(result == TSS_SUCCESS))
+	if (   (TSS_ERROR_LAYER(result) == TSS_LAYER_TPM) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_HANDLE) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INTERNAL_ERROR) ||
+		(TSS_ERROR_CODE(result) == TSS_E_BAD_PARAMETER) ||
+		(TSS_ERROR_CODE(result) == TSS_E_KEY_NO_MIGRATION_POLICY) ||
+		(TSS_ERROR_CODE(result) == TSS_E_FAIL) ||
+		(TSS_ERROR_CODE(result) == TSS_E_NOTIMPL) ||
+		(TSS_ERROR_CODE(result) == TSS_E_PS_KEY_NOTFOUND) ||
+		(TSS_ERROR_CODE(result) == TSS_E_KEY_ALREADY_REGISTERED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_CANCELED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_TIMEOUT) ||
+		(TSS_ERROR_CODE(result) == TSS_E_OUTOFMEMORY) ||
+		(TSS_ERROR_CODE(result) == TSS_E_TPM_UNEXPECTED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_COMM_FAILURE) ||
+		(TSS_ERROR_CODE(result) == TSS_E_TPM_UNSUPPORTED_FEATURE) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_TYPE) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJECT_INITFLAG) ||
+		(TSS_ERROR_CODE(result) == TSS_E_NO_CONNECTION) ||
+		(TSS_ERROR_CODE(result) == TSS_E_CONNECTION_FAILED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_CONNECTION_BROKEN) ||
+		(TSS_ERROR_CODE(result) == TSS_E_HASH_INVALID_ALG) ||
+		(TSS_ERROR_CODE(result) == TSS_E_HASH_INVALID_LENGTH) ||
+		(TSS_ERROR_CODE(result) == TSS_E_HASH_NO_DATA) ||
+		(TSS_ERROR_CODE(result) == TSS_E_SILENT_CONTEXT) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_ATTRIB_FLAG) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_ATTRIB_SUBFLAG) ||
+		(TSS_ERROR_CODE(result) == TSS_E_NO_PCRS_SET) ||
+		(TSS_ERROR_CODE(result) == TSS_E_KEY_NOT_LOADED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_KEY_NOT_SET) ||
+		(TSS_ERROR_CODE(result) == TSS_E_VALIDATION_FAILED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_TSP_AUTHREQUIRED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_TSP_AUTH2REQUIRED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_TSP_AUTHFAIL) ||
+		(TSS_ERROR_CODE(result) == TSS_E_TSP_AUTH2FAIL) ||
+		(TSS_ERROR_CODE(result) == TSS_E_KEY_NO_MIGRATION_POLICY) ||
+		(TSS_ERROR_CODE(result) == TSS_E_POLICY_NO_SECRET) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_OBJ_ACCESS) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_ENCSCHEME) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_SIGSCHEME) ||
+		(TSS_ERROR_CODE(result) == TSS_E_ENC_INVALID_LENGTH) ||
+		(TSS_ERROR_CODE(result) == TSS_E_ENC_NO_DATA) ||
+		(TSS_ERROR_CODE(result) == TSS_E_ENC_INVALID_TYPE) ||
+		(TSS_ERROR_CODE(result) == TSS_E_INVALID_KEYUSAGE) ||
+		(TSS_ERROR_CODE(result) == TSS_E_VERIFICATION_FAILED) ||
+		(TSS_ERROR_CODE(result) == TSS_E_HASH_NO_IDENTIFIER) ||
+		(TSS_ERROR_CODE(result) == TSS_SUCCESS))
 			return 0;
 
 	else
@@ -546,7 +180,7 @@ get_server(char *server_name)
 		exit(19);
 	}
 
-	rc = mbstowcs(srv, server_name, strlen(server_name) + 1);
+	rc = mbstowcs((wchar_t *)srv, server_name, strlen(server_name) + 1);
 	if (rc == (size_t)(-1)) {
 		fprintf(stderr, "failed to convert server %s to UNICODE.", server_name);
 		exit(19);
@@ -567,3 +201,164 @@ print_hex( BYTE *buf, UINT32 len )
 	}
 }
 
+
+char *
+err_string(TSS_RESULT r)
+{
+	/* Check the return code to see if it is common to all layers.
+	 * If so, return it.
+	 */
+	switch (TSS_ERROR_CODE(r)) {
+		case TSS_SUCCESS:			return "TSS_SUCCESS";
+		default:
+			break;
+	}
+
+	/* The return code is either unknown, or specific to a layer */
+	if (TSS_ERROR_LAYER(r) == TSS_LAYER_TPM) {
+		switch (TSS_ERROR_CODE(r)) {
+			case TCPA_E_AUTHFAIL:		return "TCPA_E_AUTHFAIL";
+			case TCPA_E_BADINDEX:		return "TCPA_E_BADINDEX";
+			case TCPA_E_AUDITFAILURE:	return "TCPA_E_AUDITFAILURE";
+			case TCPA_E_CLEAR_DISABLED:	return "TCPA_E_CLEAR_DISABLED";
+			case TCPA_E_DEACTIVATED:	return "TCPA_E_DEACTIVATED";
+			case TCPA_E_DISABLED:		return "TCPA_E_DISABLED";
+			case TCPA_E_DISABLED_CMD:	return "TCPA_E_DISABLED_CMD";
+			case TCPA_E_FAIL:		return "TCPA_E_FAIL";
+			case TCPA_E_INACTIVE:		return "TCPA_E_INACTIVE";
+			case TCPA_E_INSTALL_DISABLED:	return "TCPA_E_INSTALL_DISABLED";
+			case TCPA_E_INVALID_KEYHANDLE:	return "TCPA_E_INVALID_KEYHANDLE";
+			case TCPA_E_KEYNOTFOUND:	return "TCPA_E_KEYNOTFOUND";
+			case TCPA_E_NEED_SELFTEST:	return "TCPA_E_NEED_SELFTEST";
+			case TCPA_E_MIGRATEFAIL:	return "TCPA_E_MIGRATEFAIL";
+			case TCPA_E_NO_PCR_INFO:	return "TCPA_E_NO_PCR_INFO";
+			case TCPA_E_NOSPACE:		return "TCPA_E_NOSPACE";
+			case TCPA_E_NOSRK:		return "TCPA_E_NOSRK";
+			case TCPA_E_NOTSEALED_BLOB:	return "TCPA_E_NOTSEALED_BLOB";
+			case TCPA_E_OWNER_SET:		return "TCPA_E_OWNER_SET";
+			case TCPA_E_RESOURCES:		return "TCPA_E_RESOURCES";
+			case TCPA_E_SHORTRANDOM:	return "TCPA_E_SHORTRANDOM";
+			case TCPA_E_SIZE:		return "TCPA_E_SIZE";
+			case TCPA_E_WRONGPCRVAL:	return "TCPA_E_WRONGPCRVAL";
+			case TCPA_E_BAD_PARAM_SIZE:	return "TCPA_E_BAD_PARAM_SIZE";
+			case TCPA_E_SHA_THREAD:		return "TCPA_E_SHA_THREAD";
+			case TCPA_E_SHA_ERROR:		return "TCPA_E_SHA_ERROR";
+			case TCPA_E_FAILEDSELFTEST:	return "TCPA_E_FAILEDSELFTEST";
+			case TCPA_E_AUTH2FAIL:		return "TCPA_E_AUTH2FAIL";
+			case TCPA_E_BADTAG:		return "TCPA_E_BADTAG";
+			case TCPA_E_IOERROR:		return "TCPA_E_IOERROR";
+			case TCPA_E_ENCRYPT_ERROR:	return "TCPA_E_ENCRYPT_ERROR";
+			case TCPA_E_DECRYPT_ERROR:	return "TCPA_E_DECRYPT_ERROR";
+			case TCPA_E_INVALID_AUTHHANDLE:	return "TCPA_E_INVALID_AUTHHANDLE";
+			case TCPA_E_NO_ENDORSEMENT:	return "TCPA_E_NO_ENDORSEMENT";
+			case TCPA_E_INVALID_KEYUSAGE:	return "TCPA_E_INVALID_KEYUSAGE";
+			case TCPA_E_WRONG_ENTITYTYPE:	return "TCPA_E_WRONG_ENTITYTYPE";
+			case TCPA_E_INVALID_POSTINIT:	return "TCPA_E_INVALID_POSTINIT";
+			case TCPA_E_INAPPROPRIATE_SIG:	return "TCPA_E_INAPPROPRIATE_SIG";
+			case TCPA_E_BAD_KEY_PROPERTY:	return "TCPA_E_BAD_KEY_PROPERTY";
+			case TCPA_E_BAD_MIGRATION:	return "TCPA_E_BAD_MIGRATION";
+			case TCPA_E_BAD_SCHEME:		return "TCPA_E_BAD_SCHEME";
+			case TCPA_E_BAD_DATASIZE:	return "TCPA_E_BAD_DATASIZE";
+			case TCPA_E_BAD_MODE:		return "TCPA_E_BAD_MODE";
+			case TCPA_E_BAD_PRESENCE:	return "TCPA_E_BAD_PRESENCE";
+			case TCPA_E_BAD_VERSION:	return "TCPA_E_BAD_VERSION";
+			case TCPA_E_RETRY:		return "TCPA_E_RETRY";
+			default:			return "UNKNOWN TPM ERROR";
+		}
+	} else if (TSS_ERROR_LAYER(r) == TSS_LAYER_TDDL) {
+		switch (TSS_ERROR_CODE(r)) {
+			case TSS_E_FAIL:			return "TSS_E_FAIL";
+			case TSS_E_BAD_PARAMETER:		return "TSS_E_BAD_PARAMETER";
+			case TSS_E_INTERNAL_ERROR:		return "TSS_E_INTERNAL_ERROR";
+			case TSS_E_NOTIMPL:			return "TSS_E_NOTIMPL";
+			case TSS_E_PS_KEY_NOTFOUND:		return "TSS_E_PS_KEY_NOTFOUND";
+			case TSS_E_KEY_ALREADY_REGISTERED:	return "TSS_E_KEY_ALREADY_REGISTERED";
+			case TSS_E_CANCELED:			return "TSS_E_CANCELED";
+			case TSS_E_TIMEOUT:			return "TSS_E_TIMEOUT";
+			case TSS_E_OUTOFMEMORY:			return "TSS_E_OUTOFMEMORY";
+			case TSS_E_TPM_UNEXPECTED:		return "TSS_E_TPM_UNEXPECTED";
+			case TSS_E_COMM_FAILURE:		return "TSS_E_COMM_FAILURE";
+			case TSS_E_TPM_UNSUPPORTED_FEATURE:	return "TSS_E_TPM_UNSUPPORTED_FEATURE";
+			case TDDL_E_COMPONENT_NOT_FOUND:	return "TDDL_E_COMPONENT_NOT_FOUND";
+			case TDDL_E_ALREADY_OPENED:		return "TDDL_E_ALREADY_OPENED";
+			case TDDL_E_BADTAG:			return "TDDL_E_BADTAG";
+			case TDDL_E_INSUFFICIENT_BUFFER:	return "TDDL_E_INSUFFICIENT_BUFFER";
+			case TDDL_E_COMMAND_COMPLETED:		return "TDDL_E_COMMAND_COMPLETED";
+			case TDDL_E_ALREADY_CLOSED:		return "TDDL_E_ALREADY_CLOSED";
+			case TDDL_E_IOERROR:			return "TDDL_E_IOERROR";
+			default:				return "UNKNOWN TDDL ERROR";
+		}
+	} else if (TSS_ERROR_LAYER(r) == TSS_LAYER_TCS) {
+		switch (TSS_ERROR_CODE(r)) {
+			case TSS_E_FAIL:			return "TSS_E_FAIL";
+			case TSS_E_BAD_PARAMETER:		return "TSS_E_BAD_PARAMETER";
+			case TSS_E_INTERNAL_ERROR:		return "TSS_E_INTERNAL_ERROR";
+			case TSS_E_NOTIMPL:			return "TSS_E_NOTIMPL";
+			case TSS_E_PS_KEY_NOTFOUND:		return "TSS_E_PS_KEY_NOTFOUND";
+			case TSS_E_KEY_ALREADY_REGISTERED:	return "TSS_E_KEY_ALREADY_REGISTERED";
+			case TSS_E_CANCELED:			return "TSS_E_CANCELED";
+			case TSS_E_TIMEOUT:			return "TSS_E_TIMEOUT";
+			case TSS_E_OUTOFMEMORY:			return "TSS_E_OUTOFMEMORY";
+			case TSS_E_TPM_UNEXPECTED:		return "TSS_E_TPM_UNEXPECTED";
+			case TSS_E_COMM_FAILURE:		return "TSS_E_COMM_FAILURE";
+			case TSS_E_TPM_UNSUPPORTED_FEATURE:	return "TSS_E_TPM_UNSUPPORTED_FEATURE";
+			case TCS_E_KEY_MISMATCH:		return "TCS_E_KEY_MISMATCH";
+			case TCS_E_KM_LOADFAILED:		return "TCS_E_KM_LOADFAILED";
+			case TCS_E_KEY_CONTEXT_RELOAD:		return "TCS_E_KEY_CONTEXT_RELOAD";
+			case TCS_E_INVALID_CONTEXTHANDLE:	return "TCS_E_INVALID_CONTEXTHANDLE";
+			case TCS_E_INVALID_KEYHANDLE:		return "TCS_E_INVALID_KEYHANDLE";
+			case TCS_E_INVALID_AUTHHANDLE:		return "TCS_E_INVALID_AUTHHANDLE";
+			case TCS_E_INVALID_AUTHSESSION:		return "TCS_E_INVALID_AUTHSESSION";
+			case TCS_E_INVALID_KEY:			return "TCS_E_INVALID_KEY";
+			default:				return "UNKNOWN TCS ERROR";
+		}
+	} else {
+		switch (TSS_ERROR_CODE(r)) {
+			case TSS_E_FAIL:			return "TSS_E_FAIL";
+			case TSS_E_BAD_PARAMETER:		return "TSS_E_BAD_PARAMETER";
+			case TSS_E_INTERNAL_ERROR:		return "TSS_E_INTERNAL_ERROR";
+			case TSS_E_NOTIMPL:			return "TSS_E_NOTIMPL";
+			case TSS_E_PS_KEY_NOTFOUND:		return "TSS_E_PS_KEY_NOTFOUND";
+			case TSS_E_KEY_ALREADY_REGISTERED:	return "TSS_E_KEY_ALREADY_REGISTERED";
+			case TSS_E_CANCELED:			return "TSS_E_CANCELED";
+			case TSS_E_TIMEOUT:			return "TSS_E_TIMEOUT";
+			case TSS_E_OUTOFMEMORY:			return "TSS_E_OUTOFMEMORY";
+			case TSS_E_TPM_UNEXPECTED:		return "TSS_E_TPM_UNEXPECTED";
+			case TSS_E_COMM_FAILURE:		return "TSS_E_COMM_FAILURE";
+			case TSS_E_TPM_UNSUPPORTED_FEATURE:	return "TSS_E_TPM_UNSUPPORTED_FEATURE";
+			case TSS_E_INVALID_OBJECT_TYPE:		return "TSS_E_INVALID_OBJECT_TYPE";
+			case TSS_E_INVALID_OBJECT_INITFLAG:	return "TSS_E_INVALID_OBJECT_INITFLAG";
+			case TSS_E_INVALID_HANDLE:		return "TSS_E_INVALID_HANDLE";
+			case TSS_E_NO_CONNECTION:		return "TSS_E_NO_CONNECTION";
+			case TSS_E_CONNECTION_FAILED:		return "TSS_E_CONNECTION_FAILED";
+			case TSS_E_CONNECTION_BROKEN:		return "TSS_E_CONNECTION_BROKEN";
+			case TSS_E_HASH_INVALID_ALG:		return "TSS_E_HASH_INVALID_ALG";
+			case TSS_E_HASH_INVALID_LENGTH:		return "TSS_E_HASH_INVALID_LENGTH";
+			case TSS_E_HASH_NO_DATA:		return "TSS_E_HASH_NO_DATA";
+			case TSS_E_SILENT_CONTEXT:		return "TSS_E_SILENT_CONTEXT";
+			case TSS_E_INVALID_ATTRIB_FLAG:		return "TSS_E_INVALID_ATTRIB_FLAG";
+			case TSS_E_INVALID_ATTRIB_SUBFLAG:	return "TSS_E_INVALID_ATTRIB_SUBFLAG";
+			case TSS_E_INVALID_ATTRIB_DATA:		return "TSS_E_INVALID_ATTRIB_DATA";
+			case TSS_E_NO_PCRS_SET:			return "TSS_E_NO_PCRS_SET";
+			case TSS_E_KEY_NOT_LOADED:		return "TSS_E_KEY_NOT_LOADED";
+			case TSS_E_KEY_NOT_SET:			return "TSS_E_KEY_NOT_SET";
+			case TSS_E_VALIDATION_FAILED:		return "TSS_E_VALIDATION_FAILED";
+			case TSS_E_TSP_AUTHREQUIRED:		return "TSS_E_TSP_AUTHREQUIRED";
+			case TSS_E_TSP_AUTH2REQUIRED:		return "TSS_E_TSP_AUTH2REQUIRED";
+			case TSS_E_TSP_AUTHFAIL:		return "TSS_E_TSP_AUTHFAIL";
+			case TSS_E_TSP_AUTH2FAIL:		return "TSS_E_TSP_AUTH2FAIL";
+			case TSS_E_KEY_NO_MIGRATION_POLICY:	return "TSS_E_KEY_NO_MIGRATION_POLICY";
+			case TSS_E_POLICY_NO_SECRET:		return "TSS_E_POLICY_NO_SECRET";
+			case TSS_E_INVALID_OBJ_ACCESS:		return "TSS_E_INVALID_OBJ_ACCESS";
+			case TSS_E_INVALID_ENCSCHEME:		return "TSS_E_INVALID_ENCSCHEME";
+			case TSS_E_INVALID_SIGSCHEME:		return "TSS_E_INVALID_SIGSCHEME";
+			case TSS_E_ENC_INVALID_LENGTH:		return "TSS_E_ENC_INVALID_LENGTH";
+			case TSS_E_ENC_NO_DATA:			return "TSS_E_ENC_NO_DATA";
+			case TSS_E_ENC_INVALID_TYPE:		return "TSS_E_ENC_INVALID_TYPE";
+			case TSS_E_INVALID_KEYUSAGE:		return "TSS_E_INVALID_KEYUSAGE";
+			case TSS_E_VERIFICATION_FAILED:		return "TSS_E_VERIFICATION_FAILED";
+			case TSS_E_HASH_NO_IDENTIFIER:		return "TSS_E_HASH_NO_IDENTIFIER";
+			default:				return "UNKNOWN TSS ERROR";
+		}
+	}
+}

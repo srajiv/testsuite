@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -37,10 +37,9 @@
  *		LoadKeyByUUID
  *		Get Policy Object (srk)
  *		Set Secret (srk)
- *		Get Policy Object (key, x2)
- *		Set Secret (key, x2)
+ *		Get Policy Object (key)
+ *		Set Secret (key)
  *		Create Key
- *		SetAttribUint32 (x2)
  *		RegisterKey
  *
  *	Test:	Call GetKeyByPublicInfo. If this is unsuccessful check for 
@@ -66,7 +65,7 @@
  * RESTRICTIONS
  *	None.
  */ 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 extern int commonErrors(TSS_RESULT result);
@@ -92,19 +91,20 @@ main_v1_1(void){
 	char		*nameOfFunction = "Tspi_Context_GetKeyByPublicInfo02";
 	TSS_HCONTEXT	hContext;
 	TSS_HTPM	hTPM;
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
 	TSS_HKEY	hSRK;
 	TSS_RESULT	result;
 	TSS_UUID	migratableSignUUID={1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2};
-	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
+	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy;
 	TSS_HKEY	hMSigningKey;
 	UINT32		ulPublicKeyLength = 2048;
 	BYTE*		rgbPublicKeyInfo;
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
-	TSS_FLAGS	wrongType;
+	TSS_FLAG	wrongType;
+	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
 	
 	wrongType = (TSS_PS_TYPE_SYSTEM + TSS_PS_TYPE_USER);
 	print_begin_test(nameOfFunction);
@@ -182,30 +182,10 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Get Policy Object for the keyMigPolicy
-	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_MIGRATION, &keyMigPolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Set Secret 
-	result = Tspi_Policy_SetSecret(keyMigPolicy, 
-				TSS_SECRET_MODE_SHA1, 
-				20, TSS_WELL_KNOWN_SECRET);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy, 
 				TSS_SECRET_MODE_SHA1, 
-				20, TSS_WELL_KNOWN_SECRET);
+				20, well_known_secret);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -222,36 +202,23 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//SetAttribUint32
-	result = Tspi_SetAttribUint32(hKey, TSS_TSPATTRIB_KEY_INFO,
-				TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
-				TSS_ES_NONE);
-	if (result != TSS_SUCCESS) { 
-		print_error("Tspi_SetAttribUint32 ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//SetAttribUint32
-	result = Tspi_SetAttribUint32(hKey, TSS_TSPATTRIB_KEY_INFO,
-				TSS_TSPATTRIB_KEYINFO_SIGSCHEME,
-				TSS_ES_NONE);
-	if (result != TSS_SUCCESS) { 
-		print_error("Tspi_SetAttribUint32 ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Register the hKey
 	result = Tspi_Context_RegisterKey(hContext,
 				hKey, TSS_PS_TYPE_SYSTEM, migratableSignUUID,
 				TSS_PS_TYPE_SYSTEM, SRK_UUID);
-	if (result != TSS_SUCCESS && result != TCS_E_KEY_ALREADY_REGISTERED) { 
+	if (result != TSS_SUCCESS &&
+			TSS_ERROR_CODE(result) != TSS_E_KEY_ALREADY_REGISTERED) {
 		print_error("Tspi_Context_RegisterKey ", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Create the hKey with the hSRK wrapping key
+	result = Tspi_Context_CloseObject(hContext, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CloseObject ", result);
+		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -260,7 +227,7 @@ main_v1_1(void){
 			wrongType, TSS_ALG_RSA, 
 			ulPublicKeyLength,
 			rgbPublicKeyInfo, &hKey);
-	if (result != TSS_E_BAD_PARAMETER) {
+	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

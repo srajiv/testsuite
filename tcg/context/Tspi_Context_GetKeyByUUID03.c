@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -61,10 +61,11 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <stdlib.h>
+
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
 
 int
 main( int argc, char **argv )
@@ -185,7 +186,7 @@ main_v1_1( void )
 						TSS_PS_TYPE_SYSTEM,
 						SRKUUID );
 	if ( (result != TSS_SUCCESS) &&
-		(result != TCS_E_KEY_ALREADY_REGISTERED) )
+		(TSS_ERROR_CODE(result) != TSS_E_KEY_ALREADY_REGISTERED))
 	{
 		print_error( "Tspi_Context_RegisterKey", result );
 		print_error_exit( function, err_string(result) );
@@ -201,7 +202,7 @@ main_v1_1( void )
 	result = Tspi_Context_GetKeyByUUID( whContext, TSS_PS_TYPE_SYSTEM,
 						migratableSignUUID,
 						&hMSigningKey );
-	if ( result != TSS_E_INVALID_HANDLE )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{

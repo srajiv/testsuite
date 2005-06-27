@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,6 +56,9 @@ void print_hex(BYTE *, UINT32);
 
 int main_v1_1();
 
+extern TSS_UUID SRK_UUID;
+
+#if 0
 /* uuids for use in test cases */
 TSS_UUID uuid1 = {1,2,4,8,6,{2,4,8,2,4,8}};
 TSS_UUID uuid2 = {1,3,6,9,7,{3,6,9,3,6,9}};
@@ -67,6 +70,7 @@ TSS_UUID uuid7 = {2,7,1,8,2,{8,1,8,2,8,5}};
 TSS_UUID uuid8 = {1,7,3,2,0,{5,0,8,0,7,5}};
 TSS_UUID uuid9 = {1,4,1,4,2,{1,3,5,6,2,3}};
 TSS_UUID uuid0 = {2,3,5,7,5,{1,9,9,2,7,3}};
+#endif
 
 /* Storage root key password */
 #define KEY_PWD		"KEY PWD"
@@ -92,8 +96,20 @@ TSS_UUID uuid0 = {2,3,5,7,5,{1,9,9,2,7,3}};
 #define print_end_test(function) printf("Cleaning up %s\n<<<end_test>>>\n", function);
 #define print_error_exit(function,result) printf("%s testing failed with %s\n", function, result);
 
+/* use get_server as a generic UNICODE conversion routine */
 #define char_to_unicode	get_server
 
 #define GLOBALSERVER	NULL
+
+#define TSS_ERROR_CODE(x)	(x & 0xFFF)
+#define TSS_ERROR_LAYER(x)	(x & 0x3000)
+
+#define NULL_HOBJECT	0
+#define NULL_HKEY	NULL_HOBJECT
+#define NULL_HPCRS	NULL_HOBJECT
+#define NULL_HHASH	NULL_HOBJECT
+#define NULL_HENCDATA	NULL_HOBJECT
+#define NULL_HTPM	NULL_HOBJECT
+#define NULL_HCONTEXT	NULL_HOBJECT
 
 #endif
