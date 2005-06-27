@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,11 +56,11 @@
  * RESTRICTIONS
  *	None.
  */
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv)
 {
@@ -127,7 +127,7 @@ main_v1_1(void){
 	result = Tspi_TPM_AuthorizeMigrationTicket(-1, 
 			hTargetPubKey, TSS_MS_REWRAP,
 			&TicketLength, &MigTicket); 
-	if (result != TSS_E_INVALID_HANDLE) {
+	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

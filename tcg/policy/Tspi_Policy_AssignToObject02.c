@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -57,10 +57,9 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
 
 int
 main( int argc, char **argv )
@@ -89,7 +88,7 @@ main_v1_1( void )
 	TSS_HTPM		hTPM;
 	TSS_HTPM		hHash;
 	UINT32			exitCode;
-	TSS_FLAGS		initFlags = TSS_KEY_TYPE_SIGNING |
+	TSS_FLAG		initFlags = TSS_KEY_TYPE_SIGNING |
 						TSS_KEY_SIZE_2048 |
 						TSS_KEY_VOLATILE |
 						TSS_KEY_NO_AUTHORIZATION |
@@ -188,7 +187,7 @@ main_v1_1( void )
 
 	// assign policy to object
 	result = Tspi_Policy_AssignToObject( whPolicy, hObject );
-	if ( result != TSS_E_INVALID_HANDLE )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -208,7 +207,7 @@ main_v1_1( void )
 	}
 
 	result = Tspi_Policy_AssignToObject( hPolicy, hHash );
-	if ( result != TSS_E_BAD_PARAMETER )
+	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -227,7 +226,7 @@ main_v1_1( void )
 	}
 
 	result = Tspi_Policy_AssignToObject( whPolicy, hEncData );
-	if ( result != TSS_E_INVALID_HANDLE )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -246,7 +245,7 @@ main_v1_1( void )
 	}
 
 	result = Tspi_Policy_AssignToObject( whPolicy, hTPM );
-	if ( result != TSS_E_INVALID_HANDLE )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{

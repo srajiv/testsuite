@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -52,11 +52,11 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 
-extern int commonErrors(TSS_RESULT result);
+
 int main(int argc, char **argv)
 {
 	char		*version;
@@ -99,21 +99,21 @@ main_v1_1(void){
 	}
 		//Get Test Result
 	result = Tspi_TPM_GetTestResult(hTPM, &TestResultLength, &prgbTestResult);
-	if (result != TSS_E_INVALID_HANDLE) {
-		if((result == TSS_E_INTERNAL_ERROR) ||
+	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
+		if((TSS_ERROR_CODE(result) == TSS_E_INTERNAL_ERROR) ||
 			(result == TSS_SUCCESS) ||
-			(result == TSS_E_BAD_PARAMETER) ||
-			(result == TSS_E_KEY_NO_MIGRATION_POLICY) ||
-			(result == TSS_E_FAIL) ||
-			(result == TSS_E_NOTIMPL) ||
-			(result == TSS_E_PS_KEY_NOTFOUND) ||
-			(result == TSS_E_KEY_ALREADY_REGISTERED) ||
-			(result == TSS_E_CANCELLED) ||
-			(result == TSS_E_TIMEOUT) ||
-			(result == TSS_E_OUTOFMEMORY) ||
-			(result == TSS_E_TPM_UNEXPECTED) ||
-			(result == TSS_E_COMM_FAILURE) ||
-			(result == TSS_E_TPM_UNSUPPORTED_FEATURE)){
+			(TSS_ERROR_CODE(result) == TSS_E_BAD_PARAMETER) ||
+			(TSS_ERROR_CODE(result) == TSS_E_KEY_NO_MIGRATION_POLICY) ||
+			(TSS_ERROR_CODE(result) == TSS_E_FAIL) ||
+			(TSS_ERROR_CODE(result) == TSS_E_NOTIMPL) ||
+			(TSS_ERROR_CODE(result) == TSS_E_PS_KEY_NOTFOUND) ||
+			(TSS_ERROR_CODE(result) == TSS_E_KEY_ALREADY_REGISTERED) ||
+			(TSS_ERROR_CODE(result) == TSS_E_CANCELED) ||
+			(TSS_ERROR_CODE(result) == TSS_E_TIMEOUT) ||
+			(TSS_ERROR_CODE(result) == TSS_E_OUTOFMEMORY) ||
+			(TSS_ERROR_CODE(result) == TSS_E_TPM_UNEXPECTED) ||
+			(TSS_ERROR_CODE(result) == TSS_E_COMM_FAILURE) ||
+			(TSS_ERROR_CODE(result) == TSS_E_TPM_UNSUPPORTED_FEATURE)){
 
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

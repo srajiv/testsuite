@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 int
@@ -79,7 +79,7 @@ main_v1_1( void )
 	TSS_HCONTEXT		hContext;
 	TSS_HTPM		hTPM;
 	TSS_HPOLICY		hPolicy;
-	BOOL			state;
+	TSS_BOOL			state;
 	TSS_RESULT		result;
 	UINT32			exitCode;
 
