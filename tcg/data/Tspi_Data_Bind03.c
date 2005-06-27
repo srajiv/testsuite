@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -58,10 +58,9 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
 
 int
 main( int argc, char **argv )
@@ -163,7 +162,7 @@ main_v1_1( void )
 
 		// Data Bind
 	result = Tspi_Data_Bind( hEncData, hKey, ulDataLength, NULL );
-	if ( result != TSS_E_BAD_PARAMETER )
+	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		if( !(checkNonAPI(result)) )
 		{

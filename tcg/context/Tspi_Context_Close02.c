@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -46,10 +46,12 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <stdlib.h>
+
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv)
 {
@@ -76,7 +78,7 @@ main_v1_1(void){
 
 		//Close Context
 	result = Tspi_Context_Close(hContext);
-	if (result != TSS_E_INVALID_HANDLE) {
+	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
