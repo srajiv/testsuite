@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -80,11 +80,10 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv)
 {
@@ -111,13 +110,14 @@ main_v1_1(void){
 	TSS_HCONTEXT	hContext;
 	TSS_UUID	migratableSignUUID = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2};
 	TSS_RESULT	result;
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
 	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy;
 	BYTE		*data;
 	TSS_HTPM	hTPM;
+	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
 
 	print_begin_test(nameOfFunction);
 
@@ -197,7 +197,7 @@ main_v1_1(void){
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
 				TSS_SECRET_MODE_PLAIN,
-				20, TSS_WELL_KNOWN_SECRET);
+				20, well_known_secret);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -230,7 +230,7 @@ main_v1_1(void){
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
 				TSS_SECRET_MODE_PLAIN,
-				20, TSS_WELL_KNOWN_SECRET);
+				20, well_known_secret);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -284,7 +284,7 @@ main_v1_1(void){
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
 				TSS_SECRET_MODE_PLAIN,
-				20, TSS_WELL_KNOWN_SECRET);
+				20, well_known_secret);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -331,7 +331,7 @@ main_v1_1(void){
 	result = Tspi_Context_RegisterKey(hContext, hIdentKey,
 				TSS_PS_TYPE_SYSTEM, migratableSignUUID,
 				TSS_PS_TYPE_SYSTEM, SRK_UUID);
-	if (result == TSS_SUCCESS && result != TCS_E_KEY_ALREADY_REGISTERED) {
+	if (result == TSS_SUCCESS && TSS_ERROR_CODE(result) != TSS_E_KEY_ALREADY_REGISTERED) {
 		print_error("Tspi_Context_RegisterKey ", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
@@ -354,7 +354,7 @@ main_v1_1(void){
 		//Call Key Certify Key
 	result = Tspi_Key_CertifyKey(NonMigratableSigningKey, 
 					hIdentKey, NULL);
-	if (result != TSS_E_BAD_PARAMETER){
+	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER){
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

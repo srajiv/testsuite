@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -75,11 +75,10 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv ){
 
@@ -92,7 +91,7 @@ int main(int argc, char **argv ){
 	TSS_HKEY	hIdentKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
@@ -100,6 +99,7 @@ int main(int argc, char **argv ){
 	TSS_VALIDATION	pValidationData;
 	BYTE		*data;
 	TSS_HTPM	hTPM;
+	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
 
 		//Check the Version
 	version = parseArgs(argc, argv);	
@@ -186,7 +186,7 @@ int main(int argc, char **argv ){
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
 				TSS_SECRET_MODE_PLAIN,
-				20, TSS_WELL_KNOWN_SECRET);
+				20, well_known_secret);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -219,7 +219,7 @@ int main(int argc, char **argv ){
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
 				TSS_SECRET_MODE_PLAIN,
-				20, TSS_WELL_KNOWN_SECRET);
+				20, well_known_secret);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -272,7 +272,7 @@ int main(int argc, char **argv ){
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
 				TSS_SECRET_MODE_PLAIN,
-				20, TSS_WELL_KNOWN_SECRET);
+				20, well_known_secret);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -313,13 +313,12 @@ int main(int argc, char **argv ){
 		exit(result);
 	}
 
-	pValidationData.ulExternalDataLength = 20;
-	pValidationData.rgbExternalData = (char *) malloc(20);
-	memcpy( pValidationData.rgbExternalData, &data, 20);
+	pValidationData.DataLength = 20;
+	memcpy( &pValidationData.ExternalData, &data, 20);
 	//Call Key Certify Key
 	result = Tspi_Key_CertifyKey(NonMigratableSigningKey, 
 					hIdentKey, &pValidationData);
-	if (result != TSS_E_INVALID_HANDLE){
+	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE){
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
