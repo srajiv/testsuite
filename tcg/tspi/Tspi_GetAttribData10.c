@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 // 256 bytes
@@ -79,8 +79,7 @@ BYTE privKey[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 		   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 		   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv)
 {
@@ -99,7 +98,7 @@ int main(int argc, char **argv)
 main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_GetAttribData10";
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
 	TSS_HCONTEXT	hContext;
 	TSS_HPOLICY	hKeyPolicy, srkUsagePolicy;
@@ -138,6 +137,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+#if 0
 		//Load Key by UUID for SRK
 	result = Tspi_Context_LoadKeyByUUID(hContext, TSS_PS_TYPE_SYSTEM,
 				SRK_UUID, &hSRK);
@@ -166,7 +166,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-
+#endif
 
 		// Set the private key data as if we were creating a legacy key
 	result = Tspi_SetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB,

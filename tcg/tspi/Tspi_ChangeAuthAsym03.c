@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -64,11 +64,10 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv)
 {
@@ -98,7 +97,7 @@ main_v1_1(void){
 	TSS_HKEY	hMStorageKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
@@ -218,7 +217,7 @@ main_v1_1(void){
 	}
 		//Call to Change Auth Asym
 	result = Tspi_ChangeAuthAsym(hMSigningKey, 0, hAIK, hPolicy);
-	if (result != TSS_E_BAD_PARAMETER) {
+	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

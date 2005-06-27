@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -57,10 +57,10 @@
  * RESTRICTIONS
  *	None.
  */
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
+
 
 int main(int argc, char **argv)
 {
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_GetAttribData03";
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
@@ -131,7 +131,7 @@ main_v1_1(void){
 			-1 /*TSS_TSPATTRIB_KEY_BLOB*/, 
 			TSS_TSPATTRIB_POLICY_CALLBACK_HMAC,
 			&BlobLength, &BLOB);
-	if (result != TSS_E_INVALID_ATTRIB_FLAG) {
+	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_ATTRIB_FLAG) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

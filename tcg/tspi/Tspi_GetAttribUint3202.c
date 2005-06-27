@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 int
@@ -109,7 +109,7 @@ main_v1_1( void )
 					TSS_TSPATTRIB_KEY_INFO,
 					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
 					&ES );
-	if ( result != TSS_E_INVALID_HANDLE )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -133,7 +133,7 @@ main_v1_1( void )
 					TSS_TSPATTRIB_KEY_INFO,
 					TSS_TSPATTRIB_KEYINFO_SIGSCHEME,
 					&SS );
-	if ( result != TSS_E_INVALID_HANDLE )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{

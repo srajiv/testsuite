@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -57,10 +57,10 @@
  */
 
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
+
 
 int main(int argc, char **argv)
 {
@@ -118,7 +118,7 @@ main_v1_1(void){
 	result = Tspi_SetAttribData(hPolicy, 
 			TSS_TSPATTRIB_POLICY_POPUPSTRING, 
 			0, 999999, POPUPSTRING);
-	if (result != TSS_E_BAD_PARAMETER) {
+	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

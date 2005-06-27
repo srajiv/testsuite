@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
 int
@@ -84,7 +84,7 @@ main_v1_1( void )
 	TSS_HCONTEXT		hContext;
 	TSS_RESULT		result;
 	UINT32			exitCode;
-	TSS_FLAGS		initFlags = TSS_KEY_TYPE_SIGNING |
+	TSS_FLAG		initFlags = TSS_KEY_TYPE_SIGNING |
 						TSS_KEY_SIZE_2048 |
 						TSS_KEY_VOLATILE |
 						TSS_KEY_NO_AUTHORIZATION |
@@ -130,7 +130,7 @@ main_v1_1( void )
 					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
 					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
 					TSS_ES_NONE );
-	if ( result != TSS_E_INVALID_ATTRIB_FLAG )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_ATTRIB_FLAG )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -154,7 +154,7 @@ main_v1_1( void )
 					TSS_TSPATTRIB_KEY_INFO,
 					TSS_TSPATTRIB_KEY_INFO,
 					TSS_SS_NONE );
-	if ( result != TSS_E_INVALID_ATTRIB_SUBFLAG )
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_ATTRIB_SUBFLAG )
 	{
 		if( !(checkNonAPI(result)) )
 		{

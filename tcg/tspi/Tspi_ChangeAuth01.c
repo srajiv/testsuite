@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
  *	Setup:
  *		Create Context
  *		Connect
- *		Create hKey
+ *		Create hKeyChild
  *		Load Key By UUID for hSRK
  *		Get Policy Object for the srk
  *		Set Secret
@@ -46,8 +46,7 @@
  *	Cleanup:
  *		Free memory associated with the context
  *		Close hMSigningKey Object
- *		Close hMStorageKey Object
- *		Close hKey Object
+ *		Close hKeyChild Object
  *		Close context
  *		Print error/success message
  *
@@ -65,11 +64,10 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv)
 {
@@ -88,12 +86,11 @@ int main(int argc, char **argv)
 main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_ChangeAuth01";
-	TSS_HKEY	hKey;
-	TSS_HKEY	hSRK;
-	TSS_HPOLICY	srkUsagePolicy, hKeyPolicy, hNewPolicy;
+	TSS_HKEY	hKeyChild, hKeyParent, hSRK;
+	TSS_HPOLICY	srkUsagePolicy, hKeyChildPolicy, hKeyParentPolicy, hNewPolicy;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
@@ -115,17 +112,11 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Create hKey
-	result = Tspi_Context_CreateObject(hContext,
-			TSS_OBJECT_TYPE_RSAKEY,
-			initFlags, &hKey);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Load Key By UUID
+
+
+	// Set up the SRK
+
+		//Load SRK By UUID
 	result = Tspi_Context_LoadKeyByUUID(hContext,
 			TSS_PS_TYPE_SYSTEM,
 			SRK_UUID, &hSRK);
@@ -152,56 +143,53 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+
+
+	// Create Parent Key (no auth, storage)
+
 #if 0
+#if 1
 		//Create Storage Key
 	result = Tspi_Context_CreateObject(hContext,
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_SIGNING |
-			TSS_KEY_MIGRATABLE | TSS_KEY_NO_AUTHORIZATION,
-			&hMStorageKey);
+			TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_STORAGE |
+			TSS_KEY_NO_AUTHORIZATION,
+			&hKeyParent);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	result = Tspi_Key_CreateKey(hMStorageKey, hSRK, 0);
+	result = Tspi_Key_CreateKey(hKeyParent, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hMStorageKey);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	result = Tspi_Key_LoadKey(hMStorageKey, hSRK);
+	result = Tspi_Key_LoadKey(hKeyParent, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hMStorageKey);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Create Object for Signing Key
+#else
+		//Create auth'd Storage Key
 	result = Tspi_Context_CreateObject(hContext,
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_SIGNING |
-			TSS_KEY_MIGRATABLE | TSS_KEY_NO_AUTHORIZATION,
-			&hMSigningKey);
+			TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_STORAGE |
+			TSS_KEY_AUTHORIZATION,
+			&hKeyParent);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hMStorageKey);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-#endif
-
 		// Get existing Policy Object
-	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &hKeyPolicy);
+	result = Tspi_GetPolicyObject(hKeyParent, TSS_POLICY_USAGE, &hKeyParentPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -209,8 +197,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		// Set Secret
-	result = Tspi_Policy_SetSecret(hKeyPolicy, TSS_SECRET_MODE_PLAIN,
-			sizeof(KEY_PWD), KEY_PWD);
+	result = Tspi_Policy_SetSecret(hKeyParentPolicy, TSS_SECRET_MODE_PLAIN,
+			strlen(KEY_PWD), KEY_PWD);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -218,7 +206,59 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
+	result = Tspi_Key_CreateKey(hKeyParent, hSRK, 0);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_CreateKey", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	result = Tspi_Key_LoadKey(hKeyParent, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_LoadKey", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+#endif
+#endif
+	// Set up Child Key (signing, auth)
+
+	hKeyParent = hSRK;
+
+		//Create Object for Child Key
+	result = Tspi_Context_CreateObject(hContext,
+			TSS_OBJECT_TYPE_RSAKEY,
+			TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_SIGNING |
+			TSS_KEY_AUTHORIZATION,
+			&hKeyChild);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hKeyChild);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+		// Get existing Policy Object
+	result = Tspi_GetPolicyObject(hKeyChild, TSS_POLICY_USAGE, &hKeyChildPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		// Set Secret
+	result = Tspi_Policy_SetSecret(hKeyChildPolicy, TSS_SECRET_MODE_PLAIN,
+			strlen(KEY_PWD), KEY_PWD);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	result = Tspi_Key_CreateKey(hKeyChild, hKeyParent, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -226,13 +266,16 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	result = Tspi_Key_LoadKey(hKey, hSRK);
+	result = Tspi_Key_LoadKey(hKeyChild, hKeyParent);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+
+
+
 
 		// create a new Policy
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
@@ -245,8 +288,8 @@ main_v1_1(void){
 	}
 
 		// Set the new policy's Secret
-	result = Tspi_Policy_SetSecret(hKeyPolicy, TSS_SECRET_MODE_PLAIN,
-			strlen("newPass"), "newPass");
+	result = Tspi_Policy_SetSecret(hNewPolicy, TSS_SECRET_MODE_PLAIN,
+			strlen(NEW_PWD), NEW_PWD);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -255,7 +298,7 @@ main_v1_1(void){
 	}
 
 		// Call Change Auth
-	result = Tspi_ChangeAuth(hKey, hSRK, hNewPolicy);
+	result = Tspi_ChangeAuth(hKeyChild, hKeyParent, hNewPolicy);
 	if (result != TSS_SUCCESS) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);

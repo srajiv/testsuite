@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -58,11 +58,10 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
 
 int main(int argc, char **argv)
 {
@@ -81,7 +80,7 @@ int main(int argc, char **argv)
 main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_GetAttribData12";
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HKEY	hSRK;
