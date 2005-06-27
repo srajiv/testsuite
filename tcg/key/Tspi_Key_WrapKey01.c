@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,23 +24,23 @@
  * DESCRIPTION
  *	This test will verify Tspi_Key_WrapKey.
  *	The purpose of this test case is to get TSS_SUCCESS to be
- *		returned. This is done by following the algorithm 
+ *		returned. This is done by following the algorithm
  *		described below.
  *
  * ALGORITHM
  *	Setup:
  *		Create Context
  *		Connect
- *		Get TPM
- *		Create Object
- *		Load Key By UUID
- *		Get Policy Object
- *		Set Secret
- *		Get Policy Object
- *		Get Policy Object
- *		Set secret
- *		Set Secret
- *		Create Key
+ *		Create an empty key Object
+ *		Load the SRK By UUID
+ *		Get Policy Object of SRK
+ *		Set Secret of SRK's policy object
+ *		Generate an openssl RSA key
+ *		Set the public key of the enpty TSS key object to the value
+ *		 of the openssl RSA key
+ *		Set the private key of the enpty TSS key object to the value
+ *		 of one of the openssl RSA key's primes
+ *		Call wrap key using the SRK as the parent
  *
  *	Test:	Call WrapKey01. If it is not a success
  *		Make sure that it returns the proper return codes
@@ -65,10 +65,12 @@
  *	None.
  */
 
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
-extern TSS_UUID SRK_UUID;
-extern int commonErrors(TSS_RESULT result);
+
+#include <openssl/rsa.h>
+
+
 
 int main(int argc, char **argv)
 {
@@ -89,7 +91,7 @@ main_v1_1(void){
 	char		*nameOfFunction = "Tspi_Key_WrapKey01";
 	TSS_HCONTEXT	hContext;
 	TSS_HTPM	hTPM;
-	TSS_FLAGS	initFlags;
+	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
 	TSS_HKEY	hSRK;
 	TSS_RESULT	result;
@@ -98,6 +100,9 @@ main_v1_1(void){
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
+	RSA		*rsa = NULL;
+	unsigned char	n[2048], p[2048];
+	int		size_n, size_p;
 
 	print_begin_test(nameOfFunction);
 
@@ -116,14 +121,6 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Get TPM Object
-	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_GetTpmObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Create Object
 	result = Tspi_Context_CreateObject(hContext, 
 					TSS_OBJECT_TYPE_RSAKEY,
@@ -134,7 +131,8 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Load Key By UUID
+
+		//Load Parent Key By UUID
 	result = Tspi_Context_LoadKeyByUUID(hContext, 
 				TSS_PS_TYPE_SYSTEM, SRK_UUID, &hSRK);
 	if (result != TSS_SUCCESS) {
@@ -165,57 +163,58 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Get Policy Object
-	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &keyUsagePolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject", result);
+
+		// generate a software key to wrap
+	if ((rsa = RSA_generate_key(2048, 65537, NULL, NULL)) == NULL) {
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
-		exit(result);
+		exit(1);
 	}
-		//Get Policy Object
-	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_MIGRATION, &keyMigPolicy);
+
+		// get the pub key and a prime
+	if ((size_n = BN_bn2bin(rsa->n, n)) <= 0) {
+		fprintf(stderr, "BN_bn2bin failed\n");
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+                exit(-1);
+        }
+
+        if ((size_p = BN_bn2bin(rsa->p, p)) <= 0) {
+		fprintf(stderr, "BN_bn2bin failed\n");
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+                exit(-1);
+        }
+
+		// set the public key data in the TSS object
+	result = Tspi_SetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB,
+			TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY, size_n, n);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject ", result);
+		print_error("Tspi_SetAttribData ", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
 		exit(result);
 	}
-		//Set secret
-	result = Tspi_Policy_SetSecret(keyMigPolicy, 
-				TSS_SECRET_MODE_SHA1, 
-				20, TSS_WELL_KNOWN_SECRET);
+
+		// set the private key data in the TSS object
+	result = Tspi_SetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB,
+			TSS_TSPATTRIB_KEYBLOB_PRIVATE_KEY, size_p, p);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
+		print_error("Tspi_SetAttribData ", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
 		exit(result);
 	}
-		//Set Secret
-	result = Tspi_Policy_SetSecret(keyUsagePolicy,
-				TSS_SECRET_MODE_SHA1, 
-				20, TSS_WELL_KNOWN_SECRET);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Create Key/*5*/ 
-	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
+
 		//Wrap Key
-	result = Tspi_Key_WrapKey(hKey, hSRK, 0);
+	result = Tspi_Key_WrapKey(hKey, hSRK, NULL_HPCRS);
 	if (result != TSS_SUCCESS){
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
@@ -223,6 +222,7 @@ main_v1_1(void){
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_Close(hContext);
+			RSA_free(rsa);
 			exit(1);
 		}
 		else{
@@ -231,6 +231,7 @@ main_v1_1(void){
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_Close(hContext);
+			RSA_free(rsa);
 			exit(1);
 		}
 	}
@@ -240,6 +241,7 @@ main_v1_1(void){
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
 		exit(0);
 	}
 }

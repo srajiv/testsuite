@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -62,10 +62,9 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 #include "../common/common.h"
 
-extern TSS_UUID SRK_UUID;
 
 int
 main( int argc, char **argv )
@@ -93,7 +92,7 @@ main_v1_1( void )
 	BYTE			*gottenMsg;
 	UINT32			popupLength;
 	TSS_HPOLICY		srkUsagePolicy;
-	TSS_FLAGS		initFlags = TSS_KEY_TYPE_SIGNING |
+	TSS_FLAG		initFlags = TSS_KEY_TYPE_SIGNING |
 						TSS_KEY_SIZE_2048 |
 						TSS_KEY_VOLATILE |
 						TSS_KEY_NO_AUTHORIZATION |

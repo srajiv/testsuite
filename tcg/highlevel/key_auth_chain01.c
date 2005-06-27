@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 
 #include "../common/common.h"
 
@@ -82,7 +82,6 @@ TSS_UUID uuid_0 = { 9, 9, 9, 9, 9, { 8, 8, 8, 8, 8, 8 } };
 TSS_UUID uuid_1 = { 8, 8, 8, 8, 8, { 7, 7, 7, 7, 7, 7 } };
 TSS_UUID uuid_2 = { 7, 7, 7, 7, 7, { 6, 6, 6, 6, 6, 6 } };
 
-extern TSS_UUID SRK_UUID;
 
 int
 main( int argc, char **argv )

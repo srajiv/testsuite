@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -71,13 +71,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
-#include <tss/tss.h>
+#include <trousers/tss.h>
 
 #include "../common/common.h"
 
 #define KEY_CONFLICT_NUM_THREADS	4
 
-extern TSS_UUID SRK_UUID;
 
 void *thread_v1_1(void *);
 

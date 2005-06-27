@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004
+ *   Copyright (C) International Business Machines  Corp., 2004, 2005
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -54,8 +54,9 @@
  */
 
 #include <stdio.h>
-#include <tss/tss.h>
-#include "hlsetup.h"
+#include <trousers/tss.h>
+
+#include "../common/common.h"
 
 int
 main( int argc, char **argv )
@@ -80,9 +81,10 @@ main_v1_1( void )
 	TSS_HTPM		hTPM;
 	TSS_HPOLICY		hPolicy;
 	TSS_RESULT		result;
-	BOOL			state;
+	TSS_BOOL		state;
+	TSS_HCONTEXT		hContext;
 	int			exitCode, value01, value02, tempFlag;
-	TSS_FLAGS		initFlags = TSS_KEY_TYPE_SIGNING |
+	TSS_FLAG		initFlags = TSS_KEY_TYPE_SIGNING |
 						TSS_KEY_SIZE_2048 |
 						TSS_KEY_VOLATILE |
 						TSS_KEY_NO_AUTHORIZATION |
