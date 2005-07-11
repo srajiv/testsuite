@@ -83,11 +83,12 @@ main_v1_1( void )
 {
 	char		*function = "Tspi_Data_Unseal01";
 	TSS_HCONTEXT	hContext;
-	TSS_HKEY	hSRK;
-	TSS_HKEY	hKey;
+	TSS_HKEY	hSRK, hKey;
+	TSS_HTPM	hTPM;
 	TSS_HPOLICY	hKeyPolicy, hEncUsagePolicy, hSRKPolicy;
 	BYTE		rgbDataToSeal[32] = {0,1,3,4,5,6,7,8,9,'A','B','C','D','E','F',0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F'};
-	BYTE		rgbPcrValue[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	BYTE		*rgbPcrValue;
+	UINT32		ulPcrLen;
 	TSS_HENCDATA	hEncData;
 	BYTE		*prgbDataToUnseal;
 	TSS_HPCRS	hPcrComposite;
@@ -243,9 +244,8 @@ main_v1_1( void )
 		exit( result );
 	}
 
-#if 0
 	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_PCRS,
-					TSS_KEY_TSP_SRK, &hPcrComposite );
+					0, &hPcrComposite );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject (hPcrComposite)",
@@ -256,7 +256,30 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, 8, 20,
+	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_GetTpmObject",
+				result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+#define PCR_NUM	5
+
+	result = Tspi_TPM_PcrRead( hTPM, PCR_NUM, &ulPcrLen, &rgbPcrValue );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_TPM_PcrRead", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, PCR_NUM, ulPcrLen,
 							rgbPcrValue );
 	if ( result != TSS_SUCCESS )
 	{
@@ -266,10 +289,10 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
-#endif
+
 		// Data Seal
-	result = Tspi_Data_Seal( hEncData, hKey, ulDataLength, rgbDataToSeal, 0);
-//					hPcrComposite );
+	result = Tspi_Data_Seal( hEncData, hKey, ulDataLength, rgbDataToSeal,
+							hPcrComposite );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Data_Seal", result );
