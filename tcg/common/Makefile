@@ -20,10 +20,11 @@
 # name of file  : Makefile                                                #
 # description   : make(1) description file for the common modules.        #
 ###########################################################################
-CC = gcc -g
+CC = gcc
+CFLAGS += -g
 
 .c.o:
-	$(CC) -c -g -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 all: common.o
 

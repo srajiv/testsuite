@@ -29,9 +29,10 @@ endif
 ALL = $(shell ls *.c | sed "s/\.c//g")
 SUBDIRS = `ls */Makefile | sed "s/Makefile//g"`
 LIBS = ../common/common.o -ltspi $(LDFLAGS)
+CFLAGS += -g
 
 .c:
-	$(CC) $(OPTS) -g -o $@ $< $(LIBS)
+	$(CC) $(OPTS) $(CFLAGS) -o $@ $< $(LIBS)
 
 all: $(ALL)
 	for i in $(SUBDIRS) ; do $(MAKE) -C $$i ; done
