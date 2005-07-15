@@ -86,7 +86,7 @@ main_v1_1( void )
 	TSS_HKEY	hKey;
 	TSS_HPOLICY	hSrkPolicy;
 	BYTE		*rgbDataToSeal = "This is a test.  1 2 3.";
-	BYTE		rgbPcrValue[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	BYTE		rgbPcrValue[20];
 	TSS_HENCDATA	hEncData;
 	TSS_HPCRS	hPcrComposite;
 	UINT32		BlobLength;
@@ -99,6 +99,8 @@ main_v1_1( void )
 				TSS_KEY_NOT_MIGRATABLE;
 
 	print_begin_test( function );
+
+	memset(rgbPcrValue, 0x5a, sizeof(rgbDataToSeal));
 
 		// Create Context
 	result = Tspi_Context_Create( &hContext );
@@ -203,7 +205,6 @@ main_v1_1( void )
 
 		// Data Seal
 	result = Tspi_Data_Seal( hEncData, hSRK, ulDataLength, rgbDataToSeal, hPcrComposite );
-	//				hPcrComposite );
 	if ( result != TSS_SUCCESS )
 	{
 		if( !(checkNonAPI(result)) )
