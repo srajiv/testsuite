@@ -109,7 +109,7 @@ main_v1_1(void){
 
 		//Call PcrExtend
 	result = Tspi_TPM_PcrExtend(hTPM, -1, pcrLength,
-			&pcrValue, NULL, &ulNewPcrValueLength, &NewPcrValue);
+			NULL, NULL, &ulNewPcrValueLength, &NewPcrValue);
 	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
