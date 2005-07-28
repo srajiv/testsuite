@@ -184,6 +184,16 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+		// Load hAIK Key
+	result = Tspi_Key_LoadKey(hAIK, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hAIK);
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
 		//Create Object for Storage Key
 	result = Tspi_Context_CreateObject(hContext, 
 			TSS_OBJECT_TYPE_RSAKEY,
@@ -201,6 +211,17 @@ main_v1_1(void){
 	result = Tspi_Key_CreateKey(hMStorageKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tpspi_Key_CreateKey", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hMStorageKey);
+		Tspi_Context_CloseObject(hContext, hAIK);
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		// Load hMStorageKey Key
+	result = Tspi_Key_LoadKey(hMStorageKey, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hMStorageKey);
 		Tspi_Context_CloseObject(hContext, hAIK);
@@ -246,7 +267,7 @@ main_v1_1(void){
 	}
 		//Call to Change Auth Asym
 	result = Tspi_ChangeAuthAsym(-1, hMStorageKey, hAIK, hPolicy);
-	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
+	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);

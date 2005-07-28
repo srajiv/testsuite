@@ -205,6 +205,16 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+		// Load hAIK Key
+	result = Tspi_Key_LoadKey(hAIK, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hAIK);
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
 		//Get Default Policy for hPolicy
 	result = Tspi_Context_GetDefaultPolicy(hContext, &hPolicy);
 	if (result != TSS_SUCCESS) {
@@ -216,8 +226,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Call to Change Auth Asym
-	result = Tspi_ChangeAuthAsym(hMSigningKey, 0, hAIK, hPolicy);
-	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
+	result = Tspi_ChangeAuthAsym(hMSigningKey, -1, hAIK, hPolicy);
+	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
