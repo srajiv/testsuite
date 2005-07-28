@@ -22,8 +22,8 @@
  *	Tspi_TPM_TakeOwnership01.c
  *
  * DESCRIPTION
- *	This test will verify that Tspi_TPM_TakeOwnership
- *		returns TSS_SUCCESS.
+ *	This test will verify that Tspi_TPM_TakeOwnership succeeds when a
+ *	handle to the public endorsement key is passed in to it explicitly.
  *
  * ALGORITHM
  *	Setup:
@@ -54,6 +54,7 @@
  *
  * HISTORY
  *      Megan Schneider, mschnei@us.ibm.com, 7/06.
+ *      Kent Yoder, kyoder@users.sf.net
  *
  * RESTRICTIONS
  *	None.

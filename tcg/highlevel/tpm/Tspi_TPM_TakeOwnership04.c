@@ -22,8 +22,9 @@
  *	Tspi_TPM_TakeOwnership01.c
  *
  * DESCRIPTION
- *	This test will verify that Tspi_TPM_TakeOwnership
- *		returns TSS_SUCCESS.
+ *	This test will verify that Tspi_TPM_TakeOwnership succeeds when
+ *	passing the handle to the public endorsement key in explicitly and
+ *	using an authless key object when creating the SRK.
  *
  * ALGORITHM
  *	Setup:
@@ -54,6 +55,7 @@
  *
  * HISTORY
  *      Megan Schneider, mschnei@us.ibm.com, 7/06.
+ *      Kent Yoder, kyoder@users.sf.net
  *
  * RESTRICTIONS
  *	None.
