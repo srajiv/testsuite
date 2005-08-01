@@ -66,6 +66,7 @@
  *	Author:	Kathy Robertson
  *	Date:	June 2004
  *	Email:	klrobert@us.ibm.com
+ *	Kent Yoder <kyoder@users.sf.net>, removed unneeded code.
  *
  * RESTRICTIONS
  *	None.
@@ -94,18 +95,12 @@ main_v1_1(void){
 	char		*nameOfFunction = "Tspi_TPM_Quote01";
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
-	TSS_HKEY	hKey;
 	TSS_HTPM	hTPM;
 	TSS_HKEY	hSRK;
-	TSS_VALIDATION	pValidationData;
 	TSS_HKEY	hIdentKey;
 	TSS_HPCRS	hPcrComposite;
 	TSS_FLAG	initFlags;
-	initFlags 	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
-			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-			TSS_KEY_NOT_MIGRATABLE;
 	TSS_HPOLICY srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
-	BYTE		*data;
 	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
 
 	print_begin_test(nameOfFunction);
@@ -126,23 +121,12 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Create hKey
-	result = Tspi_Context_CreateObject(hContext,
-			TSS_OBJECT_TYPE_RSAKEY,
-			initFlags, &hKey);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Get TPM Object
 	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetTpmObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hKey);
 		exit(result);
 	}
 		//Load Key By UUID
@@ -153,7 +137,6 @@ main_v1_1(void){
 		print_error("Tspi_Context_LoadKeyByUUID", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hKey);
 		exit(result);
 	}
 		//Get Policy Object
@@ -162,7 +145,6 @@ main_v1_1(void){
 		print_error("Tspi_GetPolicyObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hKey);
 		exit(result);
 	}
 		//Set Secret
@@ -172,39 +154,16 @@ main_v1_1(void){
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hKey);
 		exit(result);
 	}
-	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE,
-					&keyUsagePolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Set Secret
-	result = Tspi_Policy_SetSecret(keyUsagePolicy,
-				TSS_SECRET_MODE_PLAIN,
-				20, well_known_secret);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
 		//Create object for the hIdentKey
-	result = Tspi_Context_CreateObject(hContext, 
+	result = Tspi_Context_CreateObject(hContext,
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING 
+			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING
 			|TSS_KEY_MIGRATABLE, &hIdentKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -213,7 +172,6 @@ main_v1_1(void){
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -224,7 +182,6 @@ main_v1_1(void){
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -235,7 +192,6 @@ main_v1_1(void){
 		print_error("Tspi_Key_CreateKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hIdentKey);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -244,19 +200,17 @@ main_v1_1(void){
 		print_error("Tspi_Key_LoadKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hIdentKey);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 		//Create object for the hPcrComposite Key
-	result = Tspi_Context_CreateObject(hContext, 
+	result = Tspi_Context_CreateObject(hContext,
 			TSS_OBJECT_TYPE_PCRS, 0,
 			&hPcrComposite);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hIdentKey);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -267,33 +221,17 @@ main_v1_1(void){
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hIdentKey);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_CloseObject(hContext, hPcrComposite);
 		exit(result);
 	}
-	result = Tspi_TPM_GetRandom(hTPM, 20, &data);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_TPM_GetRandom ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hIdentKey);
-		Tspi_Context_CloseObject(hContext, hKey);
-		exit(result);
-	}
-
-	pValidationData.DataLength = 20;
-	memcpy( &pValidationData.ExternalData, &data, 20);
-
 		//Call TPM Quote
-	result = Tspi_TPM_Quote(hTPM, hIdentKey, hPcrComposite,
-				&pValidationData);
+	result = Tspi_TPM_Quote(hTPM, hIdentKey, hPcrComposite, NULL);
 	if (result != TSS_SUCCESS) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hIdentKey);
-			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_CloseObject(hContext, hPcrComposite);
 			Tspi_Context_Close(hContext);
 			exit(1);
@@ -303,7 +241,6 @@ main_v1_1(void){
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hIdentKey);
-			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_CloseObject(hContext, hPcrComposite);
 			Tspi_Context_Close(hContext);
 			exit(1);
@@ -314,7 +251,6 @@ main_v1_1(void){
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_CloseObject(hContext, hIdentKey);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_CloseObject(hContext, hPcrComposite);
 		Tspi_Context_Close(hContext);
 		exit(0);
