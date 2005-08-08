@@ -210,10 +210,9 @@ main_v1_1(void){
 	//Set the PCRComposite object that indicates which PCRs
 	//we are interested in.
 	//Create PcrComposite Object
-	result = Tspi_Context_CreateObject(hContext, 
+	result = Tspi_Context_CreateObject(hContext,
 				TSS_OBJECT_TYPE_PCRS,
-				TSS_KEY_TSP_SRK, 
-				&hPcrComposite);
+				0, &hPcrComposite);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -233,10 +232,8 @@ main_v1_1(void){
 		exit(result);
 	}
 	print_success("Select PCR Index", result);
-	
-	result = Tspi_PcrComposite_SetPcrValue(hPcrComposite, 
-				8,
-				20, 
+
+	result = Tspi_PcrComposite_SetPcrValue(hPcrComposite, 8, 20,
 				rgbPcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_PcrComposite_SetPcrValue", result);
@@ -264,9 +261,7 @@ main_v1_1(void){
 
 	//Seal data
 	//result = Tspi_Data_Seal(hEncData, hEncKey, dataLength, rgbDataToSeal, hPcrComposite );
-	result = Tspi_Data_Seal(hEncData, 
-				hKey, 
-				dataLength, 
+	result = Tspi_Data_Seal(hEncData, hKey, dataLength,
 				rgbDataToSeal, hPcrComposite);
 	if (result != TSS_SUCCESS) {
 			print_error_nonapi(nameOfFunction, result);
