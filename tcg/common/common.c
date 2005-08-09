@@ -164,12 +164,11 @@ UINT32ToArray(UINT32 i, BYTE * out)
 	return;
 }
 
-UNICODE *srv = NULL;
-
 UNICODE *
 get_server(char *server_name)
 {
 	int rc;
+	UNICODE *srv = NULL;
 
 	if (server_name == NULL)
 		return NULL;
@@ -361,4 +360,159 @@ err_string(TSS_RESULT r)
 			default:				return "UNKNOWN TSS ERROR";
 		}
 	}
+}
+
+/* functions provided to ease testcase writing */
+
+/* create a key off the SRK */
+TSS_RESULT
+create_key(TSS_HCONTEXT hContext, TSS_FLAG initFlags,
+		TSS_HKEY hSRK, TSS_HKEY *hKey)
+{
+	TSS_RESULT result;
+
+		//Create Object
+	result = Tspi_Context_CreateObject(hContext,
+			TSS_OBJECT_TYPE_RSAKEY,
+			initFlags, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		return(result);
+	}
+
+	if (initFlags & TSS_KEY_AUTHORIZATION) {
+		if ((result = set_secret(*hKey, NULL)))
+			return result;
+	}
+
+		//CreateKey
+	result = Tspi_Key_CreateKey(*hKey, hSRK, 0);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_CreateKey", result);
+		return(result);
+	}
+
+	return TSS_SUCCESS;
+}
+
+/* create and load a key off the SRK */
+TSS_RESULT
+create_load_key(TSS_HCONTEXT hContext, TSS_FLAG initFlags,
+		TSS_HKEY hSRK, TSS_HKEY *hKey)
+{
+	TSS_RESULT result;
+
+	if ((result = create_key(hContext, initFlags, hSRK, hKey)))
+		return result;
+
+	result = Tspi_Key_LoadKey(*hKey, hSRK);
+        if (result != TSS_SUCCESS) {
+                print_error("Tspi_Key_LoadKey", result);
+                return(result);
+        }
+
+	return TSS_SUCCESS;
+}
+
+/* set the secret for an object to a 0 length string */
+TSS_RESULT
+set_secret(TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
+{
+	TSS_RESULT result;
+	TSS_HPOLICY hLocalPolicy;
+
+	if (hPolicy == NULL) {
+		//GetPolicyObject
+		result = Tspi_GetPolicyObject(hObj, TSS_POLICY_USAGE, &hLocalPolicy);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_GetPolicyObject", result);
+			return(result);
+		}
+		//SetSecret
+		result = Tspi_Policy_SetSecret(hLocalPolicy, TSS_SECRET_MODE_PLAIN,
+				0, NULL);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Policy_SetSecret", result);
+			return(result);
+		}
+	} else {
+		//GetPolicyObject
+		result = Tspi_GetPolicyObject(hObj, TSS_POLICY_USAGE, hPolicy);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_GetPolicyObject", result);
+			return(result);
+		}
+		//SetSecret
+		result = Tspi_Policy_SetSecret(*hPolicy, TSS_SECRET_MODE_PLAIN,
+				0, NULL);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Policy_SetSecret", result);
+			return(result);
+		}
+	}
+
+	return TSS_SUCCESS;
+}
+
+/* connect, load the SRK */
+TSS_RESULT
+connect_load_srk(TSS_HCONTEXT *hContext, TSS_HKEY *hSRK)
+{
+	TSS_RESULT result;
+
+		// Create Context
+	result = Tspi_Context_Create( hContext );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_Create", result );
+		return( result );
+	}
+
+		// Connect to Context
+	result = Tspi_Context_Connect( *hContext, get_server(GLOBALSERVER) );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_Connect", result );
+		Tspi_Context_FreeMemory( *hContext, NULL );
+		Tspi_Context_Close( *hContext );
+		return( result );
+	}
+
+		//Load Key by UUID for SRK
+	result = Tspi_Context_LoadKeyByUUID(*hContext, TSS_PS_TYPE_SYSTEM,
+			SRK_UUID, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_LoadKeyByUUID", result);
+		Tspi_Context_Close(*hContext);
+		return(result);
+	}
+
+	if ((result = set_secret(*hSRK, NULL))) {
+		Tspi_Context_Close(*hContext);
+		return result;
+	}
+
+	return TSS_SUCCESS;
+}
+
+/* connect, load the SRK and get the TPM handle */
+TSS_RESULT
+connect_load_all(TSS_HCONTEXT *hContext, TSS_HKEY *hSRK, TSS_HTPM *hTPM)
+{
+	TSS_RESULT result;
+
+	if ((result = connect_load_srk(hContext, hSRK)))
+		return result;
+
+		// Retrieve TPM object of context
+	result = Tspi_Context_GetTpmObject( *hContext, hTPM );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_GetTpmObject", result );
+		Tspi_Context_FreeMemory( *hContext, NULL );
+		Tspi_Context_Close( *hContext );
+		return( result );
+	}
+
+	return TSS_SUCCESS;
 }

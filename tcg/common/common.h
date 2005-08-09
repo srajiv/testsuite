@@ -54,6 +54,13 @@ void UINT32ToArray(UINT32 i, BYTE * out);
 UNICODE *get_server(char *);
 void print_hex(BYTE *, UINT32);
 
+TSS_RESULT create_key(TSS_HCONTEXT, TSS_FLAG, TSS_HKEY, TSS_HKEY *);
+TSS_RESULT create_load_key(TSS_HCONTEXT, TSS_FLAG, TSS_HKEY, TSS_HKEY *);
+TSS_RESULT set_secret(TSS_HOBJECT, TSS_HPOLICY *);
+TSS_RESULT connect_load_srk(TSS_HCONTEXT *, TSS_HKEY *);
+TSS_RESULT connect_load_all(TSS_HCONTEXT *, TSS_HKEY *, TSS_HTPM *);
+
+
 int main_v1_1();
 
 extern TSS_UUID SRK_UUID;
