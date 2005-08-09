@@ -260,7 +260,8 @@ main_v1_1( void )
 		print_hex(prgbDataToUnBind, pulDataLength);
 
 		if (pulDataLength != ulDataLength) {
-			printf("ERROR: Size of decrypted data does not match! (%u != %u)\n", pulDataLength, ulDataLength);
+			printf("ERROR: Size of decrypted data does not match! "
+					"(%u != %u)\n", pulDataLength, ulDataLength);
 		} else if (memcmp(prgbDataToUnBind, rgbDataToBind, ulDataLength)) {
 			printf("ERROR: Content of decrypted data does not match!\n");
 		} else {
