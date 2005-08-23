@@ -258,7 +258,7 @@ main_v1_1(void){
 	result = Tspi_Key_LoadKey(hKey, hSRK);
 	if (result != TSS_SUCCESS){
 		if(!checkNonAPI(result)){
-			print_error(nameOfFunction, result);
+			print_error("Tspi_Key_LoadKey ", result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
@@ -267,7 +267,7 @@ main_v1_1(void){
 			exit(1);
 		}
 		else{
-			print_error_nonapi(nameOfFunction, result);
+			print_error_nonapi("Tspi_Key_LoadKey", result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
