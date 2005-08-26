@@ -92,7 +92,8 @@ main_v1_1(void){
 	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy;
 	BYTE		*pcrValue;
 	UINT32		pcrLen;
-	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
+	BYTE		pcrData[] = "09876543210987654321";
+	initFlags	= TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
 
@@ -182,7 +183,45 @@ main_v1_1(void){
 
 		//Create Key
 	result = Tspi_Key_CreateKey(hKey, hSRK, hPcrs);
-	if (result != TSS_SUCCESS){
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_CreateKey", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	/* if the key loads, the key creation is successful */
+	result = Tspi_Key_LoadKey(hKey, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_LoadKey ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	/* now, encrypt and decrypt some data to see if the key "works" */
+	result = bind_and_unbind(hContext, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("bind_and_unbind ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	/* now, change a PCR value that the key is set to */
+	result = Tspi_TPM_PcrExtend(hTPM, 15, 20, pcrData, NULL,
+				    &pcrLen, &pcrValue);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_TPM_PcrExtend ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	/* now, encrypt and decrypt some data, which should fail, since
+	 * the PCR changed */
+	result = bind_and_unbind(hContext, hKey);
+	if (result != TCPA_E_WRONGPCRVAL){
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
