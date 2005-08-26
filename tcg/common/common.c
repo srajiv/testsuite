@@ -164,30 +164,6 @@ UINT32ToArray(UINT32 i, BYTE * out)
 	return;
 }
 
-UNICODE *
-get_server(char *server_name)
-{
-	int rc;
-	UNICODE *srv = NULL;
-
-	if (server_name == NULL)
-		return NULL;
-
-	srv = malloc((strlen(server_name) + 1) * sizeof(UNICODE));
-	if (srv == NULL) {
-		fprintf(stderr, "Failed to malloc space for the server name.");
-		exit(19);
-	}
-
-	rc = mbstowcs((wchar_t *)srv, server_name, strlen(server_name) + 1);
-	if (rc == (size_t)(-1)) {
-		fprintf(stderr, "failed to convert server %s to UNICODE.", server_name);
-		exit(19);
-	}
-
-	return srv;
-}
-
 void
 print_hex( BYTE *buf, UINT32 len )
 {
@@ -199,7 +175,6 @@ print_hex( BYTE *buf, UINT32 len )
 		printf("\n");
 	}
 }
-
 
 char *
 err_string(TSS_RESULT r)
@@ -516,3 +491,80 @@ connect_load_all(TSS_HCONTEXT *hContext, TSS_HKEY *hSRK, TSS_HTPM *hTPM)
 
 	return TSS_SUCCESS;
 }
+
+TSS_RESULT
+bind_and_unbind(TSS_HCONTEXT hContext, TSS_HKEY hKey)
+{
+
+	TSS_RESULT result;
+	TSS_HENCDATA hEncData;
+	BYTE rgbDataToBind[] = "932brh3270yrnc7y0nrj28c89cjrmj4398jng4399mch8";
+	UINT32 ulDataLength = sizeof(rgbDataToBind);
+	BYTE *rgbEncryptedData, *prgbDataToUnBind;
+	UINT32 ulEncryptedDataLength, pulDataLength;
+
+	result = Tspi_Context_CreateObject( hContext,
+					    TSS_OBJECT_TYPE_ENCDATA,
+					    TSS_ENCDATA_BIND, &hEncData );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error("Tspi_Context_CreateObject ", result);
+		return result;
+	}
+
+	printf("Data before binding:\n");
+	print_hex(rgbDataToBind, ulDataLength);
+
+	result = Tspi_Data_Bind( hEncData, hKey, ulDataLength, rgbDataToBind );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Data_Bind", result );
+		return result;
+	}
+
+	result = Tspi_GetAttribData(hEncData, TSS_TSPATTRIB_ENCDATA_BLOB,
+			TSS_TSPATTRIB_ENCDATABLOB_BLOB,
+			&ulEncryptedDataLength, &rgbEncryptedData);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_GetAttribData", result );
+		return result;
+	}
+
+	printf("Data after binding:\n");
+	print_hex(rgbEncryptedData, ulEncryptedDataLength);
+
+	result = Tspi_Data_Unbind( hEncData, hKey, &pulDataLength,
+			&prgbDataToUnBind );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Data_Unbind", result );
+		if( !(checkNonAPI(result)) )
+		{
+			print_error( "Tspi_Data_Unbind", result );
+		}
+		else
+		{
+			print_error_nonapi( "Tspi_Data_Unbind", result );
+		}
+	}
+	else
+	{
+		printf("Data after unbinding:\n");
+		print_hex(prgbDataToUnBind, pulDataLength);
+
+		if (pulDataLength != ulDataLength) {
+			printf("ERROR: Size of decrypted data does not match!"
+			       " (%u != %u)\n", pulDataLength, ulDataLength);
+			result = TSS_E_FAIL;
+		} else if (memcmp(prgbDataToUnBind, rgbDataToBind, ulDataLength)) {
+			printf("ERROR: Content of decrypted data does not match!\n");
+			result = TSS_E_FAIL;
+		} else {
+			result = TSS_SUCCESS;
+		}
+	}
+
+	return result;
+}
+
