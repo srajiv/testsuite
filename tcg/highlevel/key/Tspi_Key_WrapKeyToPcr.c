@@ -95,28 +95,23 @@ main_v1_1(void){
 	TSS_RESULT	result;
 	TSS_UUID	uuid;
 	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
-	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
+	initFlags	= TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-			TSS_KEY_NOT_MIGRATABLE;
+			TSS_KEY_MIGRATABLE;
 	RSA		*rsa = NULL;
 	unsigned char	n[2048], p[2048];
 	int		size_n, size_p;
+	BYTE		pcrData[] = "09876543210987654321";
+	BYTE		*pcrVal;
+	UINT32		pcrValLen;
 
 	print_begin_test(nameOfFunction);
 
 		//Create Context
-	result = Tspi_Context_Create(&hContext);
+	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect ", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		exit(result);
-	}
-		//Connect Context
-	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_Connect", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 		//Create Key Object
@@ -137,38 +132,6 @@ main_v1_1(void){
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
-		//Load Parent Key By UUID
-	result = Tspi_Context_LoadKeyByUUID(hContext, 
-				TSS_PS_TYPE_SYSTEM, SRK_UUID, &hSRK);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_LoadKeyByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Get Policy Object
-	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, 
-					&srkUsagePolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Set Secret
-	result = Tspi_Policy_SetSecret(srkUsagePolicy, 
-					TSS_SECRET_MODE_PLAIN,
-					0, NULL);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -254,11 +217,46 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	/* if the key loads, success */
+	/* if the key loads, the key creation is successful */
 	result = Tspi_Key_LoadKey(hKey, hSRK);
-	if (result != TSS_SUCCESS){
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_LoadKey ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+		exit(result);
+	}
+
+	/* now, encrypt and decrypt some data to see if the key "works" */
+	result = bind_and_unbind(hContext, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("bind_and_unbind ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+		exit(result);
+	}
+
+	/* now, change a PCR value that the key is set to */
+	result = Tspi_TPM_PcrExtend(hTPM, 15, 20, pcrData, NULL,
+				    &pcrValLen, &pcrVal);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_TPM_PcrExtend ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+		exit(result);
+	}
+
+	/* now, encrypt and decrypt some data, which should fail, since
+	 * the PCR changed */
+	result = bind_and_unbind(hContext, hKey);
+	if (result != TCPA_E_WRONGPCRVAL){
 		if(!checkNonAPI(result)){
-			print_error("Tspi_Key_LoadKey ", result);
+			print_error("bind_and_unbind ", result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
@@ -267,7 +265,7 @@ main_v1_1(void){
 			exit(1);
 		}
 		else{
-			print_error_nonapi("Tspi_Key_LoadKey", result);
+			print_error_nonapi("bind_and_unbind", result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
