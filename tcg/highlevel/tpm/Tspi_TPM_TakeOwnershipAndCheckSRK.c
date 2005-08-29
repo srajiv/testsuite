@@ -287,7 +287,8 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
-
+#if 0
+	/* XXX TODO */
 	result = Tspi_GetAttribData(hKeySRK, TSS_TSPATTRIB_RSAKEY_INFO,
 				    TSS_TSPATTRIB_KEYINFO_RSA_MODULUS,
 				    &pubBlobLen, &pubBlob);
@@ -298,7 +299,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
-
+#endif
 	result = Tspi_Key_GetPubKey(hKeySRK, &pubBlobLen, &pubBlob);
 	if ( result != TSS_SUCCESS )
 	{
