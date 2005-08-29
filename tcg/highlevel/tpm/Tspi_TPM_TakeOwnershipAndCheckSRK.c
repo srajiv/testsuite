@@ -288,7 +288,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_GetAttribData(hKeySRK, TSS_TSPATTRIB_KEY_BLOB,
+	result = Tspi_GetAttribData(hKeySRK, TSS_TSPATTRIB_KEY_INFO,
 				    TSS_TSPATTRIB_KEYINFO_RSA_MODULUS,
 				    &pubBlobLen, &pubBlob);
 	if ( result != TSS_E_BAD_PARAMETER )
