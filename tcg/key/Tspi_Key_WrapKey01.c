@@ -93,7 +93,7 @@ main_v1_1(void){
 	TSS_HTPM	hTPM;
 	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
-	TSS_HKEY	hSRK;
+	TSS_HKEY	hSRK, hParentKey;
 	TSS_RESULT	result;
 	TSS_UUID	uuid;
 	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
@@ -213,8 +213,30 @@ main_v1_1(void){
 		exit(result);
 	}
 
+		//Create Object
+	result = Tspi_Context_CreateObject(hContext,
+					TSS_OBJECT_TYPE_RSAKEY,
+					TSS_KEY_TYPE_STORAGE |
+					TSS_KEY_SIZE_2048,
+					&hParentKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+		//Create Parent Key
+	result = Tspi_Key_CreateKey(hParentKey, hSRK, NULL_HPCRS);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
 		//Wrap Key
-	result = Tspi_Key_WrapKey(hKey, hSRK, NULL_HPCRS);
+	result = Tspi_Key_WrapKey(hKey, hParentKey, NULL_HPCRS);
 	if (result != TSS_SUCCESS){
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
