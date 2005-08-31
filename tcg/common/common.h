@@ -104,7 +104,7 @@ TSS_UUID uuid0 = {2,3,5,7,5,{1,9,9,2,7,3}};
 #define print_error_exit(function,result) printf("%s testing failed with %s\n", function, result);
 
 /* use get_server as a generic UNICODE conversion routine */
-#define char_to_unicode	get_server
+#define char_to_unicode	Trspi_UTF8_To_UNICODE
 
 #define GLOBALSERVER	NULL
 
