@@ -116,7 +116,7 @@ main_v1_1(void){
 			TSS_TSPATTRIB_KEY_BLOB,
 			TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
 			&BlobLength, &BLOB);
-	if (result != TSS_SUCCESS) {
+	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
