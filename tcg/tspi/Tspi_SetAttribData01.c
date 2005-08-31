@@ -59,6 +59,7 @@
 
 
 #include <trousers/tss.h>
+#include <trousers/trousers.h>
 #include "../common/common.h"
 
 
@@ -87,7 +88,8 @@ main_v1_1(void){
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HPOLICY	hPolicy;
-	BYTE*		POPUPSTRING = "bobdbuilder";
+	BYTE           *POPUPSTRING = "bobdbuilder", *utf16_popup;
+	UINT32		POPUPSTRINGLEN = strlen(POPUPSTRING);
 
 	print_begin_test(nameOfFunction);
 
@@ -115,10 +117,12 @@ main_v1_1(void){
 		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
+
+	utf16_popup = char_to_unicode(POPUPSTRING, &POPUPSTRINGLEN);
 		//SetAttribData
 	result = Tspi_SetAttribData(hPolicy, 
 			TSS_TSPATTRIB_POLICY_POPUPSTRING, 
-			0, strlen(POPUPSTRING), POPUPSTRING);
+			0, POPUPSTRINGLEN, utf16_popup);
 	if (result != TSS_SUCCESS) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
