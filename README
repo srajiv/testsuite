@@ -1,31 +1,33 @@
 These are the testcases that exercise the TSS stack. They can be run
-either through the the LTP framework or standalone.  The testcases have been 
+either through the the LTP framework or standalone.  The testcases have been
 tested against the 20040304 version of LTP.
 
-Please do not execute these testcases on a machine on which you are actively 
+Please do not execute these testcases on a machine on which you are actively
 using the TPM. For the testcases to execute properly the owner passphrase
 must be entered into tcg/common/common.h which is insecure.
 
 These testcases must be run on a machine with a 1.1 TPM and the TrouSerS
 TSS. Boot the machine and clear the TPM ownership. Edit tcg/common/common.h
-and enter the desired passphrases for the keys (KEY_PWD, OWN_PWD, and 
-ENCDATA_PWD). Make the testcases and execute 
-	tcg/highlevel/Tspi_TPM_TakeOwnership01
-Now execute the testcases in the desired manner. 
+and enter the desired passphrases for the keys (KEY_PWD, OWN_PWD, and
+ENCDATA_PWD). Defaults that are already in place will work fine.  To run
+the testsuite, the TPM must be enabled, active and owned. To take
+ownership of your TPM using a testcase, run the following:
 
-To run standalone:
+$ testsuite/tcg/highlevel/tpm/Tspi_TPM_TakeOwnership01 -v 1.1
+
+To build and run the testsuite:
+
+Standalone:
 	1) cd tcg
 	2) make
 	3) cd ..
 	4) ./tsstests.sh
 
-To integrate with LTP:
-
-To run these testcases 
+Integrated with the LTP:
 	1) Download and expand LTP
 	2) Obtain testcases from CVS (or other package).
 	3) Copy the tcg directory into <ltp>/testcases
-	4) Apply the Makefile patch 
+	4) Apply the Makefile patch
 	5) make
 	6) make install
 	7) ./runalltests.sh -f </full/path/to/ltp>/runtest/tcg -l ./logfile -p
