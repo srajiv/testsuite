@@ -175,7 +175,9 @@ main_v1_1( void )
 	memcpy( &validationData.ExternalData, &data, 20 );
 
 	result = Tspi_TPM_CreateEndorsementKey( hTPM, hKey, &validationData );
-	if ( TSS_ERROR_CODE(result) != TCPA_E_DISABLED_CMD )
+	if ( TSS_ERROR_CODE(result) != TCPA_E_DISABLED_CMD &&
+	     TSS_ERROR_CODE(result) != TCPA_E_FAIL &&
+	     result != TSS_SUCCESS )
 	{
 		if( !(checkNonAPI(result)) )
 		{
