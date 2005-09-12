@@ -51,7 +51,7 @@ void print_wrongVersion();
 int checkNonAPI(TSS_RESULT);
 void print_wrongChar();
 void UINT32ToArray(UINT32 i, BYTE * out);
-#define get_server(s)	(UNICODE *)Trspi_UTF8_To_UNICODE(s, NULL)
+#define get_server(s)	(UNICODE *)Trspi_Native_To_UNICODE(s, NULL)
 void print_hex(BYTE *, UINT32);
 
 TSS_RESULT create_key(TSS_HCONTEXT, TSS_FLAG, TSS_HKEY, TSS_HKEY *);
@@ -104,7 +104,7 @@ TSS_UUID uuid0 = {2,3,5,7,5,{1,9,9,2,7,3}};
 #define print_error_exit(function,result) printf("%s testing failed with %s\n", function, result);
 
 /* use get_server as a generic UNICODE conversion routine */
-#define char_to_unicode	Trspi_UTF8_To_UNICODE
+#define char_to_unicode	Trspi_Native_To_UNICODE
 
 #define GLOBALSERVER	NULL
 

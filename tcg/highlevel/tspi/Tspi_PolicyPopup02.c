@@ -68,6 +68,7 @@
 
 #include <stdio.h>
 #include <trousers/tss.h>
+#include <trousers/trousers.h>
 #include "../common/common.h"
 
 
@@ -97,7 +98,7 @@ main_v1_1( void )
 	TSS_HHASH		hHash;
 	BYTE			*popupMsg = NULL;
 	BYTE			*msg = "Enter a password for a new key:";
-	UINT32			msg_len = strlen(msg) + 1;
+	UINT32			msg_len;
 	TSS_HPOLICY		srkUsagePolicy;
 	TSS_FLAG		initFlags = TSS_KEY_TYPE_SIGNING |
 						TSS_KEY_SIZE_2048 |
@@ -184,7 +185,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	popupMsg = Trspi_UTF8_To_UNICODE(msg, &msg_len);
+	popupMsg = char_to_unicode(msg, &msg_len);
 	result = Tspi_SetAttribData( hPolicy,
 					TSS_TSPATTRIB_POLICY_POPUPSTRING,
 					0, msg_len, popupMsg );
