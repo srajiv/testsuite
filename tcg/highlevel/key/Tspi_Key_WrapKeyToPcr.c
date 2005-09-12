@@ -89,23 +89,22 @@ main_v1_1(void){
 	TSS_HCONTEXT	hContext;
 	TSS_HTPM	hTPM;
 	TSS_FLAG	initFlags;
-	TSS_HKEY	hKey;
-	TSS_HKEY	hSRK;
+	TSS_HKEY	hKey, hSRK;
 	TSS_HPCRS	hPcrs;
 	TSS_RESULT	result;
-	TSS_UUID	uuid;
-	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
-	initFlags	= TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
-			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-			TSS_KEY_MIGRATABLE;
+	TSS_HPOLICY	srkUsagePolicy;
 	RSA		*rsa = NULL;
 	unsigned char	n[2048], p[2048];
 	int		size_n, size_p;
 	BYTE		pcrData[] = "09876543210987654321";
-	BYTE		*pcrVal;
-	UINT32		pcrValLen;
+	BYTE		*pcrValue, *srkPub;
+	UINT32		pcrLen, srkPubLen;
 
 	print_begin_test(nameOfFunction);
+
+	initFlags	= TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
+			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
+			TSS_KEY_MIGRATABLE;
 
 		//Create Context
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
@@ -114,6 +113,16 @@ main_v1_1(void){
 		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
+
+		// Get the SRK's pub key
+	result = Tspi_Key_GetPubKey(hSRK, &srkPubLen, &srkPub);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_GetPubKey ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		exit(result);
+	}
+	Tspi_Context_FreeMemory(hContext, srkPub);
+
 		//Create Key Object
 	result = Tspi_Context_CreateObject(hContext,
 					TSS_OBJECT_TYPE_RSAKEY,
@@ -184,7 +193,7 @@ main_v1_1(void){
 		RSA_free(rsa);
 		exit(result);
 	}
-
+#if 0
 		// Select indices in the PCR object
 	result = Tspi_PcrComposite_SelectPcrIndex(hPcrs, 1);
 	if (result != TSS_SUCCESS) {
@@ -205,7 +214,43 @@ main_v1_1(void){
 		RSA_free(rsa);
 		exit(result);
 	}
+#else
+		//Get PCR vals from TPM
+	result = Tspi_TPM_PcrRead(hTPM, 1, &pcrLen, &pcrValue);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_TPM_PcrRead", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Set PCR vals in the object
+	result = Tspi_PcrComposite_SetPcrValue(hPcrs, 1, pcrLen, pcrValue);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	Tspi_Context_FreeMemory(hContext, pcrValue);
 
+		//Get PCR vals from TPM
+	result = Tspi_TPM_PcrRead(hTPM, 15, &pcrLen, &pcrValue);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_TPM_PcrRead", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Set PCR vals in the object
+	result = Tspi_PcrComposite_SetPcrValue(hPcrs, 15, pcrLen, pcrValue);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	Tspi_Context_FreeMemory(hContext, pcrValue);
+#endif
 		//Wrap Key
 	result = Tspi_Key_WrapKey(hKey, hSRK, hPcrs);
 	if (result != TSS_SUCCESS) {
@@ -231,7 +276,7 @@ main_v1_1(void){
 	/* now, encrypt and decrypt some data to see if the key "works" */
 	result = bind_and_unbind(hContext, hKey);
 	if (result != TSS_SUCCESS) {
-		print_error("bind_and_unbind ", result);
+		print_error("bind_and_unbind 1", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
@@ -241,7 +286,7 @@ main_v1_1(void){
 
 	/* now, change a PCR value that the key is set to */
 	result = Tspi_TPM_PcrExtend(hTPM, 15, 20, pcrData, NULL,
-				    &pcrValLen, &pcrVal);
+				    &pcrLen, &pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_PcrExtend ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -254,9 +299,9 @@ main_v1_1(void){
 	/* now, encrypt and decrypt some data, which should fail, since
 	 * the PCR changed */
 	result = bind_and_unbind(hContext, hKey);
-	if (result != TCPA_E_WRONGPCRVAL){
+	if (TSS_ERROR_CODE(result) != TCPA_E_WRONGPCRVAL){
 		if(!checkNonAPI(result)){
-			print_error("bind_and_unbind ", result);
+			print_error("bind_and_unbind 2", result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
