@@ -66,9 +66,9 @@ print_wrongChar()
 	fprintf( stderr, "You entered an incorrect parameter \n" );
 	exit(1);
 }
-void printUsage()
+void printUsage(char *argv0)
 {
-	fprintf( stderr, "Usage: --options\n" );
+	fprintf( stderr, "Usage: %s [options]\n", argv0);
 	fprintf( stderr, "\t-v or --version\t\tThe version of the TSS you would like to test.\n" );
 }
 char* parseArgs(int argc, char **argv)
@@ -78,7 +78,7 @@ char* parseArgs(int argc, char **argv)
 	char *version;
 
 	if (argc <3){
-		printUsage();
+		printUsage(argv[0]);
 		exit(1);
 	}
 
@@ -94,7 +94,7 @@ char* parseArgs(int argc, char **argv)
 				//fall through
 			default:
 				print_wrongChar();
-				printUsage();
+				printUsage(argv[0]);
 				exit(0);
 		}
 	}
