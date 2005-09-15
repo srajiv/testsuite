@@ -52,7 +52,7 @@
 
 #include "../common/common.h"
 
-#define NUM_KEYS	15
+#define NUM_KEYS	10
 
 TSS_HKEY        hSRK;
 
@@ -68,7 +68,7 @@ create_and_load_key(TSS_HCONTEXT hContext, int num, TSS_HKEY *phKey)
 
 	result = Tspi_Context_LoadKeyByUUID( hContext, TSS_PS_TYPE_SYSTEM,
 						uuid, phKey );
-	if ( result != TSS_SUCCESS) {
+	if ( TSS_ERROR_CODE(result) == TSS_E_PS_KEY_NOTFOUND) {
 		result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
 				TSS_KEY_SIZE_2048 |
 				TSS_KEY_TYPE_LEGACY |
@@ -108,6 +108,7 @@ create_and_load_key(TSS_HCONTEXT hContext, int num, TSS_HKEY *phKey)
 	}
 
 done:
+	printf("result = %x\n", result);
 	return result;
 }
 
@@ -116,16 +117,16 @@ main( int argc, char **argv )
 {
 	char		*version;
 
-	version = parseArgs( argc, argv );
+	//version = parseArgs( argc, argv );
 		// if it is not version 1.1, print error
-	if( strcmp(version, "1.1") )
+	if( strcmp(argv[2], "1.1") )
 		print_wrongVersion();
 	else
-		return main_v1_1();
+		return main_v1_1(argv[3]);
 }
 
 int
-main_v1_1(void)
+main_v1_1(char *argv3)
 {
 	char *function = "key_loading";
 	int i;
@@ -141,7 +142,6 @@ main_v1_1(void)
 
 	UINT32 pulDataLength;
 	BYTE *prgbDataToUnBind;
-
 
 	print_begin_test( function );
 
@@ -159,6 +159,20 @@ main_v1_1(void)
 	{
 		print_error( "Tspi_Context_Connect", result );
 		goto done;
+	}
+
+	if (argv3 && (strcmp("--clear", argv3) == 0)) {
+		TSS_UUID uuid;
+		memset(&uuid, 0, sizeof(uuid));
+		for (i = 1; i < NUM_KEYS+1; i++) {
+			uuid.usTimeHigh = i;
+			if (!Tspi_Context_UnregisterKey(hContext, TSS_PS_TYPE_SYSTEM,
+						   uuid, &key_handles[0]))
+				printf("Unregistered key %d\n", i);
+		}
+
+		Tspi_Context_Close(hContext);
+		exit(0);
 	}
 
 	fprintf(stderr, "%s connected with context 0x%x\n", function, hContext);
@@ -193,10 +207,10 @@ main_v1_1(void)
 
 	/* load a bunch of keys, creating when necessary */
 	for (i = 1; i < NUM_KEYS+1; i++) {
-		if (create_and_load_key(hContext, i, &key_handles[i-1])) {
+		if ((result=create_and_load_key(hContext, i, &key_handles[i-1]))) {
 			goto done;
 		}
-		printf("Loaded key %d\n", i);
+		printf("Loaded key %d as TSS handle %X\n", i, key_handles[i-1]);
 	}
 
 	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_ENCDATA,
