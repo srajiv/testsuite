@@ -72,7 +72,7 @@ create_and_load_key(TSS_HCONTEXT hContext, int num, TSS_HKEY *phKey)
 	if ( TSS_ERROR_CODE(result) == TSS_E_PS_KEY_NOTFOUND) {
 		result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
 				TSS_KEY_SIZE_2048 |
-				TSS_KEY_TYPE_LEGACY,
+				TSS_KEY_TYPE_LEGACY | TSS_KEY_AUTHORIZATION,
 				phKey );
 		if ( result != TSS_SUCCESS ) {
 			print_error( "Tspi_Context_CreateObject", result );
