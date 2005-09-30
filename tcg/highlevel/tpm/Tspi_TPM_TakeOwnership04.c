@@ -19,7 +19,7 @@
 
 /*
  * NAME
- *	Tspi_TPM_TakeOwnership01.c
+ *	Tspi_TPM_TakeOwnership04.c
  *
  * DESCRIPTION
  *	This test will verify that Tspi_TPM_TakeOwnership succeeds when
@@ -81,7 +81,7 @@ main( int argc, char **argv )
 int
 main_v1_1( void )
 {
-	char			*function = "Tspi_TPM_TakeOwnership01";
+	char			*function = "Tspi_TPM_TakeOwnership04";
 	BYTE			*rgbPcrValue;
 	UINT32			ulPcrValueLength;
 	TSS_HCONTEXT		hContext;
@@ -90,14 +90,11 @@ main_v1_1( void )
 	TSS_HPOLICY		hSrkPolicy;
 	TSS_HKEY		hEndorsement;
 	TSS_HKEY		hKeySRK;
-	BYTE			allones[8];
 	TSS_VALIDATION		valid;
 	TSS_RESULT		result;
 	UINT32			exitCode;
 
 	print_begin_test( function );
-
-	memset( allones, 0x02, 8 );
 
 		// Create Context
 	result = Tspi_Context_Create( &hContext );
