@@ -346,6 +346,7 @@ create_key(TSS_HCONTEXT hContext, TSS_FLAG initFlags,
 		TSS_HKEY hSRK, TSS_HKEY *hKey)
 {
 	TSS_RESULT result;
+	TSS_HPOLICY hPolicy;
 
 		//Create Object
 	result = Tspi_Context_CreateObject(hContext,
@@ -357,7 +358,7 @@ create_key(TSS_HCONTEXT hContext, TSS_FLAG initFlags,
 	}
 
 	if (initFlags & TSS_KEY_AUTHORIZATION) {
-		if ((result = set_secret(*hKey, NULL)))
+		if ((result = set_secret(*hKey, &hPolicy)))
 			return result;
 	}
 
@@ -420,7 +421,7 @@ set_secret(TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
 		}
 		//SetSecret
 		result = Tspi_Policy_SetSecret(*hPolicy, TSS_SECRET_MODE_PLAIN,
-				0, NULL);
+				strlen(KEY_PWD), KEY_PWD);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Policy_SetSecret", result);
 			return(result);
@@ -559,6 +560,87 @@ bind_and_unbind(TSS_HCONTEXT hContext, TSS_HKEY hKey)
 			       " (%u != %u)\n", pulDataLength, ulDataLength);
 			result = TSS_E_FAIL;
 		} else if (memcmp(prgbDataToUnBind, rgbDataToBind, ulDataLength)) {
+			printf("ERROR: Content of decrypted data does not match!\n");
+			result = TSS_E_FAIL;
+		} else {
+			result = TSS_SUCCESS;
+		}
+	}
+
+	return result;
+}
+
+TSS_RESULT
+sign_and_verify(TSS_HCONTEXT hContext, TSS_HKEY hKey)
+{
+	TSS_RESULT result;
+	TSS_HHASH hHash;
+	BYTE rgbDataToSign[] = "09876543210987654321";
+	UINT32 ulDataLength = 20; // with work w/ either SS
+	BYTE *rgbSignedData, *rgbVerifiedData;
+	UINT32 ulSignedDataLength, ulVerifiedDataLength;
+
+	result = Tspi_Context_CreateObject( hContext,
+					    TSS_OBJECT_TYPE_HASH,
+					    TSS_HASH_SHA1, &hHash );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error("Tspi_Context_CreateObject ", result);
+		return result;
+	}
+
+	printf("Data before signing:\n");
+	print_hex(rgbDataToSign, ulDataLength);
+
+	result = Tspi_Hash_SetHashValue(hHash, ulDataLength, rgbDataToSign);
+	if (result != TSS_SUCCESS)
+	{
+		print_error( "Tspi_Hash_SetHashValue", result );
+		return result;
+	}
+
+	result = Tspi_Hash_Sign( hHash, hKey, &ulSignedDataLength, &rgbSignedData );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Hash_Sign", result );
+		return result;
+	}
+
+	printf("Data after signing:\n");
+	print_hex(rgbSignedData, ulSignedDataLength);
+
+	result = Tspi_Hash_VerifySignature(hHash, hKey, ulSignedDataLength,
+					   rgbSignedData );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Hash_VerifySignature", result );
+		if( !(checkNonAPI(result)) )
+		{
+			print_error( "Tspi_Hash_VerifySignature", result );
+		}
+		else
+		{
+			print_error_nonapi("Tspi_Hash_VerifySignature",
+					   result);
+		}
+	}
+	else
+	{
+		if ((result = Tspi_Hash_GetHashValue(hHash,
+						     &ulVerifiedDataLength,
+						     &rgbVerifiedData))) {
+			print_error( "Tspi_Hash_GetHashValue", result );
+			return result;
+		}
+
+		printf("Data after verifying:\n");
+		print_hex(rgbVerifiedData, ulVerifiedDataLength);
+
+		if (ulVerifiedDataLength != ulDataLength) {
+			printf("ERROR: Size of verified data does not match!"
+			       " (%u != %u)\n", ulDataLength, ulVerifiedDataLength);
+			result = TSS_E_FAIL;
+		} else if (memcmp(rgbVerifiedData, rgbDataToSign, ulDataLength)) {
 			printf("ERROR: Content of decrypted data does not match!\n");
 			result = TSS_E_FAIL;
 		} else {
