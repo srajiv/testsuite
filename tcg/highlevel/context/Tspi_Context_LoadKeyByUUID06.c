@@ -116,6 +116,13 @@ store_keys(TSS_HCONTEXT hContext, TSS_HKEY hParentKey, TSS_UUID *uuidParent0,
 			return result;
 		}
 
+		/* load key so that the child can be created */
+		if ((result = Tspi_Key_LoadKey(hKey, hParentKey))) {
+			print_error("Tspi_Context_CreateObject", result);
+			print_error_exit(nameOfFunction, err_string(result));
+			return result;
+		}
+
 		/* register the new key */
 		if ((result = Tspi_Context_RegisterKey(hContext, hKey,
 						       TSS_PS_TYPE_SYSTEM,
