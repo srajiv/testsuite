@@ -19,7 +19,7 @@
 
 /*
  * NAME
- *	Tspi_TPM_GetEventLog01.c
+ *	Tspi_TPM_GetEventLog05.c
  *
  * DESCRIPTION
  *	This test will verify Tspi_TPM_GetEventLog.
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 }
 
 main_v1_1(void){
-	char		*nameOfFunction = "dump_event_log";
+	char		*nameOfFunction = "Tspi_TPM_GetEventLog05";
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HTPM	hTPM;
