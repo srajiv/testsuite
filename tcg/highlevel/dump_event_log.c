@@ -122,12 +122,12 @@ main_v1_1(void){
 		}
 	}
 	printf("There are %d events:\n", ulEventNumber);
-	printf("PCR SHA1                 Type Name\n");
+	printf("PCR SHA1\t\t\t\t     Type Name\n");
 
 	for (i = 0; i < ulEventNumber; i++) {
 		printf("%*d ", 3, PCREvents[i].ulPcrIndex);
 		for (j=0; j<PCREvents[i].ulPcrValueLength; j++)
-			printf("%x", PCREvents[i].rgbPcrValue[j] & 0xff);
+			printf("%02x", PCREvents[i].rgbPcrValue[j] & 0xff);
 		if (j < 20)
 			while (j < 20) {
 				printf(" ");
@@ -139,6 +139,8 @@ main_v1_1(void){
 			printf("NONE\n");
 		else
 			for (j=0; j<PCREvents[i].ulEventLength; j++)
-				printf("%x", PCREvents[i].rgbEvent[j] & 0xff);
+				printf("%02x", PCREvents[i].rgbEvent[j] & 0xff);
+
+			printf("\n");
 	}
 }
