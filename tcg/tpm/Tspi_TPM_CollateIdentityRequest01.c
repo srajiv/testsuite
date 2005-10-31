@@ -56,6 +56,7 @@
 
 #include <openssl/rsa.h>
 
+#define CA_KEY_SIZE_BITS 2048
 
 
 int main(int argc, char **argv)
@@ -121,8 +122,8 @@ main_v1_1(void){
 
 		//Create Identity Key Object
 	result = Tspi_Context_CreateObject(hContext,
-					TSS_OBJECT_TYPE_RSAKEY,
-					initFlags, &hIdentKey);
+					   TSS_OBJECT_TYPE_RSAKEY,
+					   initFlags, &hIdentKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -131,9 +132,9 @@ main_v1_1(void){
 	}
 		//Create CA Key Object
 	result = Tspi_Context_CreateObject(hContext,
-					TSS_OBJECT_TYPE_RSAKEY,
-					TSS_KEY_TYPE_LEGACY|TSS_KEY_SIZE_2048,
-					&hCAKey);
+					   TSS_OBJECT_TYPE_RSAKEY,
+					   TSS_KEY_TYPE_LEGACY|TSS_KEY_SIZE_2048,
+					   &hCAKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -142,7 +143,7 @@ main_v1_1(void){
 	}
 
 		// generate a software key to represent the CA's key
-	if ((rsa = RSA_generate_key(2048, 65537, NULL, NULL)) == NULL) {
+	if ((rsa = RSA_generate_key(CA_KEY_SIZE_BITS, 65537, NULL, NULL)) == NULL) {
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(1);
@@ -156,11 +157,48 @@ main_v1_1(void){
                 exit(-1);
         }
 
-		// set the public key data in the TSS object
+		// set the CA's public key data in the TSS object
 	result = Tspi_SetAttribData(hCAKey, TSS_TSPATTRIB_KEY_BLOB,
-			TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY, size_n, n);
+				    TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY, size_n,
+				    n);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribData ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+		exit(result);
+	}
+
+		// set the CA key's algorithm
+	result = Tspi_SetAttribUint32(hCAKey, TSS_TSPATTRIB_KEY_INFO,
+				      TSS_TSPATTRIB_KEYINFO_ALGORITHM,
+				      TSS_ALG_RSA);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_SetAttribUint32", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+		exit(result);
+	}
+
+		// set the CA key's size
+	result = Tspi_SetAttribUint32(hCAKey, TSS_TSPATTRIB_KEY_INFO,
+				      TSS_TSPATTRIB_KEYINFO_SIZE,
+				      CA_KEY_SIZE_BITS);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_SetAttribUint32", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+		exit(result);
+	}
+
+		// set the CA key's number of primes
+	result = Tspi_SetAttribUint32(hCAKey, TSS_TSPATTRIB_RSAKEY_INFO,
+				      TSS_TSPATTRIB_KEYINFO_PRIMES,
+				      2);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_SetAttribUint32", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
