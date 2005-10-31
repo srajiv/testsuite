@@ -29,15 +29,7 @@
  *	Setup:
  *		Create Context
  *		Connect Context
- *		Create Object (key)
- *		Create Object (enc data)
  *		Get SRK Handle
- *			(first call)
- *		Set Secret
- *		Create Object
- *		Create Key
- *		Register Key
- *			(second through eighth calls)
  *
  *	Test:
  *		Call GetPolicyObject eight times then if it does not succeed
@@ -45,8 +37,6 @@
  *		Print results
  *
  *	Cleanup:
- *		Unregister system key
- *		Free memory related to hContext
  *		Close context
  *
  * USAGE
@@ -57,6 +47,7 @@
  *
  * HISTORY
  *      Megan Schneider, mschnei@us.ibm.com, 6/04.
+ *      Kent Yoder, kyoder@users.sf.net
  *
  * RESTRICTIONS
  *	None.
@@ -86,18 +77,9 @@ main_v1_1( void )
 	char		*function = "Tspi_GetPolicyObject01";
 	TSS_HCONTEXT	hContext;
 	TSS_HKEY	hSRK;
-	TSS_HKEY	hMSigningKey;
-	TSS_HKEY	hKey;
-	TSS_UUID	SRKUUID			= {0,0,0,0,0,0,0,0,0,0,1};
-	TSS_UUID	migratableSignUUID	= {1,2,3,4,5,6,7,8,9,10,2};
-	TSS_UUID	uuid;
 	TSS_RESULT	result;
-	TSS_HENCDATA	hEncData;
 	UINT32		exitCode;
-	TSS_HPOLICY	srkUsagePolicy, hUsagePolicy, hMigrationPolicy;
-	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
-				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-				TSS_KEY_NOT_MIGRATABLE;
+	TSS_HPOLICY	srkUsagePolicy;
 
 	print_begin_test( function );
 
@@ -116,36 +98,9 @@ main_v1_1( void )
 	{
 		print_error( "Tspi_Context_Connect", result );
 		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
-
-		// create hKey
-	result = Tspi_Context_CreateObject( hContext,
-						TSS_OBJECT_TYPE_RSAKEY,
-						initFlags, &hKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Context_CreateObject( hContext,
-						TSS_OBJECT_TYPE_ENCDATA,
-						TSS_ENCDATA_SEAL, &hEncData );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hEncData)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
 
 		//Load Key By UUID
 	result = Tspi_Context_LoadKeyByUUID( hContext, TSS_PS_TYPE_SYSTEM,
@@ -154,7 +109,6 @@ main_v1_1( void )
 	{
 		print_error( "Tspi_Context_LoadKeyByUUID (hSRK)", result );
 		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -168,7 +122,6 @@ main_v1_1( void )
 		{
 			print_error( function, result );
 			print_end_test( function );
-			Tspi_Context_FreeMemory( hContext, NULL );
 			Tspi_Context_Close( hContext );
 			exit( 1 );
 		}
@@ -176,7 +129,6 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 			print_end_test( function );
-			Tspi_Context_FreeMemory( hContext, NULL );
 			Tspi_Context_Close( hContext );
 			exit( 1 );
 		}
@@ -187,187 +139,7 @@ main_v1_1( void )
 		exitCode = 0;
 	}
 
-		//Set Secret
-	result = Tspi_Policy_SetSecret( srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
-					0, NULL );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		//Create Signing Key
-	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
-						TSS_KEY_SIZE_2048 |
-						TSS_KEY_TYPE_SIGNING |
-						TSS_KEY_MIGRATABLE,
-						&hMSigningKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (signing key)",
-				result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Key_CreateKey( hMSigningKey, hSRK, 0 );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_CreateKey (signing key)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Context_RegisterKey( hContext, hMSigningKey,
-						TSS_PS_TYPE_SYSTEM,
-						migratableSignUUID,
-						TSS_PS_TYPE_SYSTEM,
-						SRKUUID );
-	if ( (result != TSS_SUCCESS) &&
-			(TSS_ERROR_CODE(result) != TSS_E_KEY_ALREADY_REGISTERED) )
-	{
-		print_error( "Tspi_Context_RegisterKey (signing key)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_SYSTEM,
-						uuid, &hMSigningKey );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		// get policy object
-	result = Tspi_GetPolicyObject( hMSigningKey, TSS_POLICY_USAGE,
-					&hUsagePolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
-		// get policy object
-	result = Tspi_GetPolicyObject( hMSigningKey, TSS_POLICY_MIGRATION,
-					&hMigrationPolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
-	result = Tspi_GetPolicyObject( hContext, TSS_POLICY_USAGE,
-					&hUsagePolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
-	result = Tspi_GetPolicyObject( hContext, TSS_POLICY_MIGRATION,
-					&hMigrationPolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
-	result = Tspi_GetPolicyObject( hEncData, TSS_POLICY_USAGE,
-					&hUsagePolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
-	result = Tspi_GetPolicyObject( hEncData, TSS_POLICY_MIGRATION,
-					&hMigrationPolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
 	print_end_test( function );
-	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_SYSTEM,
-					uuid, &hMSigningKey );
-	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
 	exit( exitCode );
 }

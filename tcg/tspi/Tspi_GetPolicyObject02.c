@@ -27,8 +27,6 @@
  *
  * ALGORITHM
  *	Setup:
- *		Create Context
- *		Connect Context
  *
  *	Test:
  *		Call GetPolicyObject then if it does not succeed
@@ -36,8 +34,6 @@
  *		Print results
  *
  *	Cleanup:
- *		Free memory related to hContext
- *		Close context
  *
  * USAGE
  *      First parameter is --options
@@ -47,6 +43,7 @@
  *
  * HISTORY
  *      Megan Schneider, mschnei@us.ibm.com, 6/04.
+ *      Kent Yoder, kyoder@users.sf.net
  *
  * RESTRICTIONS
  *	None.
@@ -74,33 +71,12 @@ int
 main_v1_1( void )
 {
 	char		*function = "Tspi_GetPolicyObject02";
-	TSS_HCONTEXT	hContext;
 	TSS_HKEY	whSRK = -1;
 	TSS_RESULT	result;
 	UINT32		exitCode;
 	TSS_HPOLICY	srkUsagePolicy;
 
 	print_begin_test( function );
-
-                // Create Context
-        result = Tspi_Context_Create( &hContext );
-        if ( result != TSS_SUCCESS )
-        {
-                print_error( "Tspi_Context_Create", result );
-                print_error_exit( function, err_string(result) );
-                exit( result );
-        }
-
-                // Connect to Context
-        result = Tspi_Context_Connect( hContext, get_server(GLOBALSERVER) );
-        if ( result != TSS_SUCCESS )
-        {
-                print_error( "Tspi_Context_Connect", result );
-                print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-                exit( result );
-        }
 
 		//Get Policy Object
 	result = Tspi_GetPolicyObject( whSRK, TSS_POLICY_USAGE,
@@ -125,7 +101,5 @@ main_v1_1( void )
 	}
 
 	print_end_test( function );
-	Tspi_Context_FreeMemory( hContext, NULL );
-	Tspi_Context_Close( hContext );
 	exit( exitCode );
 }

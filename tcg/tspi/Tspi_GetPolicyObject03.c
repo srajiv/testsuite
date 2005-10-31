@@ -81,14 +81,9 @@ main_v1_1( void )
 	char		*function = "Tspi_GetPolicyObject03";
 	TSS_HCONTEXT	hContext;
 	TSS_HKEY	hSRK;
-	TSS_HKEY	hKey;
-	TSS_HENCDATA	hEncData;
 	TSS_RESULT	result;
 	UINT32		exitCode;
 	TSS_HPOLICY	srkUsagePolicy;
-	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
-				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-				TSS_KEY_NOT_MIGRATABLE;
 
 	print_begin_test( function );
 
@@ -112,31 +107,6 @@ main_v1_1( void )
 		exit( result );
 	}
 
-		// create hKey
-	result = Tspi_Context_CreateObject( hContext,
-						TSS_OBJECT_TYPE_RSAKEY,
-						initFlags, &hKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Context_CreateObject( hContext,
-						TSS_OBJECT_TYPE_ENCDATA,
-						TSS_ENCDATA_SEAL, &hEncData );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
 		//Load Key By UUID
 	result = Tspi_Context_LoadKeyByUUID( hContext, TSS_PS_TYPE_SYSTEM,
 						SRK_UUID, &hSRK );
@@ -150,8 +120,7 @@ main_v1_1( void )
 	}
 
 		//Get Policy Object
-	result = Tspi_GetPolicyObject( hSRK, TSS_KEY_SIZE_1024,
-					&srkUsagePolicy );
+	result = Tspi_GetPolicyObject( hSRK, 0xffffffff, &srkUsagePolicy );
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		if( !(checkNonAPI(result)) )
@@ -171,28 +140,7 @@ main_v1_1( void )
 		exitCode = 0;
 	}
 
-	result = Tspi_GetPolicyObject( hEncData, TSS_KEY_SIZE_1024,
-					&srkUsagePolicy );
-	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
 	print_end_test( function );
-	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
 	exit( exitCode );
 }
