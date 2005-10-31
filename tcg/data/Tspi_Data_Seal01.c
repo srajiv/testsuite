@@ -93,7 +93,6 @@ main_v1_1( void )
 	UINT32		ulDataLength = strlen(rgbDataToSeal);
 	TSS_UUID	uuid;
 	TSS_RESULT	result;
-	UINT32		exitCode;
 	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 				TSS_KEY_NOT_MIGRATABLE;
@@ -202,6 +201,15 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, 9, 20, rgbPcrValue );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_PcrComposite_SetPcrValue", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
 
 		// Data Seal
 	result = Tspi_Data_Seal( hEncData, hSRK, ulDataLength, rgbDataToSeal, hPcrComposite );
@@ -210,22 +218,19 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
 	}
 	else
 	{
 		print_success( function, result );
-		exitCode = 0;
 	}
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit(result);
 }
