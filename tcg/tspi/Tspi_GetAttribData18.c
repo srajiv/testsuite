@@ -108,6 +108,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+		//Get the SRK's policy object
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &hPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
