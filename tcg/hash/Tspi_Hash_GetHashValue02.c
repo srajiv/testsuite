@@ -76,7 +76,6 @@ main_v1_1( void )
 {
 	char		*function = "Tspi_Hash_GetHashValue02";
 	TSS_HCONTEXT	hContext;
-	UINT32		exitCode;
 	TSS_HHASH	whHash = -1;
 	UINT32		ulHashValueLength;
 	BYTE		*rgbHashValue;
@@ -111,22 +110,19 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
 	}
 	else
 	{
 		print_success( function, result );
-		exitCode = 0;
 	}
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit( result );
 }

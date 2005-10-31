@@ -84,7 +84,6 @@ main_v1_1( void )
 {
 	char		*function = "Tspi_Hash_Sign01";
 	TSS_HCONTEXT	hContext;
-	UINT32		exitCode;
 	TSS_HKEY	hSRK;
 	TSS_HKEY	hMSigningKey;
 	TSS_UUID	SRKUUID			= {0,0,0,0,0,0,0,0,0,0,1};
@@ -225,18 +224,15 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
 	}
 	else
 	{
 		print_success( function, result );
-		exitCode = 0;
 	}
 
 	print_end_test( function );
@@ -245,5 +241,5 @@ main_v1_1( void )
 					&hMSigningKey );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit( result );
 }
