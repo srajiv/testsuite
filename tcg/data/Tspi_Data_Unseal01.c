@@ -78,6 +78,8 @@ main( int argc, char **argv )
 		main_v1_1();
 }
 
+#define DATA_SIZE	((2048/8)-40-2-65)
+
 int
 main_v1_1( void )
 {
@@ -86,14 +88,14 @@ main_v1_1( void )
 	TSS_HKEY	hSRK, hKey;
 	TSS_HTPM	hTPM;
 	TSS_HPOLICY	hKeyPolicy, hEncUsagePolicy, hSRKPolicy;
-	BYTE		rgbDataToSeal[32] = {0,1,3,4,5,6,7,8,9,'A','B','C','D','E','F',0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F'};
+	BYTE		rgbDataToSeal[DATA_SIZE];
 	BYTE		*rgbPcrValue;
 	UINT32		ulPcrLen;
 	TSS_HENCDATA	hEncData;
 	BYTE		*prgbDataToUnseal;
 	TSS_HPCRS	hPcrComposite;
 	UINT32		BlobLength;
-	UINT32		ulDataLength = 32;
+	UINT32		ulDataLength = DATA_SIZE, ulNewDataLength;
 	TSS_UUID	uuid;
 	TSS_RESULT	result;
 	UINT32		exitCode;
@@ -102,6 +104,8 @@ main_v1_1( void )
 				TSS_KEY_NOT_MIGRATABLE;
 
 	print_begin_test( function );
+
+	memset(rgbDataToSeal, 0x5d, DATA_SIZE);
 
 		// Create Context
 	result = Tspi_Context_Create( &hContext );
@@ -302,7 +306,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_Data_Unseal( hEncData, hKey, &ulDataLength, &prgbDataToUnseal );
+	result = Tspi_Data_Unseal( hEncData, hKey, &ulNewDataLength, &prgbDataToUnseal );
 	if ( result != TSS_SUCCESS )
 	{
 		if( !(checkNonAPI(result)) )
@@ -321,6 +325,12 @@ main_v1_1( void )
 		print_success( function, result );
 		exitCode = 0;
 	}
+
+	if (ulDataLength != ulNewDataLength)
+		printf("ERROR length\n");
+
+	if (memcmp(prgbDataToUnseal, rgbDataToSeal, ulDataLength))
+		printf("ERROR data\n");
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
