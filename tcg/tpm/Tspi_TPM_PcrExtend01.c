@@ -81,6 +81,10 @@ main_v1_1(void){
 	BYTE*		NewPcrValue;
 	TSS_RESULT	result;
 
+	TSS_PCR_EVENT event;
+	memset(&event, 0, sizeof(TSS_PCR_EVENT));
+	event.ulPcrIndex = 9;
+
 	print_begin_test(nameOfFunction);
 
 
@@ -104,7 +108,7 @@ main_v1_1(void){
 	}
 		//Call PcrExtend
 	result = Tspi_TPM_PcrExtend(hTPM, 9, 20,
-			&pcrValue, NULL, &ulNewPcrValueLength, &NewPcrValue);
+			&pcrValue, &event, &ulNewPcrValueLength, &NewPcrValue);
 	if (result != TSS_SUCCESS) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
