@@ -169,7 +169,7 @@ main_v1_1(void){
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
-		exit(1);
+		exit(result);
 	}
 
 		// get the pub key and a prime
@@ -245,7 +245,7 @@ main_v1_1(void){
 			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_Close(hContext);
 			RSA_free(rsa);
-			exit(1);
+			exit(result);
 		}
 		else{
 			print_error_nonapi(nameOfFunction, result);
@@ -254,7 +254,7 @@ main_v1_1(void){
 			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_Close(hContext);
 			RSA_free(rsa);
-			exit(1);
+			exit(result);
 		}
 	}
 	else{

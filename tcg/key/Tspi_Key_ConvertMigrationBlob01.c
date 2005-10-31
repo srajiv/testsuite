@@ -88,7 +88,6 @@ int
 main_v1_1( void )
 {
 	char		*function = "Tspi_Key_ConvertMigrationBlob01";
-	UINT32		exitCode;
 	TSS_HCONTEXT	hContext;
 	TSS_HKEY	hSRK;
 	TSS_HKEY	hKey;
@@ -359,22 +358,19 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
 	}
 	else
 	{
 		print_success( function, result );
-		exitCode = 0;
 	}
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit( result );
 }

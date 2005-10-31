@@ -134,7 +134,7 @@ main_v1_1( void )
 			print_end_test( function );
 			Tspi_Context_FreeMemory( hContext, NULL );
 			Tspi_Context_Close( hContext );
-			exit( 1 );
+			exit(result);
 		}
 		else
 		{
@@ -142,7 +142,7 @@ main_v1_1( void )
 			print_end_test( function );
 			Tspi_Context_FreeMemory( hContext, NULL );
 			Tspi_Context_Close( hContext );
-			exit( 1 );
+			exit(result);
 		}
 	}
 	else
