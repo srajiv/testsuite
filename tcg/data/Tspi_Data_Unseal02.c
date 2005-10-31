@@ -93,7 +93,6 @@ main_v1_1( void )
 	BYTE		*prgbDataToUnseal;
 	UINT32		ulDataLength = 32;
 	TSS_RESULT	result;
-	UINT32		exitCode;
 	TSS_FLAG	initFlags = TSS_KEY_TYPE_STORAGE | TSS_KEY_SIZE_2048  |
 				TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
 				TSS_KEY_NOT_MIGRATABLE;
@@ -217,22 +216,19 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
 	}
 	else
 	{
 		print_success( function, result );
-		exitCode = 0;
 	}
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit( result );
 }
