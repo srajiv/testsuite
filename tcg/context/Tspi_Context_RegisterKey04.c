@@ -87,7 +87,6 @@ main_v1_1( void )
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HPOLICY	srkUsagePolicy;
-	UINT32		exitCode;
 
 	print_begin_test( function );
 
@@ -183,18 +182,15 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
 	}
 	else
 	{
 		print_success( function, result );
-		exitCode = 0;
 	}
 
 	print_end_test( function );
@@ -203,5 +199,5 @@ main_v1_1( void )
 					&hMSigningKey );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit( result );
 }

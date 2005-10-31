@@ -94,7 +94,6 @@ main_v1_1( void )
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HPOLICY	srkUsagePolicy;
-	UINT32		exitCode;
 
 	print_begin_test( function );
 
@@ -186,26 +185,22 @@ main_v1_1( void )
 						migratableSignUUID,
 						TSS_PS_TYPE_SYSTEM,
 						SRK_UUID );
-	if ( (result != TSS_SUCCESS) &&
-		(TSS_ERROR_CODE(result) != TSS_E_KEY_ALREADY_REGISTERED) )
+	if (result != TSS_SUCCESS)
 	{
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
 	}
 	else
 	{
 		print_success( function, result );
-		exitCode = 0;
 	}
-
+#if 0
 	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
 						TSS_KEY_SIZE_2048 |
 						TSS_KEY_TYPE_SIGNING |
@@ -250,27 +245,27 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
 	}
 	else
 	{
 		print_success( function, result );
 	}
-
+#endif
 	print_end_test( function );
+#if 0
 	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_USER,
 					userSignUUID,
 					&hUSigningKey );
+#endif
 	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_SYSTEM,
 					migratableSignUUID,
 					&hMSigningKey );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit( result );
 }
