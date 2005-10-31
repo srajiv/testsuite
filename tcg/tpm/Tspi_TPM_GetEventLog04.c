@@ -86,12 +86,12 @@ main_v1_1(void){
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
-			exit(1);
+			exit(result);
 		}
 		else{
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
-			exit(1);
+			exit(result);
 		}
 	}
 	else{

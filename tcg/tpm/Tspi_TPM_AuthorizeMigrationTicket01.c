@@ -230,7 +230,7 @@ main_v1_1(void){
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hTargetPubKey);
 			Tspi_Context_Close(hContext);
-			exit(1);
+			exit(result);
 		}
 		else{
 			print_error_nonapi(nameOfFunction, result);
@@ -238,7 +238,7 @@ main_v1_1(void){
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hTargetPubKey);
 			Tspi_Context_Close(hContext);
-			exit(1);
+			exit(result);
 		}
 	}
 	else{

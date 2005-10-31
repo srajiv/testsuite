@@ -146,7 +146,7 @@ main_v1_1(void){
 	if ((rsa = RSA_generate_key(CA_KEY_SIZE_BITS, 65537, NULL, NULL)) == NULL) {
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
-		exit(1);
+		exit(result);
 	}
 
 		// get the pub CA key
@@ -154,7 +154,7 @@ main_v1_1(void){
 		fprintf(stderr, "BN_bn2bin failed\n");
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
-                exit(-1);
+                exit(254);
         }
 
 		// set the CA's public key data in the TSS object
@@ -195,7 +195,7 @@ main_v1_1(void){
 
 		// set the CA key's number of primes
 	result = Tspi_SetAttribUint32(hCAKey, TSS_TSPATTRIB_RSAKEY_INFO,
-				      TSS_TSPATTRIB_KEYINFO_PRIMES,
+				      TSS_TSPATTRIB_KEYINFO_RSA_PRIMES,
 				      2);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribUint32", result);
@@ -210,7 +210,7 @@ main_v1_1(void){
 		fprintf(stderr, "Trspi_Native_To_UNICODE failed\n");
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
-                exit(1);
+                exit(result);
 	}
 
 	result = Tspi_TPM_CollateIdentityRequest(hTPM, hSRK, hCAKey, labelLen,
@@ -224,14 +224,14 @@ main_v1_1(void){
 			print_end_test(nameOfFunction);
 			Tspi_Context_Close(hContext);
 			RSA_free(rsa);
-			exit(1);
+			exit(result);
 		}
 		else{
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_Close(hContext);
 			RSA_free(rsa);
-			exit(1);
+			exit(result);
 		}
 	}
 	else{
