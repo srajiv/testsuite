@@ -40,6 +40,7 @@
 #      None.
 ##
 
+
 export TSS_VERSION=1.1
 LOGDIR=$PWD
 export LOGFILE=$LOGDIR/tsstests.log
@@ -48,6 +49,7 @@ PASSFAIL=0
 PASSED=0
 FAILED=0
 SEGFAULTED=0
+NOTIMPL=0
 PRETENDING=0
 QUIET=0
 export ERR_SUMMARY=../../err.summary
@@ -211,6 +213,8 @@ else
 					let FAILED+=1;
 					if [ $RUNRESULT -gt "127" ]; then
 						let SEGFAULTED+=1;
+					elif [ $RUNRESULT -eq 6 ]; then
+						let NOTIMPL+=1;
 					fi
 				else
 					let PASSED+=1;
@@ -218,12 +222,12 @@ else
 				if [ $QUIET -eq 0 ]; then
 					if [ $LOGGING -eq 0 ]; then
 						echo PASSED: $PASSED
-						echo FAILED: $FAILED
+						echo FAILED: $FAILED \($NOTIMPL NOTIMPL\)
 						echo SEGFAULTED: $SEGFAULTED
 					else
 						{
 						echo PASSED: $PASSED
-						echo FAILED: $FAILED
+						echo FAILED: $FAILED \($NOTIMPL NOTIMPL\)
 						echo SEGFAULTED: $SEGFAULTED
 						} >> "$LOGFILE"
 					fi
@@ -247,7 +251,7 @@ else
 	else
 		if [ $LOGGING -eq 0 ]; then
 			echo Passed Testcases: $PASSED
-			echo Failed Testcases: $FAILED
+			echo Failed Testcases: $FAILED \($NOTIMPL NOTIMPL\)
 			echo Segfaulted: $SEGFAULTED
 			echo TSStests reported FAIL
 		else
