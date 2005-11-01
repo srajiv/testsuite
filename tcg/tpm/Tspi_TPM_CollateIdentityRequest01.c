@@ -181,18 +181,6 @@ main_v1_1(void){
 		exit(result);
 	}
 
-		// set the CA key's size
-	result = Tspi_SetAttribUint32(hCAKey, TSS_TSPATTRIB_KEY_INFO,
-				      TSS_TSPATTRIB_KEYINFO_SIZE,
-				      CA_KEY_SIZE_BITS);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		RSA_free(rsa);
-		exit(result);
-	}
-
 		// set the CA key's number of primes
 	result = Tspi_SetAttribUint32(hCAKey, TSS_TSPATTRIB_RSAKEY_INFO,
 				      TSS_TSPATTRIB_KEYINFO_RSA_PRIMES,
