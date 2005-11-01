@@ -89,6 +89,7 @@ main_v1_1( void )
 	UINT32		blobLength;
 	TSS_RESULT	result;
 	TSS_HPOLICY	srkUsagePolicy;
+	UINT32		exitCode = 0;
 
 	print_begin_test( function );
 
@@ -196,10 +197,12 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
+			exitCode = result;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
+			exitCode = result;
 		}
 	}
 	else
@@ -210,5 +213,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

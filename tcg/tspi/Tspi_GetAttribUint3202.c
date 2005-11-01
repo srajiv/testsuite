@@ -80,7 +80,7 @@ main_v1_1( void )
 	UINT32			ES;
 	UINT32			SS;
 	TSS_RESULT		result;
-	UINT32			exitCode;
+	UINT32			exitCode = 0;
 
 	print_begin_test( function );
 
@@ -114,13 +114,12 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -138,13 +137,12 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			exitCode = 1;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			exitCode = 1;
 		}
+		exitCode = result;
 	}
 	else
 	{

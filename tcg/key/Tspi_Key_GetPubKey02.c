@@ -80,7 +80,7 @@ main_v1_1( void )
 	TSS_HCONTEXT	whContext = -1;
 	TSS_HKEY	hSRK;
 	TSS_RESULT	result;
-	UINT32		ulPubKeyLength;
+	UINT32		ulPubKeyLength, exitCode = 0;
 	BYTE		*rgbPubKey;
 
 	print_begin_test( function );
@@ -129,6 +129,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -138,5 +139,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

@@ -94,7 +94,7 @@ main_v1_1( void )
 	TSS_HHASH	hHash;
 	TSS_HHASH	whHash = -1;
 	BYTE		*prgbSignature;
-	UINT32		pulSignatureLength;
+	UINT32		pulSignatureLength, exitCode = 0;
 	UINT32		signaturePublicKeyDataLength;
 	BYTE		*signaturePublicKeyData;
 	TSS_RESULT	result;
@@ -228,6 +228,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -240,5 +241,5 @@ main_v1_1( void )
 					&hMSigningKey );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

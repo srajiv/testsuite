@@ -76,7 +76,7 @@ main_v1_1( void )
 {
 	char			*function = "Tspi_TPM_PcrRead03";
 	BYTE			*rgbPcrValue;
-	UINT32			ulPcrValueLength;
+	UINT32			ulPcrValueLength, exitCode = 0;
 	TSS_HCONTEXT		hContext;
 	TSS_HTPM		hTPM;
 	TSS_RESULT		result;
@@ -125,6 +125,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -134,5 +135,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

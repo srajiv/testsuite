@@ -91,7 +91,7 @@ main_v1_1( void )
 	BYTE		rgbDataToSeal[32] = {0,1,3,4,5,6,7,8,9,'A','B','C','D','E','F',0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F'};
 	BYTE		rgbPcrValue[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	BYTE		*prgbDataToUnseal;
-	UINT32		ulDataLength = 32;
+	UINT32		ulDataLength = 32, exitCode = 0;
 	TSS_RESULT	result;
 	TSS_FLAG	initFlags = TSS_KEY_TYPE_STORAGE | TSS_KEY_SIZE_2048  |
 				TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
@@ -221,6 +221,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -230,5 +231,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

@@ -123,14 +123,14 @@ main_v1_1( void )
 			print_error( function, result );
 			print_end_test( function );
 			Tspi_Context_Close( hContext );
-			exit( 1 );
+			exit(result);
 		}
 		else
 		{
 			print_error_nonapi( function, result );
 			print_end_test( function );
 			Tspi_Context_Close( hContext );
-			exit( 1 );
+			exit(result);
 		}
 	}
 	else

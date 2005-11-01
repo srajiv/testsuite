@@ -92,7 +92,7 @@ main_v1_1( void )
 	BYTE		*prgbDataToUnseal;
 	TSS_HPCRS	hPcrComposite;
 	UINT32		BlobLength;
-	UINT32		ulDataLength = 32;
+	UINT32		ulDataLength = 32, exitCode = 0;
 	TSS_UUID	uuid;
 	TSS_RESULT	result;
 	TSS_FLAG	initFlags = TSS_KEY_TYPE_STORAGE | TSS_KEY_SIZE_2048  |
@@ -289,6 +289,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -298,5 +299,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

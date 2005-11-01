@@ -76,8 +76,9 @@ main_v1_1( void )
 	char			*function = "Tspi_TPM_GetStatus02";
 	TSS_HCONTEXT		hContext;
 	TSS_HTPM		whTPM = -1;
-	TSS_BOOL			state;
+	TSS_BOOL		state;
 	TSS_RESULT		result;
+	UINT32			exitCode = 0;
 
 	print_begin_test( function );
 
@@ -114,6 +115,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -123,5 +125,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

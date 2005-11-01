@@ -78,6 +78,7 @@ main_v1_1( void )
 	TSS_HKEY		hSRK = -1;
 	TSS_HPOLICY		hLocalDefaultPolicy;
 	TSS_RESULT		result;
+	UINT32			exitCode = 0;
 
 	print_begin_test( function );
 		// Create Context
@@ -108,10 +109,12 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
+			exitCode = result;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
+			exitCode = result;
 		}
 	}
 	else
@@ -122,5 +125,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hLocalContext, NULL );
 	Tspi_Context_Close( hLocalContext );
-	exit( result );
+	exit( exitCode );
 }

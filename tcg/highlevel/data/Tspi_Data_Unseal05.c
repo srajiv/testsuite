@@ -196,7 +196,7 @@ main_v1_1(void){
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_CloseObject(hContext, hEncData);
 		Tspi_Context_Close(hContext);
-		exit(1);
+		exit(result);
 	}
 	else {
 		print_success("Tspi_Data_Seal", result);
@@ -215,7 +215,7 @@ main_v1_1(void){
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_CloseObject(hContext, hEncData);
 		Tspi_Context_Close(hContext);
-		exit(1);
+		exit(result);
 	}
 	else {
 		print_success("Tspi_Data_Unseal", result);

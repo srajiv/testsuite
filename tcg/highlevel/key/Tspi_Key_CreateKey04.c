@@ -167,7 +167,7 @@ main(int argc, char **argv)
 		//Create Context
 	if ((result = connect_load_srk(&hContext, &hSRK))) {
 		print_error("connect_load_srk", result);
-		exit(1);
+		exit(result);
 	}
 
 		//Create Object
@@ -248,5 +248,5 @@ main(int argc, char **argv)
 err:
 	print_error_exit(nameOfFunction, err_string(result));
 	Tspi_Context_Close(hContext);
-	exit(1);
+	exit(result);
 }

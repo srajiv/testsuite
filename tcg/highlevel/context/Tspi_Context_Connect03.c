@@ -95,13 +95,13 @@ main_v1_1(void){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_Close(hContext);
-			exit(1);
+			exit(result);
 		}
 		else{
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_Close(hContext);
-			exit(1);
+			exit(result);
 		}
 	}
 	else{
@@ -124,13 +124,13 @@ main_v1_1(void){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_Close(hContext);
-			exit(1);
+			exit(result);
 		}
 		else{
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_Close(hContext);
-			exit(1);
+			exit(result);
 		}
 	}
 	else{

@@ -78,7 +78,7 @@ main_v1_1( void )
 	UINT32			pulRespDataLength;
 	BYTE			*pNumPCRs;
 	UINT32			subCap;
-	UINT32			subCapLength;
+	UINT32			subCapLength, exitCode = 0;
 	TSS_HCONTEXT		hContext;
 	TSS_HTPM		whTPM = -1;
 	TSS_RESULT		result;
@@ -123,6 +123,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -132,5 +133,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

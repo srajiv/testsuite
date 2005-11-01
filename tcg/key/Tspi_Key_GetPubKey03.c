@@ -87,7 +87,7 @@ main_v1_1( void )
 	TSS_UUID	migratableSignUUID	= {1,2,3,4,5,6,7,8,9,10,2};
 	TSS_UUID	uuid;
 	TSS_RESULT	result;
-	UINT32		ulPubKeyLength;
+	UINT32		ulPubKeyLength, exitCode = 0;
 	BYTE		*rgbPubKey;
 	TSS_HPOLICY	srkUsagePolicy;
 	TSS_HPOLICY	keyUsagePolicy;
@@ -188,6 +188,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -197,5 +198,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

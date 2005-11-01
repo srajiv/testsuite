@@ -83,7 +83,7 @@ main_v1_1( void )
 	UINT32		pulDataLength;
 	BYTE		rgbDataToBind[32] = {0,1,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7};
 	BYTE		*prgbUnboundData;
-	UINT32		ulDataLength = 32;
+	UINT32		ulDataLength = 32, exitCode = 0;
 	TSS_UUID	uuid;
 	TSS_RESULT	result;
 	TSS_FLAG	initFlags = TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
@@ -182,6 +182,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -191,5 +192,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

@@ -90,6 +90,7 @@ main_v1_1( void )
 	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 				TSS_KEY_NOT_MIGRATABLE;
+	UINT32		exitCode = 0;
 
 	print_begin_test( function );
 
@@ -115,6 +116,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -124,5 +126,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }

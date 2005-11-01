@@ -83,7 +83,7 @@ main_v1_1( void )
 	TSS_HKEY	hSRK;
 	TSS_HKEY	hKey;
 	TSS_HENCDATA	hEncData;
-	UINT32		BlobLength;
+	UINT32		BlobLength, exitCode = 0;
 	UINT32		ulDataLength = 32;
 	TSS_UUID	uuid;
 	TSS_RESULT	result;
@@ -171,6 +171,7 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+		exitCode = result;
 	}
 	else
 	{
@@ -180,5 +181,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( exitCode );
 }
