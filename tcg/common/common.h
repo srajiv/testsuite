@@ -101,7 +101,7 @@ TSS_UUID uuid0 = {2,3,5,7,5,{1,9,9,2,7,3}};
 
 #define print_begin_test(function) printf("\n<<<test_start>>>\nTesting %s\n", function);
 #define print_end_test(function) printf("Cleaning up %s\n<<<end_test>>>\n", function);
-#define print_error_exit(function,result) printf("%s testing failed with %u\n", function, result);
+#define print_error_exit(function,errstr) printf("%s testing failed with %s\n", function, errstr);
 #define print_verifyerr(string,expected,result) \
 	fprintf(stderr, "Verifying " string " failed. Expected: 0x%x, got 0x%x\n", \
 		expected, result);
