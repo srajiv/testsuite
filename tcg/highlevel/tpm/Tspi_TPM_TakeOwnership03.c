@@ -24,7 +24,7 @@
  * DESCRIPTION
  *	This test will verify that Tspi_TPM_TakeOwnership succeeds when passing
  *	NULL (0) as the handle to the public endorsement key. The TSS should
- *	internally query the TPM to quire the handle.
+ *	internally query the TPM to aquire the handle.
  *
  * ALGORITHM
  *	Setup:
