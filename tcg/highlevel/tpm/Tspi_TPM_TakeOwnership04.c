@@ -93,6 +93,7 @@ main_v1_1( void )
 	TSS_VALIDATION		valid;
 	TSS_RESULT		result;
 	UINT32			exitCode;
+	TSS_FLAG		initFlags;
 
 	print_begin_test( function );
 
@@ -158,8 +159,11 @@ main_v1_1( void )
 		exit( result );
 	}
 
+	initFlags = TSS_KEY_TYPE_STORAGE | TSS_KEY_NO_AUTHORIZATION |
+		    TSS_KEY_NOT_MIGRATABLE | TSS_KEY_SIZE_2048 |
+		    TSS_KEY_NON_VOLATILE;
 	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
-						TSS_KEY_TSP_SRK, &hKeySRK );
+						initFlags, &hKeySRK );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
