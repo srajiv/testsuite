@@ -23,7 +23,7 @@
  *
  * DESCRIPTION
  *	This test will verify that Tspi_Data_Unbind can encrypt and decrypt
- *	some data using the PKCS1.5 Encryption Scheme.
+ *	some data using the PKCS1.5 Encryption Scheme with a bind key.
  *
  * ALGORITHM
  *	Setup:
@@ -75,7 +75,8 @@ main( int argc, char **argv )
 		main_v1_1();
 }
 
-#define DATA_SIZE	((2048/8) - 11)
+/* This is the max data size for a BIND key with PKCS1.5 padding*/
+#define DATA_SIZE	((2048/8) - 11 - 4 - 1)
 
 int
 main_v1_1( void )
