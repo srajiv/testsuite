@@ -144,7 +144,6 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	print_success("Create Encrypted Data Object", result);
 
 	subCap = TSS_TPMCAP_PROP_PCR;
 	subCapLength = sizeof(UINT32);
@@ -201,10 +200,6 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	else {
-		print_success("Tspi_Data_Seal", result);
-		exitCode = 0;
-	}
 
 	result = Tspi_TPM_PcrExtend(hTPM, 15, 20, "01234567890123456789",
 			NULL, &extendDataLen, &extendData);
@@ -231,7 +226,7 @@ main_v1_1(void){
 		exit(result);
 	}
 	else {
-		print_success("Tspi_Data_Unseal", result);
+		print_success(function, result);
 		exitCode = 0;
 	}
 
