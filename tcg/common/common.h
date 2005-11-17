@@ -59,6 +59,9 @@ TSS_RESULT create_load_key(TSS_HCONTEXT, TSS_FLAG, TSS_HKEY, TSS_HKEY *);
 TSS_RESULT set_secret(TSS_HOBJECT, TSS_HPOLICY *);
 TSS_RESULT connect_load_srk(TSS_HCONTEXT *, TSS_HKEY *);
 TSS_RESULT connect_load_all(TSS_HCONTEXT *, TSS_HKEY *, TSS_HTPM *);
+TSS_RESULT bind_and_unbind(TSS_HCONTEXT, TSS_HKEY);
+TSS_RESULT sign_and_verify(TSS_HCONTEXT, TSS_HKEY);
+TSS_RESULT seal_and_unseal(TSS_HCONTEXT, TSS_HKEY, TSS_HENCDATA, TSS_HPCRS);
 
 
 int main_v1_1();
