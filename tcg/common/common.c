@@ -651,3 +651,71 @@ sign_and_verify(TSS_HCONTEXT hContext, TSS_HKEY hKey)
 	return result;
 }
 
+TSS_RESULT
+seal_and_unseal(TSS_HCONTEXT hContext, TSS_HKEY hKey, TSS_HENCDATA hEncData,
+		TSS_HPCRS hPcrs)
+{
+
+	TSS_RESULT result;
+	BYTE rgbDataToSeal[] = "932brh3270yrnc7y0nrj28c89cjrmj4398jng4399mch8";
+	UINT32 ulDataLength = sizeof(rgbDataToSeal);
+	BYTE *rgbEncryptedData, *prgbDataToUnseal;
+	UINT32 ulEncryptedDataLength, pulDataLength;
+
+	printf("Data before sealing:\n");
+	print_hex(rgbDataToSeal, ulDataLength);
+
+	result = Tspi_Data_Seal(hEncData, hKey, ulDataLength, rgbDataToSeal,
+				hPcrs);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Data_Seal", result );
+		return result;
+	}
+
+	result = Tspi_GetAttribData(hEncData, TSS_TSPATTRIB_ENCDATA_BLOB,
+				    TSS_TSPATTRIB_ENCDATABLOB_BLOB,
+				    &ulEncryptedDataLength, &rgbEncryptedData);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_GetAttribData", result );
+		return result;
+	}
+
+	printf("Data after sealing:\n");
+	print_hex(rgbEncryptedData, ulEncryptedDataLength);
+
+	result = Tspi_Data_Unseal(hEncData, hKey, &pulDataLength,
+				  &prgbDataToUnseal );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Data_Unseal", result );
+		if( !(checkNonAPI(result)) )
+		{
+			print_error( "Tspi_Data_Unseal", result );
+		}
+		else
+		{
+			print_error_nonapi( "Tspi_Data_Unseal", result );
+		}
+	}
+	else
+	{
+		printf("Data after unsealing:\n");
+		print_hex(prgbDataToUnseal, pulDataLength);
+
+		if (pulDataLength != ulDataLength) {
+			printf("ERROR: Size of decrypted data does not match!"
+			       " (%u != %u)\n", pulDataLength, ulDataLength);
+			result = TSS_E_FAIL;
+		} else if (memcmp(prgbDataToUnseal, rgbDataToSeal, ulDataLength)) {
+			printf("ERROR: Content of decrypted data does not match!\n");
+			result = TSS_E_FAIL;
+		} else {
+			result = TSS_SUCCESS;
+		}
+	}
+
+	return result;
+}
+
