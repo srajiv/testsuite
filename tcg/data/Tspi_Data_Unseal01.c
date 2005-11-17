@@ -320,13 +320,13 @@ main_v1_1( void )
 	else
 	{
 		print_success( function, result );
+
+		if (ulDataLength != ulNewDataLength)
+			printf("ERROR length of returned data doesn't match!\n");
+		else if (memcmp(prgbDataToUnseal, rgbDataToSeal, ulDataLength))
+			printf("ERROR data returned from unseal doesn't match!\n");
+
 	}
-
-	if (ulDataLength != ulNewDataLength)
-		printf("ERROR length\n");
-
-	if (memcmp(prgbDataToUnseal, rgbDataToSeal, ulDataLength))
-		printf("ERROR data\n");
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
