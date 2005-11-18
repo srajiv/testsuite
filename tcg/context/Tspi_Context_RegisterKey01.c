@@ -179,6 +179,10 @@ main_v1_1( void )
 		exit( result );
 	}
 
+	/* unregister it to make sure we succeed */
+	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_SYSTEM,
+					migratableSignUUID,
+					&hMSigningKey );
 		// register key
 	result = Tspi_Context_RegisterKey( hContext, hMSigningKey,
 						TSS_PS_TYPE_SYSTEM,
