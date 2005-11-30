@@ -242,7 +242,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_Hash_SetHashValue( hHash, 24, "Je pense, danc je suis." );
+	result = Tspi_Hash_SetHashValue( hHash, 20, "Je pense, danc je suis." );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Hash_SetHashValue", result );
