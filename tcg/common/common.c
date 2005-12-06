@@ -53,6 +53,16 @@ struct option long_options[] = {
 	{"version",	required_argument,	NULL,	'v'},
 	{0,0,0,0}
 };
+
+UNICODE *
+get_server(char *server)
+{
+	if (server == NULL)
+		return NULL;
+	else
+		return (UNICODE *)Trspi_Native_To_UNICODE(server, NULL);
+}
+
 void
 print_wrongVersion()
 {
@@ -446,7 +456,7 @@ connect_load_srk(TSS_HCONTEXT *hContext, TSS_HKEY *hSRK)
 	}
 
 		// Connect to Context
-	result = Tspi_Context_Connect( *hContext, get_server(GLOBALSERVER) );
+	result = Tspi_Context_Connect(*hContext, get_server(GLOBALSERVER));
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Connect", result );

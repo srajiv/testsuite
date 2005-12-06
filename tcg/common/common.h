@@ -51,7 +51,7 @@ void print_wrongVersion();
 int checkNonAPI(TSS_RESULT);
 void print_wrongChar();
 void UINT32ToArray(UINT32 i, BYTE * out);
-#define get_server(s)	(UNICODE *)Trspi_Native_To_UNICODE(s, NULL)
+UNICODE * get_server(char *);
 void print_hex(BYTE *, UINT32);
 
 TSS_RESULT create_key(TSS_HCONTEXT, TSS_FLAG, TSS_HKEY, TSS_HKEY *);
