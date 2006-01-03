@@ -32,7 +32,6 @@
  *	Setup:
  *		Create Context
  *		Connect
- *		Create Object
  *		Load Key By UUID for SRK
  *
  *	Test:	Call GetAttribData. If it is not a success
@@ -40,7 +39,6 @@
  *
  *	Cleanup:
  *		Free memory associated with the context
- *		Close hKey object
  *		Close context
  *		Print error/success message
  *
@@ -81,7 +79,6 @@ main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_GetAttribData01";
 	TSS_FLAG	initFlags;
-	TSS_HKEY	hKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HKEY	hSRK;
@@ -108,29 +105,18 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Create Object
-	result = Tspi_Context_CreateObject(hContext, 
-				TSS_OBJECT_TYPE_RSAKEY,
-				initFlags, &hKey);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Load Key by UUID for SRK
 	result = Tspi_Context_LoadKeyByUUID(hContext, TSS_PS_TYPE_SYSTEM, 
 				SRK_UUID, &hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKeyByUUID", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 		//Call GetAttribData
-	result = Tspi_GetAttribData(hKey, 
-			TSS_TSPATTRIB_KEY_BLOB, 
+	result = Tspi_GetAttribData(hSRK,
+			TSS_TSPATTRIB_KEY_BLOB,
 			TSS_TSPATTRIB_KEYBLOB_BLOB,
 			&BlobLength, &BLOB);
 	if (result != TSS_SUCCESS) {
@@ -138,7 +124,6 @@ main_v1_1(void){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
-			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
@@ -146,7 +131,6 @@ main_v1_1(void){
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
-			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
@@ -155,7 +139,6 @@ main_v1_1(void){
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(0);
 	}
