@@ -138,7 +138,8 @@ main_v1_1( void )
 		print_success( function, result );
 	}
 
-	fprintf( stderr, "\tThere are %u PCRs supported by this TPM\n", *pNumPCRs );
+	fprintf(stderr, "\tThere are %u PCRs supported by this TPM\n",
+		*(UINT32 *)pNumPCRs );
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
