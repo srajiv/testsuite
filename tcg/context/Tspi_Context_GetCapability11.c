@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004, 2005
+ *   Copyright (C) International Business Machines  Corp., 2004-2006
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@
  *
  * DESCRIPTION
  *	This test will verify Tspi_Context_GetCapability.
- *	The purpose of this test is to get TSS_SUCCESS to 
- *		be returned. To accomplish this it is necessary
- *		to follow the algorithm described below. 
+ *	The purpose of this test is to verify that Tspi_Context_GetCapability
+ *		can be successfully invoked to get the TSS_ALG_RSA
+ *		subcapability.
  *
  * ALGORITHM
  *	Setup:
@@ -43,7 +43,7 @@
  * USAGE:	First parameter is --options
  *			-v or --version
  *		Second Parameter is the version of the test case to be run.
- *		This test case is currently only implemented for 1.1
+ *		This test case is currently only implemented for 1.1 and 1.2
  *
  * HISTORY
  *	Author:	Kathy Robertson
@@ -65,13 +65,11 @@ int main(int argc, char **argv)
 	char		*version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if(strcmp(version, "1.1")){
-		print_wrongVersion();
-	}
-	else{
+		// if it is not version 1.1 or 1.2, print error
+	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
 		main_v1_1();
-	}
+	else
+		print_wrongVersion();
 }
 
 int
