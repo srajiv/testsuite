@@ -90,15 +90,15 @@ main_v1_1(void)
 	policyAttrib[1] = 0x00ff0000;
 	policyAttrib[2] = 0x0000ff00;
 	policyAttrib[3] = 0x000000ff;
-	tpmAttrib[0] = 0xff000000;
-	tpmAttrib[1] = 0x00ff0000;
+	tpmAttrib[0] = 0xf0000ff0;
+	tpmAttrib[1] = 0x00ff000f;
 
-	policySubFlag[0] = 0xff000000;
-	policySubFlag[1] = 0x00ff0000;
-	policySubFlag[2] = 0x0000ff00;
-	policySubFlag[3] = 0x000000ff;
-	tpmSubFlag[0] = 0xff000000;
-	tpmSubFlag[1] = 0x00ff0000;
+	policySubFlag[0] = 0x000000ff;
+	policySubFlag[1] = 0x0000ff00;
+	policySubFlag[2] = 0x00ff0000;
+	policySubFlag[3] = 0xff000000;
+	tpmSubFlag[0] = 0xf000000f;
+	tpmSubFlag[1] = 0x00f00f00;
 
 	policyAttribFlag[0] = TSS_TSPATTRIB_POLICY_CALLBACK_HMAC;
 	policyAttribFlag[1] = TSS_TSPATTRIB_POLICY_CALLBACK_XOR_ENC;
@@ -155,6 +155,7 @@ main_v1_1(void)
 
 	/* check all callbacks */
 	for (i = 0; i < 4; i++) {
+		tmp = 0;
 		result = Tspi_GetAttribUint32(hSRKPolicy,
 					      policyAttribFlag[i],
 					      policySubFlag[i],
@@ -186,7 +187,7 @@ main_v1_1(void)
 			exit(result);
 		}
 
-		if (tmp != policyAttrib[i]) {
+		if (tmp != tpmAttrib[i]) {
 			print_verifyerr("tpm callback address", policyAttrib[i], tmp);
 			print_error_exit(nameOfFunction, err_string(result));
 			Tspi_Context_Close(hContext);
