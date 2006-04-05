@@ -23,8 +23,9 @@
  *
  * DESCRIPTION
  *	This test will verify Tspi_Context_GetCapability.
- *	The purpose of this test is to get TSS_E_BAD_PARAMETER
- *		by passing NULL as the fourth parameter.
+ *      The purpose of this test is to verify that Tspi_Context_GetCapability
+ *              can be successfully invoked to get the TSS_TCSCAP_PERSSTORAGE
+ *              capability.
  *
  * ALGORITHM
  *	Setup:
@@ -48,8 +49,7 @@
  *	Author:	Kathy Robertson
  *	Date:	June 2004
  *	Email:	klrobert@us.ibm.com
- *
- *	Edit: Megan Schneider, mschnei@us.ibm.com, 8/04.
+ *	Updates: Emily Ratliff 3/2006
  *
  * RESTRICTIONS
  *	None.
@@ -78,8 +78,8 @@ main_v1_1(void){
 
 	char		*nameOfFunction	= "Tspi_Context_GetCapability17";
 	TSS_HCONTEXT	hContext;
-	TSS_FLAG	capArea		= TSS_TSPCAP_VERSION;
-	BYTE		rgbSubCap[4];
+	TSS_FLAG	capArea		= TSS_TCSCAP_PERSSTORAGE;
+	UINT32		subCap;
 	UINT32		ulSubCapLength;
 	BYTE*		prgbRespData;
 	UINT32		pulRespDataLength;
@@ -100,13 +100,14 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	ulSubCapLength = 4;
+	subCap = 0;
+	ulSubCapLength = sizeof(UINT32);
 
 		//Get Capability
 	result = Tspi_Context_GetCapability(hContext,
-			capArea, ulSubCapLength, NULL,
+			capArea, ulSubCapLength, (BYTE *)&subCap,
 			&pulRespDataLength, &prgbRespData);
-	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
+	if (result != TSS_SUCCESS) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
