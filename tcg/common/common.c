@@ -694,6 +694,7 @@ seal_and_unseal(TSS_HCONTEXT hContext, TSS_HKEY hKey, TSS_HENCDATA hEncData,
 
 	printf("Data after sealing:\n");
 	print_hex(rgbEncryptedData, ulEncryptedDataLength);
+	Tspi_Context_FreeMemory(hContext, rgbEncryptedData);
 
 	result = Tspi_Data_Unseal(hEncData, hKey, &pulDataLength,
 				  &prgbDataToUnseal );
@@ -725,6 +726,8 @@ seal_and_unseal(TSS_HCONTEXT hContext, TSS_HKEY hKey, TSS_HENCDATA hEncData,
 			result = TSS_SUCCESS;
 		}
 	}
+
+	Tspi_Context_FreeMemory(hContext, prgbDataToUnseal);
 
 	return result;
 }
