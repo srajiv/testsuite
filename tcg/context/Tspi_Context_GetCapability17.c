@@ -23,9 +23,9 @@
  *
  * DESCRIPTION
  *	This test will verify Tspi_Context_GetCapability.
- *      The purpose of this test is to verify that Tspi_Context_GetCapability
- *              can be successfully invoked to get the TSS_TCSCAP_PERSSTORAGE
- *              capability.
+ *	The purpose of this test is to verify that Tspi_Context_GetCapability
+ *	can be successfully invoked to get the TSS_TCSCAP_PERSSTORAGE 
+ *	capability.
  *
  * ALGORITHM
  *	Setup:
@@ -63,37 +63,36 @@
 
 int main(int argc, char **argv)
 {
-	char		*version;
+	char *version;
 
-	version = parseArgs( argc, argv );
-		// if it is not version 1.1 or 1.2, print error
+	version = parseArgs(argc, argv);
+	// if it is not version 1.1 or 1.2, print error
 	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
 		main_v1_1();
 	else
 		print_wrongVersion();
 }
 
-int
-main_v1_1(void){
-
-	char		*nameOfFunction	= "Tspi_Context_GetCapability17";
-	TSS_HCONTEXT	hContext;
-	TSS_FLAG	capArea		= TSS_TCSCAP_PERSSTORAGE;
-	UINT32		subCap;
-	UINT32		ulSubCapLength;
-	BYTE*		prgbRespData;
-	UINT32		pulRespDataLength;
-	TSS_RESULT	result;
+int main_v1_1(void)
+{
+	char *nameOfFunction = "Tspi_Context_GetCapability17";
+	TSS_HCONTEXT hContext;
+	TSS_FLAG capArea = TSS_TCSCAP_PERSSTORAGE;
+	UINT32 subCap;
+	UINT32 ulSubCapLength;
+	BYTE *prgbRespData;
+	UINT32 pulRespDataLength;
+	TSS_RESULT result;
 
 	print_begin_test(nameOfFunction);
 
-		//Create Context
+	//Create Context
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
 		exit(result);
 	}
-		//Connect Context
+	//Connect Context
 	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect ", result);
@@ -103,27 +102,27 @@ main_v1_1(void){
 	subCap = 0;
 	ulSubCapLength = sizeof(UINT32);
 
-		//Get Capability
+	//Get Capability
 	result = Tspi_Context_GetCapability(hContext,
-			capArea, ulSubCapLength, (BYTE *)&subCap,
-			&pulRespDataLength, &prgbRespData);
+					    capArea, ulSubCapLength,
+					    (BYTE *) & subCap,
+					    &pulRespDataLength,
+					    &prgbRespData);
 	if (result != TSS_SUCCESS) {
-		if(!checkNonAPI(result)){
+		if (!checkNonAPI(result)) {
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_Close(hContext);
 			exit(result);
-		}
-		else{
+		} else {
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
-	}
-	else{
+	} else {
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
@@ -131,4 +130,3 @@ main_v1_1(void){
 		exit(0);
 	}
 }
-
