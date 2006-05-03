@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004, 2005
+ *   Copyright (C) International Business Machines  Corp., 2004-2006
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,355 +22,279 @@
  *	Tspi_Key_ConvertMigrationBlob01.c
  *
  * DESCRIPTION
- *	This test will verify that Tspi_Key_ConvertMigrationBlob
- *		returns TSS_SUCCESS.
+ *	This test will verify Tspi_Key_ConvertMigrationBlob.
+ *	The purpose of this test case is to get TSS_SUCCESS to be
+ *		returned. This is accomplished by following the
+ *		algorithm described below.
  *
  * ALGORITHM
  *	Setup:
  *		Create Context
  *		Connect Context
  *		Get TPM Object
- *		Get Policy Object
- *		Set Secret
+ *		Create hKey Object
  *		Get SRK Handle
- *		Get Policy Object
- *		Set Secret
- *		Create Key Objects (hKey, parent key, target key)
- *		Create Keys (hKey, parent key)
- *		Load Keys (hKey, parent key)
+ *		Get Policy Object (srk, tpm)
+ *		Set secret (srk, tpm)
+ *		Create Key (hkey, parent key, target key)
+ *		Load key (parent key, hkey)
  *		Get Pub Key
  *		Set Attrib Data
  *		Authorize Migration Ticket
- *		Load Key By UUID
+ *		LoadKeyByUUID
  *
- *	Test:
- *		Call Key_ConvertMigrationBlob then if it does not succeed
- *		Make sure that it returns the proper return codes
- *		Print results
+ *	Test:	Call Key_ConvertMigrationBlob then if it is not a success
+ *		make sure that it returns the proper return codes
  *
  *	Cleanup:
- *		Free memory related to hContext
- *		Close context
- *		Print errno log and/or timing stats if options given
+ *		Free memory associated with the context
+ *		Close the hKey object
+ *		Close the hParentStorageKey object
+ *		Close the hTargetKey object
+ *		Close the context.
+ *		Print error/success message
  *
- * USAGE
- *      First parameter is --options
- *                         -v or --version
- *      Second parameter is the version of the test case to be run
- *      This test case is currently only implemented for v1.1
+ * USAGE:	First parameter is --options
+ *			-v or --version
+ *		Second Parameter is the version of the test case to be run.
+ *		This test case is currently only implemented for 1.1
  *
  * HISTORY
- *      Megan Schneider, mschnei@us.ibm.com, 6/04.
+ *	Author:	Kathy Robertson
+ *	Date:	June 2004
+ *	Email:	klrobert@us.ibm.com
+ *	Revisions: Kent Yoder <kyoder@users.sf.net>
  *
  * RESTRICTIONS
  *	None.
  */
 
-#include <stdio.h>
 #include <trousers/tss.h>
 #include "../common/common.h"
 
 
-int
-main( int argc, char **argv )
+int main(int argc, char **argv)
 {
 	char		*version;
 
 	version = parseArgs( argc, argv );
 		// if it is not version 1.1, print error
-	if( strcmp(version, "1.1") )
+	if(strcmp(version, "1.1")){
 		print_wrongVersion();
-	else
+	}
+	else{
 		main_v1_1();
+	}
 }
 
-int
-main_v1_1( void )
-{
-	char		*function = "Tspi_Key_ConvertMigrationBlob01";
+main_v1_1(void){
+
+	char		*nameOfFunction = "Tspi_Key_ConvertMigrationBlob01";
 	TSS_HCONTEXT	hContext;
 	TSS_HKEY	hSRK;
-	TSS_HKEY	hKey;
-	TSS_HKEY	hParentStorageKey;
-	TSS_HKEY	hMigratedKey;
-	TSS_HKEY	hTargetKey;
-	UINT32		TargetPubKeyLength;
-	BYTE		*TargetPublicKeyData;
+	TSS_HKEY	hKeyToMigrate, hKeyToMigrateInto;
+	TSS_HKEY	hMigrationAuthorityKey;
 	BYTE		*MigTicket;
 	UINT32		TicketLength;
-	TSS_UUID	SRKUUID			= {0,0,0,0,0,0,0,0,0,0,1};
-	TSS_UUID	parentStorageUUID	= {1,2,3,4,5,6,7,8,9,10,0};
-	UINT32		randomData;
-	BYTE		randomLength;
+	BYTE		*randomData;
+	UINT32		randomLength;
 	UINT32		migBlobLength;
-	BYTE		migBlob;
-	TSS_UUID	uuid;
-	BYTE*		migratableSignKeyBlob;
-	UINT32		blobLength;
+	BYTE		*migBlob;
 	TSS_RESULT	result;
 	TSS_HTPM	hTPM;
-	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy, hPolicy;
-	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
-				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-				TSS_KEY_NOT_MIGRATABLE;
+	TSS_HPOLICY	hPolicy, tpmUsagePolicy;
 
-	print_begin_test( function );
+	print_begin_test(nameOfFunction);
 
-		// Create Context
-	result = Tspi_Context_Create( &hContext );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
-		exit( result );
+		//Create Context
+	result = Tspi_Context_Create(&hContext);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_Create ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		exit(result);
 	}
-
-		// Connect to Context
-	result = Tspi_Context_Connect( hContext, get_server(GLOBALSERVER) );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+		//Connect Context
+	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_Connect", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
-
-	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+		//Get TPM Object
+	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_GetTpmObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
-
-	result = Tspi_GetPolicyObject( hTPM, TSS_POLICY_USAGE, &hPolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	//Load Key By UUID
+	result = Tspi_Context_LoadKeyByUUID(hContext,
+			TSS_PS_TYPE_SYSTEM,
+			SRK_UUID, &hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_LoadKeyByUUID for hSRK", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
-
-	result = Tspi_Policy_SetSecret( hPolicy, TSS_SECRET_MODE_PLAIN,
-					strlen(OWN_PWD), OWN_PWD);
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		//Load Key By UUID
-	result = Tspi_Context_LoadKeyByUUID( hContext, TSS_PS_TYPE_SYSTEM,
-						SRK_UUID, &hSRK );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_LoadKeyByUUID (hSRK)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
 		//Get Policy Object
-	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE,
-					&srkUsagePolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &hPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
-
 		//Set Secret
-	result = Tspi_Policy_SetSecret( srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
-					0, NULL );
-	if ( result != TSS_SUCCESS )
+	result = Tspi_Policy_SetSecret(hPolicy, TSS_SECRET_MODE_PLAIN,
+					0, NULL);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Get Policy Object
+	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &tpmUsagePolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Set Secret
+	result = Tspi_Policy_SetSecret(tpmUsagePolicy, TSS_SECRET_MODE_PLAIN,
+					strlen(OWN_PWD), OWN_PWD);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Create Object
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
+				TSS_KEY_TYPE_STORAGE|TSS_KEY_SIZE_2048|TSS_KEY_NO_AUTHORIZATION,
+				&hMigrationAuthorityKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Create Migrate Authority's key
+	result = Tspi_Key_CreateKey(hMigrationAuthorityKey, hSRK, 0);
+	if (result != TSS_SUCCESS)
 	{
-		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+		print_error("Tspi_Key_CreateKey", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Create Object
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
+					TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
+					TSS_KEY_NO_AUTHORIZATION | TSS_KEY_MIGRATABLE,
+					&hKeyToMigrate);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	result = Tspi_GetPolicyObject(hKeyToMigrate, TSS_POLICY_MIGRATION,
+				      &hPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Set Secret
+	result = Tspi_Policy_SetSecret(hPolicy, TSS_SECRET_MODE_PLAIN,
+				       strlen(KEY_PWD), KEY_PWD);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Create Key To Migrate
+	result = Tspi_Key_CreateKey(hKeyToMigrate, hSRK, 0);
+	if (result != TSS_SUCCESS)
+	{
+		print_error("Tspi_Key_CreateKey", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		Tspi_Context_CloseObject(hContext, hKeyToMigrate);
+		exit(result);
+	}
+		//Authorize Migration Ticket
+	result = Tspi_TPM_AuthorizeMigrationTicket(hTPM, hMigrationAuthorityKey,
+			TSS_MS_MIGRATE, &TicketLength, &MigTicket);
+	if (result != TSS_SUCCESS)
+	{
+		print_error("Tpsi_TPM_AuthorizeMigrationTicket ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-		//Create Signing Key
-	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
-						initFlags, &hKey );
-	if ( result != TSS_SUCCESS )
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
+					TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
+					TSS_KEY_NO_AUTHORIZATION | TSS_KEY_MIGRATABLE,
+					&hKeyToMigrateInto);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Create Migration Blob
+	result = Tspi_Key_CreateMigrationBlob(hKeyToMigrate, hSRK,
+				TicketLength, MigTicket, &randomLength,
+				&randomData, &migBlobLength, &migBlob);
+	if (result != TSS_SUCCESS)
 	{
-		print_error( "Tspi_Context_CreateObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+		print_error("Tpsi_TPM_AuthorizeMigrationTicket ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	result = Tspi_Key_LoadKey(hMigrationAuthorityKey, hSRK);
+	if (result != TSS_SUCCESS)
+	{
+		print_error("Tpsi_TPM_AuthorizeMigrationTicket ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-	result = Tspi_Key_CreateKey( hKey, hSRK, 0 );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_CreateKey (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Key_LoadKey( hKey, hSRK );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_LoadKey (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-
-	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
-					TSS_KEY_SIZE_2048 |
-					TSS_KEY_TYPE_STORAGE |
-					TSS_KEY_MIGRATABLE |
-					TSS_KEY_NO_AUTHORIZATION,
-					&hTargetKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (target key)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
-						TSS_KEY_SIZE_2048 |
-						TSS_KEY_TYPE_SIGNING |
-						TSS_KEY_MIGRATABLE |
-						TSS_KEY_NO_AUTHORIZATION,
-						&hParentStorageKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (parent key)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Key_CreateKey( hParentStorageKey, hSRK, 0 );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_CreateKey (parent key)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Key_LoadKey( hParentStorageKey, hSRK );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_LoadKey (parent key)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Key_GetPubKey( hKey, &TargetPubKeyLength,
-						&TargetPublicKeyData );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_GetPubKey", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_SetAttribData( hTargetKey, TSS_TSPATTRIB_KEY_BLOB,
-					TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
-					TargetPubKeyLength,
-					TargetPublicKeyData );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_SetAttribData", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_TPM_AuthorizeMigrationTicket( hTPM, hTargetKey,
-							TSS_MS_REWRAP,
-							&TicketLength,
-							&MigTicket);
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_TPM_AuthorizeMigrationTicket", result);
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Context_LoadKeyByUUID( hContext, TSS_PS_TYPE_SYSTEM,
-						parentStorageUUID,
-						&hParentStorageKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_LoadKeyByUUID (storage key)",
-				result);
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-/*	result = Tspi_Key_CreateMigrationBlob( hParentStorageKey, hTargetKey,
-						TicketLength, &MigTicket,
-						RandomLength, &RandomData,
-						&MigBlobLength, &MigBlob );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_CreateMigrationBlob", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-*/
-	result = Tspi_Key_ConvertMigrationBlob( hMigratedKey,
-						hParentStorageKey,
-						randomData, &randomLength,
-						migBlobLength, &migBlob );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
+	result = Tspi_Key_ConvertMigrationBlob(hKeyToMigrateInto, hMigrationAuthorityKey,
+				randomLength, randomData, migBlobLength,
+				migBlob);
+	if (result != TSS_SUCCESS) {
+		if(!checkNonAPI(result)){
+			print_error(nameOfFunction, result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_FreeMemory(hContext, NULL);
+			Tspi_Context_Close(hContext);
+			exit(result);
 		}
-		else
-		{
-			print_error_nonapi( function, result );
+		else{
+			print_error_nonapi(nameOfFunction, result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_FreeMemory(hContext, NULL);
+			Tspi_Context_Close(hContext);
+			exit(result);
 		}
 	}
-	else
-	{
-		print_success( function, result );
+	else{
+		print_success(nameOfFunction, result);
+		print_end_test(nameOfFunction);
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(0);
 	}
-
-	print_end_test( function );
-	Tspi_Context_FreeMemory( hContext, NULL );
-	Tspi_Context_Close( hContext );
-	exit( result );
 }

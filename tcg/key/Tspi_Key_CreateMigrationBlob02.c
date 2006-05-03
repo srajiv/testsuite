@@ -50,8 +50,7 @@
  *	Cleanup:
  *		Free memory associated with the context
  *		Close the hKey object
- *		Close the hParentStorageKey object 
- *		Close the hTargetKey object
+ *		Close the hMigKey object
  *		Close the context.
  *		Print error/success message
  *
@@ -93,27 +92,17 @@ main_v1_1(void){
 	TSS_HCONTEXT	hContext;
 	TSS_HKEY	hSRK;
 	TSS_HKEY	hKey;
-	TSS_HKEY	hParentStorageKey;
-	TSS_HKEY	hTargetKey;
-	UINT32		TargetPubKeyLength;
-	BYTE		*TargetPublicKeyData;
+	TSS_HKEY	hMigKey;
 	BYTE		*MigTicket;
 	UINT32		TicketLength;
-	TSS_UUID	parentStorageUUID	= {1,2,3,4,5,6,7,8,9,10,0};
 	BYTE		*randomData;
 	UINT32		randomLength;
 	UINT32		migBlobLength;
 	BYTE		*migBlob;
-	TSS_UUID	uuid;
-	UINT32		blobLength;
 	TSS_RESULT	result;
 	TSS_HTPM	hTPM;
 	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy,
 			tpmUsagePolicy;
-	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
-				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-				TSS_KEY_NOT_MIGRATABLE;
-	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
 
 	print_begin_test(nameOfFunction);
 
@@ -140,23 +129,12 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Create Object
-	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
-				initFlags, &hKey);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Load Key By UUID
-	result = Tspi_Context_LoadKeyByUUID(hContext,
-			TSS_PS_TYPE_SYSTEM,
-			SRK_UUID, &hSRK);
+	result = Tspi_Context_LoadKeyByUUID(hContext, TSS_PS_TYPE_SYSTEM,
+					    SRK_UUID, &hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKeyByUUID for hSRK", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -165,7 +143,6 @@ main_v1_1(void){
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -175,7 +152,6 @@ main_v1_1(void){
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -184,17 +160,26 @@ main_v1_1(void){
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 		//Set Secret
 	result = Tspi_Policy_SetSecret(tpmUsagePolicy, TSS_SECRET_MODE_PLAIN,
-					20, well_known_secret);
+					strlen(OWN_PWD), OWN_PWD);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Create Object
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
+				TSS_KEY_TYPE_BIND | TSS_KEY_SIZE_2048  |
+				TSS_KEY_NO_AUTHORIZATION | TSS_KEY_NOT_MIGRATABLE,
+				&hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -217,83 +202,40 @@ main_v1_1(void){
 		Tspi_Context_CloseObject(hContext, hKey);
 		exit(result);
 	}
-		//Create Object for hTargetKey
-	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
-				TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_STORAGE |
-				TSS_KEY_MIGRATABLE, &hTargetKey);
-	if (result != TSS_SUCCESS)
-	{
-		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hKey);
-		exit(result);
-	}
 		//Create Object
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
 				TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING |
-				TSS_KEY_MIGRATABLE, &hParentStorageKey);
+				TSS_KEY_MIGRATABLE, &hMigKey);
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_CloseObject(hContext, hTargetKey);
 		exit(result);
 	}
-	result = Tspi_Key_CreateKey(hParentStorageKey, hSRK, 0);
+	result = Tspi_Key_CreateKey(hMigKey, hSRK, 0);
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Key_CreateKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_CloseObject(hContext, hParentStorageKey);
-		Tspi_Context_CloseObject(hContext, hTargetKey);
+		Tspi_Context_CloseObject(hContext, hMigKey);
 		exit(result);
 	}
-	result = Tspi_Key_LoadKey(hParentStorageKey, hSRK);
+	result = Tspi_Key_LoadKey(hMigKey, hSRK);
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Key_LoadKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_CloseObject(hContext, hParentStorageKey);
-		Tspi_Context_CloseObject(hContext, hTargetKey);
-		exit(result);
-	}
-		//Get Pub Key
-	result = Tspi_Key_GetPubKey(hKey, &TargetPubKeyLength,
-						&TargetPublicKeyData);
-	if (result != TSS_SUCCESS)
-	{
-		print_error("Tspi_Key_GetPubKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_CloseObject(hContext, hParentStorageKey);
-		Tspi_Context_CloseObject(hContext, hTargetKey);
-		exit(result);
-	}
-		//Set Attrib data
-	result = Tspi_SetAttribData(hTargetKey, TSS_TSPATTRIB_KEY_BLOB,
-					TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
-					TargetPubKeyLength,
-					TargetPublicKeyData);
-	if (result != TSS_SUCCESS)
-	{
-		print_error("Tspi_SetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_CloseObject(hContext, hParentStorageKey);
-		Tspi_Context_CloseObject(hContext, hTargetKey);
+		Tspi_Context_CloseObject(hContext, hMigKey);
 		exit(result);
 	}
 		//Authorize Migration Ticket
-	result = Tspi_TPM_AuthorizeMigrationTicket(hTPM, hTargetKey,
+	result = Tspi_TPM_AuthorizeMigrationTicket(hTPM, hKey,
 			TSS_MS_REWRAP, &TicketLength, &MigTicket);
 	if (result != TSS_SUCCESS)
 	{
@@ -301,27 +243,12 @@ main_v1_1(void){
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_CloseObject(hContext, hParentStorageKey);
-		Tspi_Context_CloseObject(hContext, hTargetKey);
-		exit(result);
-	}
-		//Load Parent Storage Key
-	result = Tspi_Context_LoadKeyByUUID(hContext, TSS_PS_TYPE_SYSTEM,
-						parentStorageUUID,
-						&hParentStorageKey);
-	if (result != TSS_SUCCESS)
-	{
-		print_error("Tspi_Context_LoadKeyByUUID", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_CloseObject(hContext, hParentStorageKey);
-		Tspi_Context_CloseObject(hContext, hTargetKey);
+		Tspi_Context_CloseObject(hContext, hMigKey);
 		exit(result);
 	}
 		//Create Migration Blob
-	result = Tspi_Key_CreateMigrationBlob(hParentStorageKey, -1,
-				TicketLength, MigTicket,  &randomLength, 
+	result = Tspi_Key_CreateMigrationBlob(hMigKey, -1,
+				TicketLength, MigTicket,  &randomLength,
 				&randomData, &migBlobLength, &migBlob);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
 		if(!checkNonAPI(result)){
@@ -329,8 +256,7 @@ main_v1_1(void){
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
-			Tspi_Context_CloseObject(hContext, hParentStorageKey);
-			Tspi_Context_CloseObject(hContext, hTargetKey);
+			Tspi_Context_CloseObject(hContext, hMigKey);
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
@@ -339,8 +265,7 @@ main_v1_1(void){
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
 			Tspi_Context_CloseObject(hContext, hKey);
-			Tspi_Context_CloseObject(hContext, hParentStorageKey);
-			Tspi_Context_CloseObject(hContext, hTargetKey);
+			Tspi_Context_CloseObject(hContext, hMigKey);
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
@@ -350,8 +275,7 @@ main_v1_1(void){
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_CloseObject(hContext, hParentStorageKey);
-		Tspi_Context_CloseObject(hContext, hTargetKey);
+		Tspi_Context_CloseObject(hContext, hMigKey);
 		Tspi_Context_Close(hContext);
 		exit(0);
 	}
