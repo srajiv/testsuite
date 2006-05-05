@@ -82,10 +82,11 @@ main_v1_1(void){
 	char		*nameOfFunction = "Tspi_GetAttribData12";
 	TSS_FLAG	initFlags;
 	TSS_HCONTEXT	hContext;
+	TSS_HPOLICY	srkUsagePolicy;
 	TSS_RESULT	result;
 	TSS_HKEY	hSRK;
-	BYTE*		BLOB;
-	UINT32		BlobLength;
+	BYTE*		BLOB, *pub;
+	UINT32		BlobLength, pubSize;
 
 	print_begin_test(nameOfFunction);
 
@@ -113,6 +114,33 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+		//Get Policy Object
+	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Set Secret
+	result = Tspi_Policy_SetSecret(srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
+				0, NULL);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Pull the SRK out of the TPM (its not kept in PS)
+	result = Tspi_Key_GetPubKey(hSRK, &pubSize, &pub);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_LoadKeyByUUID", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	Tspi_Context_FreeMemory(hContext, pub);
+
 		//Call GetAttribData
 	result = Tspi_GetAttribData(hSRK,
 			TSS_TSPATTRIB_RSAKEY_INFO,
