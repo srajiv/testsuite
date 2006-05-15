@@ -23,9 +23,10 @@
  *
  * DESCRIPTION
  *     This test creates 3 keys, one of each size, 512, 1024 and 2048 bits.
- *     It then registers them and closes their handles. Then, it
+ *     It then registers them and closes the TSP context. Then, it
  *     unregisters and re-registers the keys in varying order, using each of
- *     them to bind data while unregistered.
+ *     them to sign and verify data while unregistered, in order to check their
+ *     integrity.
  *
  * ALGORITHM
  *
@@ -213,15 +214,21 @@ main_v1_1()
 	}
 
 	/* create one key of each size, 512, 1024 and 2048 */
-	if ((result=create_key(hContext, TSS_KEY_SIZE_512|TSS_KEY_TYPE_LEGACY, hSRK, &key_handles[0]))) {
+	if ((result = create_key(hContext,
+				 TSS_KEY_SIZE_512|TSS_KEY_TYPE_LEGACY|TSS_KEY_NO_AUTHORIZATION,
+				 hSRK, &key_handles[0]))) {
 		ERR("Error creating key 512");
 		goto done;
 	}
-	if ((result=create_key(hContext, TSS_KEY_SIZE_1024|TSS_KEY_TYPE_LEGACY, hSRK, &key_handles[1]))) {
+	if ((result = create_key(hContext,
+				 TSS_KEY_SIZE_1024|TSS_KEY_TYPE_LEGACY|TSS_KEY_NO_AUTHORIZATION,
+				 hSRK, &key_handles[1]))) {
 		ERR("Error creating key 1024");
 		goto done;
 	}
-	if ((result=create_key(hContext, TSS_KEY_SIZE_2048|TSS_KEY_TYPE_LEGACY, hSRK, &key_handles[2]))) {
+	if ((result = create_key(hContext,
+				 TSS_KEY_SIZE_2048|TSS_KEY_TYPE_LEGACY|TSS_KEY_NO_AUTHORIZATION,
+				 hSRK, &key_handles[2]))) {
 		ERR("Error creating key 2048");
 		goto done;
 	}
@@ -369,7 +376,13 @@ main_v1_1()
 done:
 	for (i = 0; i < 3; i++)
 		Tspi_Context_UnregisterKey(hContext, PS_TO_TEST, uuids[i], &hSRK);
-	print_error_exit( function, err_string(result) );
+
+	if (result) {
+		print_error_exit( function, err_string(result) );
+	} else {
+		print_success( function, result );
+	}
+
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
 }
