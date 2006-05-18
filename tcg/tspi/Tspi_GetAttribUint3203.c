@@ -213,50 +213,6 @@ main_v1_1( void )
 		print_success( function, result );
 	}
 
-	result = Tspi_GetAttribUint32( hPolicy,
-					TSS_TSPATTRIB_POLICY_SECRET_LIFETIME,
-					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
-					&ES );
-	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_ATTRIB_SUBFLAG )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
-	result = Tspi_GetAttribUint32( hContext,
-					TSS_TSPATTRIB_CONTEXT_SILENT_MODE,
-					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
-					&ES );
-	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_ATTRIB_SUBFLAG )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-	}
-
 	result = Tspi_GetAttribUint32( hParentKey,
 					TSS_TSPATTRIB_KEY_REGISTER,
 					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
