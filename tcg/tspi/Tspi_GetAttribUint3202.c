@@ -142,7 +142,8 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
-		exitCode = result;
+		/* must indicate failure to the shell, even if result == TSS_SUCCESS */
+		exitCode = 1;
 	}
 	else
 	{
