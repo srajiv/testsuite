@@ -78,15 +78,11 @@ int main(int argc, char **argv)
 
 main_v1_1(void){
 
-	#define KEYPWD	"KEY PWD"
-	#define SRKPWD	"SRK PWD"
-
 	char		*nameOfFunction = "Tspi_SetAttribData04";
 	TSS_HKEY	hKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HPOLICY	hPolicy;
-	BYTE*		POPUPSTRING = "bobdbuilder";
 
 	print_begin_test(nameOfFunction);
 
@@ -115,9 +111,7 @@ main_v1_1(void){
 		exit(result);
 	}
 		//SetAttribData
-	result = Tspi_SetAttribData(hPolicy, 
-			TSS_TSPATTRIB_POLICY_CALLBACK_HMAC, 
-			0, strlen(POPUPSTRING), POPUPSTRING);
+	result = Tspi_SetAttribData(hPolicy, 0xffffffff, 0, 0, NULL);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_ATTRIB_FLAG) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);

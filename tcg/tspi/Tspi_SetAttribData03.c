@@ -79,9 +79,6 @@ int main(int argc, char **argv)
 
 main_v1_1(void){
 
-	#define KEYPWD	"KEY PWD"
-	#define SRKPWD	"SRK PWD"
-
 	char		*nameOfFunction = "Tspi_SetAttribData03";
 	TSS_HKEY	hKey;
 	TSS_HCONTEXT	hContext;
