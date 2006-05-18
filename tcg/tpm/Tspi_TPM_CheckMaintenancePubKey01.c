@@ -92,10 +92,6 @@ main_v1_1( void )
 	TSS_VALIDATION	ValidationData;
 	TSS_RESULT	result;
 	TSS_HTPM	hTPM;
-	TSS_HPOLICY	srkUsagePolicy;
-	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
-				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-				TSS_KEY_NOT_MIGRATABLE;
 
 	print_begin_test( function );
 
@@ -119,85 +115,10 @@ main_v1_1( void )
 		exit( result );
 	}
 
-		// create hKey
-	result = Tspi_Context_CreateObject( hContext,
-						TSS_OBJECT_TYPE_RSAKEY,
-						initFlags, &hKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
 	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		//Load Key By UUID
-	result = Tspi_Context_LoadKeyByUUID( hContext, TSS_PS_TYPE_SYSTEM,
-						SRK_UUID, &hSRK );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_LoadKeyByUUID (hSRK)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		//Get Policy Object
-	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE,
-					&srkUsagePolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		//Set Secret
-	result = Tspi_Policy_SetSecret( srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
-				0, NULL );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		//Create Signing Key
-	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
-						TSS_KEY_SIZE_2048 |
-						TSS_KEY_TYPE_SIGNING |
-						TSS_KEY_MIGRATABLE,
-						&hMaintenanceKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (signing key)",
-				result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Key_CreateKey( hMaintenanceKey, hSRK, 0 );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_CreateKey (signing key)", result );
 		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -217,9 +138,8 @@ main_v1_1( void )
 	ValidationData.DataLength = 20;
 	memcpy( &ValidationData.ExternalData, &data, 20);
 
-	result = Tspi_TPM_CheckMaintenancePubKey( hTPM, hMaintenanceKey,
-						&ValidationData );
-	if ( result != TSS_SUCCESS )
+	result = Tspi_TPM_CheckMaintenancePubKey( hTPM, 0, &ValidationData );
+	if ( result != TSS_SUCCESS && TSS_ERROR_CODE(result) != TCPA_E_INACTIVE)
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -229,6 +149,11 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+
+		print_end_test( function );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
 	}
 	else
 	{
@@ -238,5 +163,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( 0 );
 }
