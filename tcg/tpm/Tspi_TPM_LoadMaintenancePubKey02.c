@@ -86,7 +86,6 @@ main_v1_1( void )
 	TSS_HKEY	hMaintenanceKey;
 	TSS_HKEY	hKey;
 	BYTE		*data;
-	TSS_VALIDATION	ValidationData;
 	TSS_RESULT	result;
 	TSS_HTPM	hTPM;
 	TSS_HTPM	whTPM = -1;
@@ -157,24 +156,9 @@ main_v1_1( void )
 		exit( result );
 	}
 
-		// get blob
-	result = Tspi_TPM_GetRandom( hTPM, 20, &data );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_TPM_GetRandom", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	ValidationData.DataLength = 20;
-	memcpy( &ValidationData.ExternalData, &data, 20 );
-
 		//Load Key Blob
-	result = Tspi_TPM_LoadMaintenancePubKey( whTPM, whTPM,
-						&ValidationData );
-	if ( result != TSS_SUCCESS )
+	result = Tspi_TPM_LoadMaintenancePubKey( whTPM, whTPM, NULL );
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{
 		if( !(checkNonAPI(result)) )
 		{
