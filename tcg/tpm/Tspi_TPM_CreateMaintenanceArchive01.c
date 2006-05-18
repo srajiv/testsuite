@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004, 2005
+ *   Copyright (C) International Business Machines  Corp., 2004-2006
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@
  *
  * HISTORY
  *      Megan Schneider, mschnei@us.ibm.com, 6/04.
+ *      Kent Yoder, kyoder@users.sf.net, 5/06.
  *
  * RESTRICTIONS
  *	None.
@@ -75,6 +76,7 @@ main_v1_1( void )
 {
 	char		*function = "Tspi_TPM_CreateMaintenanceArchive01";
 	TSS_HCONTEXT	hContext;
+	TSS_HPOLICY	hTPMPolicy;
 	TSS_HTPM	hTPM;
 	UINT32		pulOneTimePadLength;
 	BYTE		*pOneTimePad;
@@ -115,13 +117,33 @@ main_v1_1( void )
 		exit( result );
 	}
 
+		//Insert the owner auth into the TPM's policy
+	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hTPMPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_Policy_SetSecret(hTPMPolicy, TSS_SECRET_MODE_PLAIN,
+				       strlen(OWN_PWD), OWN_PWD);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
 		//Get random number
 	result = Tspi_TPM_CreateMaintenanceArchive( hTPM, TRUE,
 						&pulOneTimePadLength,
 						&pOneTimePad,
 						&pulArchiveDataLength,
 						&pArchiveData );
-	if ( result != TSS_SUCCESS )
+	if ( result != TSS_SUCCESS && TSS_ERROR_CODE(result) != TCPA_E_INACTIVE )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -131,6 +153,11 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+
+		print_end_test( function );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
 	}
 	else
 	{
@@ -140,5 +167,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( 0 );
 }

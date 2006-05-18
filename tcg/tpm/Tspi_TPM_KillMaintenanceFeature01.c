@@ -76,6 +76,7 @@ main_v1_1( void )
 	char		*function = "Tspi_TPM_KillMaintenanceFeature01";
 	TSS_HCONTEXT	hContext;
 	TSS_HTPM	hTPM;
+	TSS_HPOLICY	hTPMPolicy;
 	TSS_RESULT	result;
 	UINT32		exitCode = 0;
 
@@ -112,9 +113,29 @@ main_v1_1( void )
 		exit( result );
 	}
 
+		//Insert the owner auth into the TPM's policy
+	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hTPMPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit(result);
+	}
+
+	result = Tspi_Policy_SetSecret(hTPMPolicy, TSS_SECRET_MODE_PLAIN,
+				       strlen(OWN_PWD), OWN_PWD);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit(result);
+	}
+
 		//Get random number
 	result = Tspi_TPM_KillMaintenanceFeature( hTPM );
-	if ( result != TSS_SUCCESS )
+	if ( result != TSS_SUCCESS && TSS_ERROR_CODE(result) != TCPA_E_INACTIVE)
 	{
 		if( !(checkNonAPI(result)) )
 		{
