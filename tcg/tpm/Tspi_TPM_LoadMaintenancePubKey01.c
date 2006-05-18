@@ -220,7 +220,7 @@ main_v1_1( void )
 		//Load Key Blob
 	result = Tspi_TPM_LoadMaintenancePubKey( hTPM, hMaintenanceKey,
 						&ValidationData );
-	if ( result != TSS_SUCCESS )
+	if ( TSS_ERROR_CODE(result) != TCPA_E_INACTIVE )
 	{
 		if( !(checkNonAPI(result)) )
 		{
@@ -230,6 +230,11 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+
+		print_end_test( function );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
 	}
 	else
 	{
@@ -239,5 +244,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( 0 );
 }
