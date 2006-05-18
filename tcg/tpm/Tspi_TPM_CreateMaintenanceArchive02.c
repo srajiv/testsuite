@@ -107,17 +107,6 @@ main_v1_1( void )
 		exit( result );
 	}
 
-		// Retrieve TPM object of context
-	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
 		//Get random number
 	result = Tspi_TPM_CreateMaintenanceArchive( whTPM, TRUE,
 						&pulOneTimePadLength,
@@ -134,6 +123,11 @@ main_v1_1( void )
 		{
 			print_error_nonapi( function, result );
 		}
+
+		print_end_test( function );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
 	}
 	else
 	{
@@ -143,5 +137,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( 0 );
 }
