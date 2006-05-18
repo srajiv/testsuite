@@ -79,7 +79,6 @@ main_v1_1(void){
 	TSS_HTPM	hTPM;
 	UINT32		ulPcrIndex	= 8;
 	UINT32		ulStartNumber	= 0;
-	UINT32		ulEventNumber	= -1;
 
 	print_begin_test(nameOfFunction);
 
@@ -108,7 +107,7 @@ main_v1_1(void){
 	}
 		//Get Events
 	result = Tspi_TPM_GetEvents(hTPM, ulPcrIndex,
-			ulStartNumber,&ulEventNumber,NULL);
+			ulStartNumber,NULL,NULL);
 	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
