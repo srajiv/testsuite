@@ -98,7 +98,6 @@ main_v1_1(void){
 	BYTE*		MigTicket;
 	UINT32		TicketLength;
 	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy;
-	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
 
 	print_begin_test(nameOfFunction);
 
@@ -136,7 +135,7 @@ main_v1_1(void){
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE,
 					&srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_LoadKeyByUUID ", result);
+		print_error("Tspi_GetPolicyObject ", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -144,14 +143,14 @@ main_v1_1(void){
 	result = Tspi_Policy_SetSecret(srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
 					0, NULL);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_LoadKeyByUUID ", result);
+		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 		//Create Object
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
-				TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_SIGNING |
+				TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_BIND |
 				TSS_KEY_MIGRATABLE |
 				TSS_KEY_NO_AUTHORIZATION,
 				&hTargetPubKey);
@@ -171,9 +170,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Set Secret
-	result = Tspi_Policy_SetSecret(keyUsagePolicy,
-				TSS_SECRET_MODE_PLAIN,
-				20, well_known_secret);
+	result = Tspi_Policy_SetSecret(keyUsagePolicy, TSS_SECRET_MODE_PLAIN,
+				strlen(OWN_PWD), OWN_PWD);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -183,39 +181,8 @@ main_v1_1(void){
 	}
 	result = Tspi_Key_CreateKey(hTargetPubKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateObject ", result);
+		print_error("Tspi_Key_CreateKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-	result = Tspi_Key_LoadKey(hTargetPubKey, hSRK);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Get Public Key
-	result = Tspi_Key_GetPubKey(hTargetPubKey, 
-				&TargetPubKeyLength, 
-				&TargetPublicKeyData);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_GetPubKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hTargetPubKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Set AttribData
-	result = Tspi_SetAttribData(hTargetPubKey, 
-				TSS_TSPATTRIB_KEY_BLOB, 
-				TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
-				TargetPubKeyLength,
-				TargetPublicKeyData);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_SetAttribData ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hTargetPubKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -242,7 +209,7 @@ main_v1_1(void){
 		}
 	}
 	else{
-		print_error(nameOfFunction, result);
+		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_CloseObject(hContext, hTargetPubKey);
