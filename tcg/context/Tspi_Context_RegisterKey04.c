@@ -149,7 +149,7 @@ main_v1_1( void )
 
 		// create object
 	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
-						TSS_KEY_SIZE_2048 |
+						TSS_KEY_SIZE_512 |
 						TSS_KEY_TYPE_SIGNING |
 						TSS_KEY_MIGRATABLE,
 						&hMSigningKey );
@@ -178,7 +178,7 @@ main_v1_1( void )
 						migratableSignUUID,
 						TSS_PS_TYPE_SYSTEM,
 						wrongUUID );
-	if ( (TSS_ERROR_CODE(result) != TSS_E_PS_KEY_NOTFOUND) )
+	if ( result != TSS_SUCCESS )
 	{
 		if( !(checkNonAPI(result)) )
 		{
