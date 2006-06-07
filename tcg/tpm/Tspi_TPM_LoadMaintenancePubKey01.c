@@ -86,7 +86,6 @@ main_v1_1( void )
 	TSS_HCONTEXT	hContext;
 	TSS_HKEY	hSRK;
 	TSS_HKEY	hMaintenanceKey;
-	TSS_HKEY	hKey;
 	BYTE		*data;
 	TSS_VALIDATION	ValidationData;
 	TSS_RESULT	result;
@@ -112,19 +111,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		// create hKey
-	result = Tspi_Context_CreateObject( hContext,
-						TSS_OBJECT_TYPE_RSAKEY,
-						initFlags, &hKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hKey)", result );
 		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
