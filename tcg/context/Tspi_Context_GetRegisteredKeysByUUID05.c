@@ -68,7 +68,7 @@
  * RESTRICTIONS
  *	None.
  */
- 
+
 #include <stdlib.h>
 
 #include <trousers/tss.h>
@@ -100,12 +100,12 @@ main_v1_1(void){
 	TSS_HKEY	hSRK;
 	TSS_RESULT	result;
 	TSS_UUID	migratableSignUUID;
-	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
-	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
+	TSS_HPOLICY	srkUsagePolicy;
+	TSS_KM_KEYINFO* ppKeyHierarchy;
+
+	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_512  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
-	TSS_KM_KEYINFO* ppKeyHierarchy;
-	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
 
 	print_begin_test(nameOfFunction);
 
@@ -132,6 +132,33 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+		//Load Key by UUID
+	result = Tspi_Context_LoadKeyByUUID(hContext, 
+					TSS_PS_TYPE_SYSTEM, 
+					SRK_UUID, &hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_LoadKeyByUUID ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Get Policy Object for the srkUsagePolicy
+	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Set Secret for the srkUsagePolicy
+	result = Tspi_Policy_SetSecret(srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
+			0, NULL);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
 		//Create Object
 	result = Tspi_Context_CreateObject(hContext,
 				TSS_OBJECT_TYPE_RSAKEY,
@@ -142,101 +169,10 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Load Key by UUID
-	result = Tspi_Context_LoadKeyByUUID(hContext, 
-					TSS_PS_TYPE_SYSTEM, 
-					SRK_UUID, &hSRK);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_LoadKeyByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Get Policy Object for the srkUsagePolicy
-	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Set Secret for the srkUsagePolicy
-	result = Tspi_Policy_SetSecret(srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
-			0, NULL);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Get Policy Object for the keyUsagePolicy
-	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &keyUsagePolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Get Policy Object for the keyMigPolicy
-	result = Tspi_GetPolicyObject(hKey, 
-		TSS_POLICY_MIGRATION, &keyMigPolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Set Secret 
-	result = Tspi_Policy_SetSecret(keyMigPolicy, 
-		TSS_SECRET_MODE_SHA1, 20, well_known_secret);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Set Secret
-	result = Tspi_Policy_SetSecret(keyUsagePolicy, 
-		TSS_SECRET_MODE_SHA1, 20, well_known_secret);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Create the hKey with the hSRK wrapping key
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//SetAttribUint32
-	result = Tspi_SetAttribUint32(hKey, TSS_TSPATTRIB_KEY_INFO,
-			TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
-			TSS_ES_NONE);
-	if (result != TSS_SUCCESS) { 
-		print_error("Tspi_SetAttribUint32 ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//SetAttribUint32
-	result = Tspi_SetAttribUint32(hKey, TSS_TSPATTRIB_KEY_INFO,
-				TSS_TSPATTRIB_KEYINFO_SIGSCHEME,
-				TSS_ES_NONE);
-	if (result != TSS_SUCCESS) { 
-		print_error("Tspi_SetAttribUint32 ", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
