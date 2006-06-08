@@ -154,6 +154,13 @@ main_v1_1( void )
 	}
 	else
 	{
+		result = Tspi_Context_FreeMemory(hContext, prgbPcrValueOut);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Context_FreeMemory ", result);
+			print_error_exit(function, err_string(result));
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}
 		print_success( function, result );
 		print_end_test( function );
 		Tspi_Context_FreeMemory( hContext, NULL );

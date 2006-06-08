@@ -319,13 +319,28 @@ main_v1_1( void )
 	}
 	else
 	{
-		print_success( function, result );
-
-		if (ulDataLength != ulNewDataLength)
+		if (ulDataLength != ulNewDataLength) {
 			printf("ERROR length of returned data doesn't match!\n");
-		else if (memcmp(prgbDataToUnseal, rgbDataToSeal, ulDataLength))
+			print_end_test( function );
+			Tspi_Context_FreeMemory( hContext, NULL );
+			Tspi_Context_Close( hContext );
+			exit( result );
+		} else if (memcmp(prgbDataToUnseal, rgbDataToSeal, ulDataLength)) {
 			printf("ERROR data returned from unseal doesn't match!\n");
+			print_end_test( function );
+			Tspi_Context_FreeMemory( hContext, NULL );
+			Tspi_Context_Close( hContext );
+			exit( result );
+		}
 
+		result = Tspi_Context_FreeMemory(hContext, prgbDataToUnseal);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Context_FreeMemory ", result);
+			print_error_exit(function, err_string(result));
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}
+		print_success( function, result );
 	}
 
 	print_end_test( function );

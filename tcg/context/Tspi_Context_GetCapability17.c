@@ -123,6 +123,13 @@ int main_v1_1(void)
 			exit(result);
 		}
 	} else {
+		result = Tspi_Context_FreeMemory(hContext, prgbRespData);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Context_FreeMemory ", result);
+			print_error_exit(nameOfFunction, err_string(result));
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);

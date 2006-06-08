@@ -161,6 +161,16 @@ main_v1_1( void )
 	}
 	else
 	{
+		if (!result) {
+			result = Tspi_Context_FreeMemory(hContext, pArchiveData);
+			result |= Tspi_Context_FreeMemory(hContext, pOneTimePad);
+			if (result != TSS_SUCCESS) {
+				print_error("Tspi_Context_FreeMemory ", result);
+				print_error_exit(function, err_string(result));
+				Tspi_Context_Close(hContext);
+				exit(result);
+			}
+		}
 		print_success( function, result );
 	}
 
