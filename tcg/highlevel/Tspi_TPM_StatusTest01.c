@@ -132,8 +132,8 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_Policy_SetSecret( hPolicy, TSS_SECRET_MODE_PLAIN,
-					strlen(OWN_PWD), OWN_PWD);
+	result = Tspi_Policy_SetSecret( hPolicy, TESTSUITE_OWNER_SECRET_MODE,
+					TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );

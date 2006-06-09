@@ -75,7 +75,6 @@ int
 main_v1_1( void )
 {
 	char			*function = "Tspi_Policy_FlushSecret01";
-	char			newpw[5] = {'c','o','m','e','t'};
 	TSS_RESULT		result;
 	TSS_HPOLICY		hPolicy;
 	TSS_HCONTEXT		hContext;
@@ -114,8 +113,8 @@ main_v1_1( void )
 	}
 
 		// Set Secret
-	result = Tspi_Policy_SetSecret( hPolicy, TSS_SECRET_MODE_PLAIN,
-					5, newpw );
+	result = Tspi_Policy_SetSecret( hPolicy, TESTSUITE_NEW_SECRET_MODE,
+					TESTSUITE_NEW_SECRET_LEN, TESTSUITE_NEW_SECRET );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );

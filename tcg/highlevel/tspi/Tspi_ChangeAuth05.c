@@ -59,15 +59,6 @@
 #include <trousers/tss.h>
 #include "../common/common.h"
 
-#if 0
-#undef OWN_PWD
-#undef KEY_PWD
-
-#define OWN_PWD "KEY PWD"
-#define KEY_PWD "OWN PWD"
-#endif
-
-
 
 int main(int argc, char **argv)
 {
@@ -126,8 +117,8 @@ main_v1_1(void){
 	}
 
 		// Set Secret
-	result = Tspi_Policy_SetSecret(hTPMPolicy, TSS_SECRET_MODE_PLAIN,
-			strlen(OWN_PWD), OWN_PWD);
+	result = Tspi_Policy_SetSecret(hTPMPolicy, TESTSUITE_OWNER_SECRET_MODE,
+				       TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET );
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -144,8 +135,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		// Set Secret
-	result = Tspi_Policy_SetSecret(hNewPolicy, TSS_SECRET_MODE_PLAIN,
-			strlen(KEY_PWD), KEY_PWD);
+	result = Tspi_Policy_SetSecret(hNewPolicy, TESTSUITE_KEY_SECRET_MODE,
+				       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -184,7 +175,7 @@ main_v1_1(void){
 			exit(0);
 		} else {
 			printf("Error resetting owner password.  Owner password"
-				" is now: \"%s\"\n", KEY_PWD);
+				" is now: \"%s\"\n", TESTSUITE_KEY_SECRET);
 			if(!checkNonAPI(result)){
 				print_error(nameOfFunction, result);
 				print_end_test(nameOfFunction);

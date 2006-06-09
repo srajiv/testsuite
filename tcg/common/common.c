@@ -416,8 +416,8 @@ set_secret(TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
 			return(result);
 		}
 		//SetSecret
-		result = Tspi_Policy_SetSecret(hLocalPolicy, TSS_SECRET_MODE_PLAIN,
-				0, NULL);
+		result = Tspi_Policy_SetSecret(hLocalPolicy, TESTSUITE_SRK_SECRET_MODE,
+					       TESTSUITE_SRK_SECRET_LEN, TESTSUITE_SRK_SECRET);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Policy_SetSecret", result);
 			return(result);
@@ -430,8 +430,8 @@ set_secret(TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
 			return(result);
 		}
 		//SetSecret
-		result = Tspi_Policy_SetSecret(*hPolicy, TSS_SECRET_MODE_PLAIN,
-				strlen(KEY_PWD), KEY_PWD);
+		result = Tspi_Policy_SetSecret(*hPolicy, TESTSUITE_KEY_SECRET_MODE,
+					       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Policy_SetSecret", result);
 			return(result);

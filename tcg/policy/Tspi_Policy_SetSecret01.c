@@ -76,7 +76,6 @@ main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_Policy_SetSecret01";
 	TSS_HCONTEXT	hContext;
-	char		newpw[5] = {'c','o', 'm', 'e', 't'};
 	TSS_HPOLICY	hPolicy;
 	TSS_RESULT	result;
 
@@ -106,7 +105,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Set Secret
-	result = Tspi_Policy_SetSecret(hPolicy, TSS_SECRET_MODE_PLAIN, 0, NULL);
+	result = Tspi_Policy_SetSecret(hPolicy, TESTSUITE_NEW_SECRET_MODE,
+				       TESTSUITE_NEW_SECRET_LEN, TESTSUITE_NEW_SECRET);
 	if (result != TSS_SUCCESS) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);

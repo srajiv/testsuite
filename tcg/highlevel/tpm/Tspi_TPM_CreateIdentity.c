@@ -471,8 +471,8 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	result = Tspi_Policy_SetSecret(hTPMPolicy, TSS_SECRET_MODE_PLAIN,
-				       strlen(OWN_PWD), OWN_PWD);
+	result = Tspi_Policy_SetSecret(hTPMPolicy, TESTSUITE_OWNER_SECRET_MODE,
+				       TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(fn, err_string(result));
@@ -498,8 +498,8 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	result = Tspi_Policy_SetSecret(hIdPolicy, TSS_SECRET_MODE_PLAIN,
-				       strlen(KEY_PWD), KEY_PWD);
+	result = Tspi_Policy_SetSecret(hIdPolicy, TESTSUITE_KEY_SECRET_MODE,
+				       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(fn, err_string(result));

@@ -162,7 +162,8 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_Policy_SetSecret( hEncUsagePolicy, TSS_SECRET_MODE_PLAIN, 8, ENCDATA_PWD );
+	result = Tspi_Policy_SetSecret( hEncUsagePolicy, TESTSUITE_ENCDATA_SECRET_MODE,
+					TESTSUITE_ENCDATA_SECRET_LEN, TESTSUITE_ENCDATA_SECRET );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret (hEncUsagePolicy)", result );
@@ -195,7 +196,8 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_Policy_SetSecret( hSRKPolicy, TSS_SECRET_MODE_PLAIN, 0, NULL );
+	result = Tspi_Policy_SetSecret( hSRKPolicy, TESTSUITE_SRK_SECRET_MODE,
+					TESTSUITE_SRK_SECRET_LEN, TESTSUITE_SRK_SECRET );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret (hSRKPolicy)", result );
@@ -216,7 +218,8 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = Tspi_Policy_SetSecret( hKeyPolicy, TSS_SECRET_MODE_PLAIN, 8, KEY_PWD );
+	result = Tspi_Policy_SetSecret( hKeyPolicy, TESTSUITE_KEY_SECRET_MODE,
+					TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret (hKeyPolicy)", result );

@@ -77,10 +77,9 @@ main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_Policy_SetSecret02";
 	TSS_HCONTEXT	hContext;
-	char		newpw[5]; //not initialized
 	TSS_HPOLICY	hPolicy;
 	TSS_RESULT	result;
-	
+
 	print_begin_test(nameOfFunction);
 
 		//Create Context
@@ -108,8 +107,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Set Secret
-	result = Tspi_Policy_SetSecret(hContext, 
-			TSS_SECRET_MODE_PLAIN, 5, newpw);
+	result = Tspi_Policy_SetSecret(hContext, TESTSUITE_NEW_SECRET_MODE,
+				       TESTSUITE_NEW_SECRET_LEN, TESTSUITE_NEW_SECRET);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);

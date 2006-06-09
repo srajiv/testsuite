@@ -95,8 +95,8 @@ create_and_load_key(TSS_HCONTEXT hContext, int num, TSS_HKEY *phKey)
 			goto done;
 		}
 
-		result = Tspi_Policy_SetSecret( keyUsagePolicy, TSS_SECRET_MODE_PLAIN,
-						0, NULL );
+		result = Tspi_Policy_SetSecret( keyUsagePolicy, TESTSUITE_KEY_SECRET_MODE,
+						TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET );
 		if ( result != TSS_SUCCESS )
 		{
 			print_error( "Tspi_Policy_SetSecret", result );
@@ -211,8 +211,8 @@ main_v1_1(char *argv3)
 	}
 
 		//Set Secret
-	result = Tspi_Policy_SetSecret( srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
-				0, NULL );
+	result = Tspi_Policy_SetSecret( srkUsagePolicy, TESTSUITE_SRK_SECRET_MODE,
+				TESTSUITE_SRK_SECRET_LEN, TESTSUITE_SRK_SECRET );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );

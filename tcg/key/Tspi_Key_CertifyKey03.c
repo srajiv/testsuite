@@ -171,8 +171,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Set Secret
-	result = Tspi_Policy_SetSecret(srkUsagePolicy, TSS_SECRET_MODE_PLAIN,
-				0, NULL);
+	result = Tspi_Policy_SetSecret(srkUsagePolicy, TESTSUITE_SRK_SECRET_MODE,
+				TESTSUITE_SRK_SECRET_LEN, TESTSUITE_SRK_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -191,8 +191,8 @@ main_v1_1(void){
 	}
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
-				TSS_SECRET_MODE_PLAIN,
-				20, well_known_secret);
+				TESTSUITE_KEY_SECRET_MODE,
+				TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -224,8 +224,8 @@ main_v1_1(void){
 	}
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
-				TSS_SECRET_MODE_PLAIN,
-				20, well_known_secret);
+				TESTSUITE_KEY_SECRET_MODE,
+				TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -268,8 +268,8 @@ main_v1_1(void){
 	}
 		//Set Secret
 	result = Tspi_Policy_SetSecret(keyUsagePolicy,
-				TSS_SECRET_MODE_PLAIN,
-				20, well_known_secret);
+				TESTSUITE_KEY_SECRET_MODE,
+				TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
 		print_error_exit(nameOfFunction, err_string(result));
