@@ -193,7 +193,7 @@ main_v1_1(void){
 		//Get Registered Keys By UUID
 	result = Tspi_Context_GetRegisteredKeysByUUID(hContext, 
 			TSS_PS_TYPE_USER, &migratableSignUUID,
-			&pulKeyHierarchySize, &ppKeyHierarchy);
+			&pulKeyHierarchySize, NULL);
 	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
