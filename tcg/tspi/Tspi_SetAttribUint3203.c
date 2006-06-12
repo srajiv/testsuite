@@ -152,7 +152,7 @@ main_v1_1( void )
 		// Set uint, key sig scheme
 	result = Tspi_SetAttribUint32( hParentKey,
 					TSS_TSPATTRIB_KEY_INFO,
-					TSS_TSPATTRIB_KEY_INFO,
+					0xffffffff,
 					TSS_SS_NONE );
 	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_ATTRIB_SUBFLAG )
 	{
