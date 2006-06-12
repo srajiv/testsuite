@@ -2,18 +2,22 @@ These are the testcases that exercise the TSS stack. They can be run
 either through the the LTP framework or standalone.  The testcases have been
 tested against the 20040304 version of LTP.
 
-Please do not execute these testcases on a machine on which you are actively
-using the TPM. For the testcases to execute properly the owner passphrase
-must be entered into tcg/common/common.h which is insecure.
+Please do not execute these testcases on a machine where you are actively
+using the TPM.
 
-These testcases must be run on a machine with a 1.1 TPM and the TrouSerS
-TSS. Boot the machine and clear the TPM ownership. Edit tcg/common/common.h
-and enter the desired passphrases for the keys (KEY_PWD, OWN_PWD, and
-ENCDATA_PWD). Defaults that are already in place will work fine.  To run
-the testsuite, the TPM must be enabled, active and owned. To take
-ownership of your TPM using a testcase, run the following:
+These testcases must be run on a machine with a TPM and a TSS. Boot the
+machine and take ownership of your TPM.  If you have the tpm-tools package,
+you can run tpm_takeownership to take ownership of your TPM and set the owner
+and SRK passwords.  If you don't have tpm-tools, run the following test case
+to set the owner and SRK passwords (after building the testsuite):
 
 $ testsuite/tcg/highlevel/tpm/Tspi_TPM_TakeOwnership01 -v 1.1
+
+This test will set the owner and SRK passwords to the value of the environment
+variables TESTSUITE_OWNER_SECRET and TESTSUITE_SRK_SECRET, respectively. During
+the testsuite run, you will need to either set these environment variables to
+their correct values, or change their values explicitly in tcg/common/common.h
+and rebuild the testsuite.
 
 To build and run the testsuite:
 
