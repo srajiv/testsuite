@@ -54,6 +54,8 @@
  *	None.
  */
 
+#include <limits.h>
+
 #include <trousers/tss.h>
 #include <trousers/trousers.h>
 #include "../common/common.h"
@@ -442,7 +444,7 @@ main_v1_1(void){
 	TCPA_IDENTITY_PROOF	identityProof;
 	TCPA_SYMMETRIC_KEY	symKey;
 	TCPA_SYM_CA_ATTESTATION symAttestation;
-	BYTE			utilityBlob[2048], *cred;
+	BYTE			utilityBlob[USHRT_MAX], *cred;
 	int			padding = RSA_PKCS1_OAEP_PADDING, tmp;
 	struct ca_blobs		b;
 
