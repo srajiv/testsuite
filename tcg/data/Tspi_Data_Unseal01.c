@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004, 2005
+ *   Copyright (C) International Business Machines  Corp., 2004-2006
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -49,12 +49,13 @@
  *      First parameter is --options
  *                         -v or --version
  *      Second parameter is the version of the test case to be run
- *      This test case is currently only implemented for v1.1
+ *      This test case is currently only implemented for v1.1 and 1.2
  *
  * HISTORY
  *      Megan Schneider, mschnei@us.ibm.com, 6/04.
  *      Kent Yoder, shpedoikal@gmail.com, 09/16/04
  *        Added code for srk auth, encdata auth, key creation
+ *	EJR, ejratl@gmail.com, 8/10/2006, 1.2
  *
  * RESTRICTIONS
  *	None.
@@ -65,289 +66,274 @@
 #include "../common/common.h"
 
 
-int
-main( int argc, char **argv )
+int main(int argc, char **argv)
 {
-	char		*version;
+	char *version;
 
-	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if( strcmp(version, "1.1") )
-		print_wrongVersion();
-	else
+	version = parseArgs(argc, argv);
+	// if it is not version 1.1 or 1.2, print error
+	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
 		main_v1_1();
+	else
+		print_wrongVersion();
 }
 
 #define DATA_SIZE	((2048/8)-40-2-65)
 
-int
-main_v1_1( void )
+int main_v1_1(void)
 {
-	char		*function = "Tspi_Data_Unseal01";
-	TSS_HCONTEXT	hContext;
-	TSS_HKEY	hSRK, hKey;
-	TSS_HTPM	hTPM;
-	TSS_HPOLICY	hKeyPolicy, hEncUsagePolicy, hSRKPolicy;
-	BYTE		rgbDataToSeal[DATA_SIZE];
-	BYTE		*rgbPcrValue;
-	UINT32		ulPcrLen;
-	TSS_HENCDATA	hEncData;
-	BYTE		*prgbDataToUnseal;
-	TSS_HPCRS	hPcrComposite;
-	UINT32		BlobLength;
-	UINT32		ulDataLength = DATA_SIZE, ulNewDataLength;
-	TSS_UUID	uuid;
-	TSS_RESULT	result;
-	TSS_FLAG	initFlags = TSS_KEY_TYPE_STORAGE | TSS_KEY_SIZE_2048  |
-				TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
-				TSS_KEY_NOT_MIGRATABLE;
+	char *function = "Tspi_Data_Unseal01";
+	TSS_HCONTEXT hContext;
+	TSS_HKEY hSRK, hKey;
+	TSS_HTPM hTPM;
+	TSS_HPOLICY hKeyPolicy, hEncUsagePolicy, hSRKPolicy;
+	BYTE rgbDataToSeal[DATA_SIZE];
+	BYTE *rgbPcrValue;
+	UINT32 ulPcrLen;
+	TSS_HENCDATA hEncData;
+	BYTE *prgbDataToUnseal;
+	TSS_HPCRS hPcrComposite;
+	UINT32 BlobLength;
+	UINT32 ulDataLength = DATA_SIZE, ulNewDataLength;
+	TSS_UUID uuid;
+	TSS_RESULT result;
+	TSS_FLAG initFlags = TSS_KEY_TYPE_STORAGE | TSS_KEY_SIZE_2048 |
+	    TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
+	    TSS_KEY_NOT_MIGRATABLE;
 
-	print_begin_test( function );
+	print_begin_test(function);
 
 	memset(rgbDataToSeal, 0x5d, DATA_SIZE);
 
-		// Create Context
-	result = Tspi_Context_Create( &hContext );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
-		exit( result );
+	// Create Context
+	result = Tspi_Context_Create(&hContext);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_Create", result);
+		print_error_exit(function, err_string(result));
+		exit(result);
+	}
+	// Connect to Context
+	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_Connect", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	// create hKey
+	result = Tspi_Context_CreateObject(hContext,
+					   TSS_OBJECT_TYPE_RSAKEY,
+					   initFlags, &hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject (hKey)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-		// Connect to Context
-	result = Tspi_Context_Connect( hContext, get_server(GLOBALSERVER) );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result = Tspi_Context_CreateObject(hContext,
+					   TSS_OBJECT_TYPE_ENCDATA,
+					   TSS_ENCDATA_SEAL, &hEncData);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject (hEncData)",
+			    result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	// get the use policy for the encrypted data to set its secret
+	result =
+	    Tspi_GetPolicyObject(hEncData, TSS_POLICY_USAGE,
+				 &hEncUsagePolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_GetPolicyObject (hEncData)",
+			    result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-		// create hKey
-	result = Tspi_Context_CreateObject( hContext,
-						TSS_OBJECT_TYPE_RSAKEY,
-						initFlags, &hKey );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result =
+	    Tspi_Policy_SetSecret(hEncUsagePolicy,
+				  TESTSUITE_ENCDATA_SECRET_MODE,
+				  TESTSUITE_ENCDATA_SECRET_LEN,
+				  TESTSUITE_ENCDATA_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret (hEncUsagePolicy)",
+			    result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	//Load Key By UUID
+	result = Tspi_Context_LoadKeyByUUID(hContext, TSS_PS_TYPE_SYSTEM,
+					    SRK_UUID, &hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_LoadKeyByUUID (hSRK)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	// set the SRK auth data
+	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &hSRKPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject (hSRK)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-	result = Tspi_Context_CreateObject( hContext,
-						TSS_OBJECT_TYPE_ENCDATA,
-						TSS_ENCDATA_SEAL, &hEncData );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hEncData)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result =
+	    Tspi_Policy_SetSecret(hSRKPolicy, TESTSUITE_SRK_SECRET_MODE,
+				  TESTSUITE_SRK_SECRET_LEN,
+				  TESTSUITE_SRK_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret (hSRKPolicy)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	// set the new key's authdata
+	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &hKeyPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetPolicyObject (hKey)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-		// get the use policy for the encrypted data to set its secret
-	result = Tspi_GetPolicyObject( hEncData, TSS_POLICY_USAGE, &hEncUsagePolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_GetPolicyObject (hEncData)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result =
+	    Tspi_Policy_SetSecret(hKeyPolicy, TESTSUITE_KEY_SECRET_MODE,
+				  TESTSUITE_KEY_SECRET_LEN,
+				  TESTSUITE_KEY_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret (hKeyPolicy)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	// create the key
+	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_CreateKey (hKey)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-	result = Tspi_Policy_SetSecret( hEncUsagePolicy, TESTSUITE_ENCDATA_SECRET_MODE,
-					TESTSUITE_ENCDATA_SECRET_LEN, TESTSUITE_ENCDATA_SECRET );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Policy_SetSecret (hEncUsagePolicy)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result = Tspi_Key_LoadKey(hKey, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_LoadKey (hKey)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-		//Load Key By UUID
-	result = Tspi_Context_LoadKeyByUUID( hContext, TSS_PS_TYPE_SYSTEM,
-						SRK_UUID, &hSRK );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_LoadKeyByUUID (hSRK)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_PCRS,
+					   0, &hPcrComposite);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject (hPcrComposite)",
+			    result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-		// set the SRK auth data
-	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE, &hSRKPolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_GetPolicyObject (hSRK)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_GetTpmObject", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
-
-	result = Tspi_Policy_SetSecret( hSRKPolicy, TESTSUITE_SRK_SECRET_MODE,
-					TESTSUITE_SRK_SECRET_LEN, TESTSUITE_SRK_SECRET );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Policy_SetSecret (hSRKPolicy)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		// set the new key's authdata
-	result = Tspi_GetPolicyObject( hKey, TSS_POLICY_USAGE, &hKeyPolicy );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_GetPolicyObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Policy_SetSecret( hKeyPolicy, TESTSUITE_KEY_SECRET_MODE,
-					TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Policy_SetSecret (hKeyPolicy)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-		 // create the key
-	result = Tspi_Key_CreateKey( hKey, hSRK, 0 );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_CreateKey (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Key_LoadKey( hKey, hSRK );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Key_LoadKey (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_PCRS,
-					0, &hPcrComposite );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hPcrComposite)",
-				result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_GetTpmObject",
-				result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
 #define PCR_NUM	5
 
-	result = Tspi_TPM_PcrRead( hTPM, PCR_NUM, &ulPcrLen, &rgbPcrValue );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_TPM_PcrRead", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result = Tspi_TPM_PcrRead(hTPM, PCR_NUM, &ulPcrLen, &rgbPcrValue);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_TPM_PcrRead", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, PCR_NUM, ulPcrLen,
-							rgbPcrValue );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_PcrComposite_SetPcrValue", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
+	result =
+	    Tspi_PcrComposite_SetPcrValue(hPcrComposite, PCR_NUM, ulPcrLen,
+					  rgbPcrValue);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_PcrComposite_SetPcrValue", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	// Data Seal
+	result =
+	    Tspi_Data_Seal(hEncData, hKey, ulDataLength, rgbDataToSeal,
+			   hPcrComposite);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Data_Seal", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-		// Data Seal
-	result = Tspi_Data_Seal( hEncData, hKey, ulDataLength, rgbDataToSeal,
-							hPcrComposite );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Data_Seal", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Data_Unseal( hEncData, hKey, &ulNewDataLength, &prgbDataToUnseal );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
+	result =
+	    Tspi_Data_Unseal(hEncData, hKey, &ulNewDataLength,
+			     &prgbDataToUnseal);
+	if (result != TSS_SUCCESS) {
+		if (!(checkNonAPI(result))) {
+			print_error(function, result);
+		} else {
+			print_error_nonapi(function, result);
 		}
-		else
-		{
-			print_error_nonapi( function, result );
-		}
-	}
-	else
-	{
+	} else {
 		if (ulDataLength != ulNewDataLength) {
-			printf("ERROR length of returned data doesn't match!\n");
-			print_end_test( function );
-			Tspi_Context_FreeMemory( hContext, NULL );
-			Tspi_Context_Close( hContext );
-			exit( result );
-		} else if (memcmp(prgbDataToUnseal, rgbDataToSeal, ulDataLength)) {
-			printf("ERROR data returned from unseal doesn't match!\n");
-			print_end_test( function );
-			Tspi_Context_FreeMemory( hContext, NULL );
-			Tspi_Context_Close( hContext );
-			exit( result );
+			printf
+			    ("ERROR length of returned data doesn't match!\n");
+			print_end_test(function);
+			Tspi_Context_FreeMemory(hContext, NULL);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		} else
+		    if (memcmp
+			(prgbDataToUnseal, rgbDataToSeal, ulDataLength)) {
+			printf
+			    ("ERROR data returned from unseal doesn't match!\n");
+			print_end_test(function);
+			Tspi_Context_FreeMemory(hContext, NULL);
+			Tspi_Context_Close(hContext);
+			exit(result);
 		}
 
-		result = Tspi_Context_FreeMemory(hContext, prgbDataToUnseal);
+		result =
+		    Tspi_Context_FreeMemory(hContext, prgbDataToUnseal);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
 			print_error_exit(function, err_string(result));
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
-		print_success( function, result );
+		print_success(function, result);
 	}
 
-	print_end_test( function );
-	Tspi_Context_FreeMemory( hContext, NULL );
-	Tspi_Context_Close( hContext );
-	exit( result );
+	print_end_test(function);
+	Tspi_Context_FreeMemory(hContext, NULL);
+	Tspi_Context_Close(hContext);
+	exit(result);
 }
