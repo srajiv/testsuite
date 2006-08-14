@@ -99,7 +99,7 @@ main_v1_1( void )
 
 	print_begin_test( function );
 
-	memset(rgbPcrValue, 0x5a, sizeof(rgbDataToSeal));
+	memset(rgbPcrValue, 0x5a, sizeof(rgbPcrValue));
 
 		// Create Context
 	result = Tspi_Context_Create( &hContext );
@@ -157,7 +157,6 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
-
 
 	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE, &hSrkPolicy );
 	if ( result != TSS_SUCCESS )
