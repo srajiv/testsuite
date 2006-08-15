@@ -84,9 +84,8 @@ main_v1_1( void )
 	TSS_RESULT		result;
 	BYTE			*data;
 	TSS_VALIDATION		validationData;
-	TSS_FLAG		initFlags = TSS_KEY_TYPE_SIGNING |
+	TSS_FLAG		initFlags = TSS_KEY_TYPE_LEGACY |
 						TSS_KEY_SIZE_2048 |
-						TSS_KEY_VOLATILE |
 						TSS_KEY_NO_AUTHORIZATION |
 						TSS_KEY_NOT_MIGRATABLE;
 	UINT32			exitCode = 0;
@@ -131,30 +130,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_SetAttribUint32( hKey, TSS_TSPATTRIB_KEY_INFO,
-					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
-					TSS_ES_NONE );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_SetAttribUint32 (enc)", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_SetAttribUint32( hKey, TSS_TSPATTRIB_KEY_INFO,
-					TSS_TSPATTRIB_KEYINFO_SIGSCHEME,
-					TSS_SS_NONE );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_SetAttribUint32 (sig)", result );
 		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
