@@ -26,7 +26,7 @@
  *	handle to the public endorsement key is passed in to it explicitly.
  *	Also, the SRK public key should only be returned after a call to
  *	Tspi_Key_GetPubKey, unless the handle to the SRK is the handle
- *	created by taking ownership.
+ *	created by taking ownership. This test will check that, also.
  *
  * ALGORITHM
  *	Setup:
@@ -207,8 +207,8 @@ main_v1_1( void )
 
 	/* the true SRK public key should be visible to us now,
 	 * since we just took ownership */
-	result = Tspi_GetAttribData(hKeySRK, TSS_TSPATTRIB_KEY_BLOB,
-				    TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
+	result = Tspi_GetAttribData(hKeySRK, TSS_TSPATTRIB_RSAKEY_INFO,
+				    TSS_TSPATTRIB_KEYINFO_RSA_MODULUS,
 				    &pubBlobLen, &pubBlob);
 	if ( result != TSS_SUCCESS )
 	{
@@ -277,8 +277,8 @@ main_v1_1( void )
 
 	/* Trying to get the true SRK public key should return
 	 * TSS_E_BAD_PARAMETER to us now. */
-	result = Tspi_GetAttribData(hKeySRK, TSS_TSPATTRIB_KEY_BLOB,
-				    TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
+	result = Tspi_GetAttribData(hKeySRK, TSS_TSPATTRIB_RSAKEY_INFO,
+				    TSS_TSPATTRIB_KEYINFO_RSA_MODULUS,
 				    &pubBlobLen, &pubBlob);
 	if ( result != TSS_E_BAD_PARAMETER )
 	{

@@ -133,10 +133,7 @@ ca_setup_key(TSS_HCONTEXT hContext, TSS_HKEY *hCAKey, RSA **rsa, int padding)
                 return 254; // ?
         }
 
-		// set the CA's public key data in the TSS object
-	result = Tspi_SetAttribData(*hCAKey, TSS_TSPATTRIB_KEY_BLOB,
-				    TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY, size_n,
-				    n);
+	result = set_public_modulus(hContext, *hCAKey, size_n, n);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribData ", result);
 		RSA_free(*rsa);
@@ -375,9 +372,8 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 
 	/* free the malloc'd structure member now that its in the blob */
 	Tspi_Context_FreeMemory(hContext, asymContents.sessionKey.data);
-
-	if ((result = Tspi_GetAttribData(hPubEK, TSS_TSPATTRIB_KEY_BLOB,
-					TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
+	if ((result = Tspi_GetAttribData(hPubEK, TSS_TSPATTRIB_RSAKEY_INFO,
+					TSS_TSPATTRIB_KEYINFO_RSA_MODULUS,
 					&pubEKSize, &pubEK))) {
 		free(b->symBlob);
 		b->symBlob = NULL;

@@ -158,11 +158,9 @@ main_v1_1(void){
         }
 
 		// set the CA's public key data in the TSS object
-	result = Tspi_SetAttribData(hCAKey, TSS_TSPATTRIB_KEY_BLOB,
-				    TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY, size_n,
-				    n);
+	result = set_public_modulus(hContext, hCAKey, size_n, n);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_SetAttribData ", result);
+		print_error("set_public_modulus", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);

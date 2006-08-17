@@ -99,10 +99,14 @@ main_v1_1(void){
 	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-			TSS_KEY_NOT_MIGRATABLE;
+			TSS_KEY_MIGRATABLE;
 	RSA		*rsa = NULL;
 	unsigned char	n[2048], p[2048];
 	int		size_n, size_p;
+	BYTE		blob[1024], *pubblob;
+	UINT32		pubblob_size;
+	TCPA_PUBKEY	pubkey;
+	UINT16		offset;
 
 	print_begin_test(nameOfFunction);
 
@@ -189,11 +193,9 @@ main_v1_1(void){
                 exit(-1);
         }
 
-		// set the public key data in the TSS object
-	result = Tspi_SetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB,
-			TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY, size_n, n);
+	result = set_public_modulus(hContext, hKey, size_n, n);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_SetAttribData ", result);
+		print_error("set_public_modulus", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
