@@ -180,8 +180,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		// Get hKey's public info
-	result = Tspi_GetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB,
-			TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY, &ulPublicKeyLength,
+	result = Tspi_GetAttribData(hKey, TSS_TSPATTRIB_RSAKEY_INFO,
+			TSS_TSPATTRIB_KEYINFO_RSA_MODULUS, &ulPublicKeyLength,
 			&rgbPublicKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
