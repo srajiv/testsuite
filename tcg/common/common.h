@@ -62,6 +62,7 @@ TSS_RESULT connect_load_all(TSS_HCONTEXT *, TSS_HKEY *, TSS_HTPM *);
 TSS_RESULT bind_and_unbind(TSS_HCONTEXT, TSS_HKEY);
 TSS_RESULT sign_and_verify(TSS_HCONTEXT, TSS_HKEY);
 TSS_RESULT seal_and_unseal(TSS_HCONTEXT, TSS_HKEY, TSS_HENCDATA, TSS_HPCRS);
+TSS_RESULT set_public_modulus(TSS_HCONTEXT, TSS_HKEY, UINT32, BYTE *);
 
 
 int main_v1_1();

@@ -732,3 +732,50 @@ seal_and_unseal(TSS_HCONTEXT hContext, TSS_HKEY hKey, TSS_HENCDATA hEncData,
 	return result;
 }
 
+TSS_RESULT
+set_public_modulus(TSS_HCONTEXT hContext, TSS_HKEY hKey, UINT32 size_n, BYTE *n)
+{
+	UINT16 offset;
+	UINT32 blob_size;
+	BYTE *blob, pub_blob[1024];
+	TCPA_PUBKEY pub_key;
+	TSS_RESULT result;
+
+	/* Get the TCPA_PUBKEY blob from the key object. */
+	result = Tspi_GetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB, TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
+				    &blob_size, &blob);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetAttribData", result);
+		return result;
+	}
+
+	offset = 0;
+	result = Trspi_UnloadBlob_PUBKEY(&offset, blob, &pub_key);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_GetAttribData", result);
+		return result;
+	}
+
+	Tspi_Context_FreeMemory(hContext, blob);
+	/* Free the first dangling reference, putting 'n' in its place */
+	free(pub_key.pubKey.key);
+	pub_key.pubKey.keyLength = size_n;
+	pub_key.pubKey.key = n;
+
+	offset = 0;
+	Trspi_LoadBlob_PUBKEY(&offset, pub_blob, &pub_key);
+
+	/* Free the second dangling reference */
+	free(pub_key.algorithmParms.parms);
+
+	/* set the public key data in the TSS object */
+	result = Tspi_SetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB, TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
+				    (UINT32)offset, pub_blob);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_SetAttribData", result);
+		return result;
+	}
+
+	return TSS_SUCCESS;
+}
+
