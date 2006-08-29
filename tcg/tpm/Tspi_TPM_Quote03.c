@@ -273,8 +273,8 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	pValidationData.DataLength = 20;
-	memcpy( &pValidationData.ExternalData, &data, 20);
+	pValidationData.ulDataLength = 20;
+	pValidationData.rgbExternalData = data;
 
 		//Call TPM Quote
 	result = Tspi_TPM_Quote(hTPM, -1, hPcrComposite, &pValidationData);

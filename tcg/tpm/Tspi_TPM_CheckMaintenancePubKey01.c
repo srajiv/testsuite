@@ -135,8 +135,8 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	ValidationData.DataLength = 20;
-	memcpy( &ValidationData.ExternalData, &data, 20);
+	ValidationData.ulExternalDataLength = 20;
+	ValidationData.rgbExternalData = data;
 
 	result = Tspi_TPM_CheckMaintenancePubKey( hTPM, 0, &ValidationData );
 	if ( result != TSS_SUCCESS && TSS_ERROR_CODE(result) != TCPA_E_INACTIVE)

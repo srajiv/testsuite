@@ -314,8 +314,8 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	pValidationData.DataLength = 20;
-	memcpy( &pValidationData.ExternalData, &data, 20);
+	pValidationData.ulExternalDataLength = 20;
+	pValidationData.rgbExternalData = data;
 
 		//Call Key Certify Key
 	result = Tspi_Key_CertifyKey(NonMigratableSigningKey, -1, 

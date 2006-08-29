@@ -200,8 +200,8 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	ValidationData.DataLength = 20;
-	memcpy( &ValidationData.ExternalData, &data, 20);
+	ValidationData.ulDataLength = 20;
+	ValidationData.rgbExternalData = data;
 
 		//Load Key Blob
 	result = Tspi_TPM_LoadMaintenancePubKey( hTPM, hMaintenanceKey,
