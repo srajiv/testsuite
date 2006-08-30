@@ -22,8 +22,8 @@
  *	Tspi_TPM_PcrRead04.c
  *
  * DESCRIPTION
- *	This test will verify that Tspi_TPM_PcrRead
- *		returns TSS_SUCCESS.
+ *	This test will query the TPM for the number of PCRs it supports, then
+ *	read the value of each PCR, printing out the register as it does so.
  *
  * ALGORITHM
  *	Setup:
