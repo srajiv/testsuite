@@ -79,7 +79,7 @@ main_v1_1(void){
 	TSS_HKEY		hKey;
 	TSS_HCONTEXT		hContext;
 	TSS_RESULT		result;
-	BYTE			pub_exp[] = { 0, 1, 0 }; // 65537
+	BYTE			pub_exp[] = { 1, 0, 1 }; // 65537
 	TCPA_RSA_KEY_PARMS	parms = { TCPA_ALG_RSA, 2, (UINT16)sizeof(pub_exp), pub_exp };
 	UINT32			blobLen;
 	BYTE			blob[1024];
