@@ -23,8 +23,8 @@
  *
  * DESCRIPTION
  *	This test will verify Tspi_Context_Connect.
- *	The purpose of this test case is to get TSS_SUCCESS to be returned.
- *		This is done by following the algorithm described below.
+ *	The purpose of this test case is to open a TSP context, connect
+ *	it to a TCS, close it, then re-open it, followed by another close.
  *
  * ALGORITHM
  *	Setup:
