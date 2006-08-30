@@ -92,7 +92,7 @@ registerkey(int i)
 	TSS_RESULT result;
 	char *function = "Tspi_Context_RegisterKey";
 
-	printf("%s: key %d\n", i);
+	printf("%s: key %d\n", __FUNCTION__, i);
 	result = Tspi_Context_RegisterKey( hContext, hKey[i].handle,
 						TSS_PS_TYPE_SYSTEM,
 						hKey[i].uuid,
@@ -125,7 +125,7 @@ unregisterkey(int i)
 	TSS_RESULT result;
 	char *function = "Tspi_Context_UnregisterKey";
 
-	printf("%s: key %d\n", i);
+	printf("%s: key %d\n", __FUNCTION__, i);
 	result = Tspi_Context_UnregisterKey( hContext,
 						TSS_PS_TYPE_SYSTEM,
 						hKey[i].uuid,
@@ -159,7 +159,8 @@ main_v1_1( void )
 	TSS_HTPM	hTPM;
 	TSS_RESULT	result;
 	TSS_HPOLICY	srkUsagePolicy;
-	UINT32		exitCode, i;
+	UINT32		exitCode;
+	int		i;
 	BYTE		*rand;
 
 	print_begin_test( function );
@@ -281,14 +282,14 @@ main_v1_1( void )
 	for (i = 0; i < NUM_KEYS; i++)
 	{
 		if (registerkey(i)) {
-			printf("$d: registerkey error, key %d\n", __LINE__, i);
+			printf("%d: registerkey error, key %d\n", __LINE__, i);
 			goto cleanup;
 		}
 	}
 	for (i = 0; i < NUM_KEYS; i++)
 	{
 		if (unregisterkey(i)) {
-			printf("$d: unregisterkey error, key %d\n", __LINE__, i);
+			printf("%d: unregisterkey error, key %d\n", __LINE__, i);
 			goto cleanup;
 		}
 	}
@@ -297,14 +298,14 @@ main_v1_1( void )
 	for (i = 0; i < NUM_KEYS; i++)
 	{
 		if (registerkey(i)) {
-			printf("$d: registerkey error, key %d\n", __LINE__, i);
+			printf("%d: registerkey error, key %d\n", __LINE__, i);
 			goto cleanup;
 		}
 	}
-	for (i = NUM_KEYS-1; i >=0; i++)
+	for (i = NUM_KEYS-1; i >= 0; i--)
 	{
 		if (unregisterkey(i)) {
-			printf("$d: unregisterkey error, key %d\n", __LINE__, i);
+			printf("%d: unregisterkey error, key %d\n", __LINE__, i);
 			goto cleanup;
 		}
 	}
