@@ -19,6 +19,7 @@ fi
 ./context/Tspi_Context_LoadKeyByBlob04 -v $VERSION || exit $?
 ./context/Tspi_Context_RegisterKey05 -v $VERSION || exit $?
 ./context/Tspi_Context_LoadKeyByUUID06 -v $VERSION || exit $?
+./context/Tspi_Context_Connect04 -v $VERSION || exit $?
 
 ./key/create_key_tests.sh -v $VERSION || exit $?
 ./key/Tspi_Key_CreateKey05 -v $VERSION || exit $?
