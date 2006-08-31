@@ -49,8 +49,12 @@ fi
 ./tspi/Tspi_Context_GetCapability18 -v $VERSION || exit $?
 ./tspi/Tspi_Context_GetCapability19 -v $VERSION || exit $?
 
-
+./data/Tspi_Data_Unbind05 -v $VERSION || exit $?
+./data/Tspi_Data_Unbind06 -v $VERSION || exit $?
+./data/Tspi_Data_Unbind07 -v $VERSION || exit $?
 ./data/Tspi_Data_Unbind08 -v $VERSION || exit $?
+./data/Tspi_Data_Unseal05 -v $VERSION || exit $?
+./data/Tspi_Data_Unseal06 -v $VERSION || exit $?
 
 # XXX This is an incomplete list...
 
