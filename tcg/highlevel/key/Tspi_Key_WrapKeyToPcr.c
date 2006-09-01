@@ -22,10 +22,9 @@
  *	Tspi_Key_WrapKeyToPcr.c
  *
  * DESCRIPTION
- *	This test will verify Tspi_Key_WrapKey.
- *	The purpose of this test case is to get TSS_SUCCESS to be
- *		returned. This is done by following the algorithm
- *		described below.
+ *	This test will wrap a software key bound to 2 PCRS (1 and 15), bind and
+ *	unbind some data to verify that that works, then trash one of the
+ *	PCRs and try to sign/verify some data, looking for TCPA_E_WRONGPCRVAL.
  *
  * ALGORITHM
  *	Setup:
@@ -170,11 +169,9 @@ main_v1_1(void){
                 exit(-1);
         }
 
-		// set the public key data in the TSS object
-	result = Tspi_SetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB,
-			TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY, size_n, n);
+	result = set_public_modulus(hContext, hKey, size_n, n);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_SetAttribData ", result);
+		print_error("set_public_modulus", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
@@ -193,28 +190,6 @@ main_v1_1(void){
 		RSA_free(rsa);
 		exit(result);
 	}
-#if 0
-		// Select indices in the PCR object
-	result = Tspi_PcrComposite_SelectPcrIndex(hPcrs, 1);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_PcrComposite_SelectPcrIndex ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		RSA_free(rsa);
-		exit(result);
-	}
-
-	result = Tspi_PcrComposite_SelectPcrIndex(hPcrs, 15);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_PcrComposite_SelectPcrIndex ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		RSA_free(rsa);
-		exit(result);
-	}
-#else
 		//Get PCR vals from TPM
 	result = Tspi_TPM_PcrRead(hTPM, 1, &pcrLen, &pcrValue);
 	if (result != TSS_SUCCESS) {
@@ -250,7 +225,7 @@ main_v1_1(void){
 		exit(result);
 	}
 	Tspi_Context_FreeMemory(hContext, pcrValue);
-#endif
+
 		//Wrap Key
 	result = Tspi_Key_WrapKey(hKey, hSRK, hPcrs);
 	if (result != TSS_SUCCESS) {
