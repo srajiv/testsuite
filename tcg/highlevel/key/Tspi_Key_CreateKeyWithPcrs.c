@@ -22,10 +22,9 @@
  *	Tspi_Key_CreateKeyWithPcrs.c
  *
  * DESCRIPTION
- *	This test will verify Tspi_Key_CreateKey.
- *	The purpose of this test case is to get TSS_SUCCESS to be
- *		returned. This is easily accomplished by following
- *		the algorithm described below.
+ *	This test will create a key bound to 2 PCRS (1 and 15), bind and
+ *	unbind some data to verify that that works, then trash one of the
+ *	PCRs and try to sign/verify some data, looking for TCPA_E_WRONGPCRVAL.
  *
  * ALGORITHM
  *	Setup:
