@@ -147,4 +147,6 @@ main_v1_1(void){
 
 		printf("%*u %u\n", 3, ulPcrIndex, ulEventNumber);
 	}
+
+	exit(result);
 }

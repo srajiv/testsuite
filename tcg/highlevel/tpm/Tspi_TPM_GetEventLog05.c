@@ -113,10 +113,12 @@ main_v1_1(void){
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
+			exit(result);
 		}
 		else{
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
+			exit(result);
 		}
 	}
 	printf("There are %d events:\n", ulEventNumber);
@@ -141,4 +143,6 @@ main_v1_1(void){
 
 			printf("\n");
 	}
+
+	exit(0);
 }

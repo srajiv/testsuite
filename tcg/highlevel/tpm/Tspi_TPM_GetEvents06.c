@@ -169,4 +169,6 @@ main_v1_1(void){
 
 		Tspi_Context_FreeMemory(hContext, (BYTE *)prgbPcrEvents);
 	}
+
+	exit(result);
 }
