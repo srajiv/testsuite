@@ -250,6 +250,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	print_success( "Test 1", result );
 
 	/* test 2 */
 	result = seal_and_unseal(hContext, hNoAuthKey, hNoAuthEncData, hPcrs);
@@ -260,6 +261,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	print_success( "Test 2", result );
 
 	/* test 3 */
 	result = seal_and_unseal(hContext, hNoAuthKey, hAuthEncData, hNullPcrs);
@@ -270,6 +272,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	print_success( "Test 3", result );
 
 	/* test 4 */
 	result = seal_and_unseal(hContext, hNoAuthKey, hAuthEncData, hPcrs);
@@ -280,6 +283,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	print_success( "Test 4", result );
 
 	/* test 5 */
 	result = seal_and_unseal(hContext, hAuthKey, hNoAuthEncData, hNullPcrs);
@@ -290,6 +294,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	print_success( "Test 5", result );
 
 	/* test 6 */
 	result = seal_and_unseal(hContext, hAuthKey, hNoAuthEncData, hPcrs);
@@ -300,6 +305,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	print_success( "Test 6", result );
 
 	/* test 7 */
 	result = seal_and_unseal(hContext, hAuthKey, hAuthEncData, hNullPcrs);
@@ -310,6 +316,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	print_success( "Test 7", result );
 
 	/* test 8 */
 	result = seal_and_unseal(hContext, hAuthKey, hAuthEncData, hPcrs);
@@ -320,6 +327,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+	print_success( "Test 8", result );
 
 	print_success( function, result );
 	print_end_test( function );
