@@ -86,7 +86,7 @@ struct key {
 TSS_HCONTEXT	hContext;
 TSS_HKEY	throw_away;
 
-int
+TSS_RESULT
 registerkey(int i)
 {
 	TSS_RESULT result;
@@ -103,12 +103,12 @@ registerkey(int i)
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			return 1;
+			return result;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			return 1;
+			return result;
 		}
 	}
 	else
@@ -119,7 +119,7 @@ registerkey(int i)
 	}
 }
 
-int
+TSS_RESULT
 unregisterkey(int i)
 {
 	TSS_RESULT result;
@@ -135,12 +135,12 @@ unregisterkey(int i)
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( function, result );
-			return 1;
+			return result;
 		}
 		else
 		{
 			print_error_nonapi( function, result );
-			return 1;
+			return result;
 		}
 	}
 	else
@@ -159,7 +159,6 @@ main_v1_1( void )
 	TSS_HTPM	hTPM;
 	TSS_RESULT	result;
 	TSS_HPOLICY	srkUsagePolicy;
-	UINT32		exitCode;
 	int		i;
 	BYTE		*rand;
 
@@ -281,14 +280,14 @@ main_v1_1( void )
 	/* all in order */
 	for (i = 0; i < NUM_KEYS; i++)
 	{
-		if (registerkey(i)) {
+		if ((result = registerkey(i))) {
 			printf("%d: registerkey error, key %d\n", __LINE__, i);
 			goto cleanup;
 		}
 	}
 	for (i = 0; i < NUM_KEYS; i++)
 	{
-		if (unregisterkey(i)) {
+		if ((result = unregisterkey(i))) {
 			printf("%d: unregisterkey error, key %d\n", __LINE__, i);
 			goto cleanup;
 		}
@@ -297,45 +296,19 @@ main_v1_1( void )
 	/* backwards */
 	for (i = 0; i < NUM_KEYS; i++)
 	{
-		if (registerkey(i)) {
+		if ((result = registerkey(i))) {
 			printf("%d: registerkey error, key %d\n", __LINE__, i);
 			goto cleanup;
 		}
 	}
 	for (i = NUM_KEYS-1; i >= 0; i--)
 	{
-		if (unregisterkey(i)) {
+		if ((result = unregisterkey(i))) {
 			printf("%d: unregisterkey error, key %d\n", __LINE__, i);
 			goto cleanup;
 		}
 	}
 
-#if 0
-		// register key
-	result = Tspi_Context_RegisterKey( hContext, hMSigningKey,
-						TSS_PS_TYPE_SYSTEM,
-						migratableSignUUID,
-						TSS_PS_TYPE_SYSTEM,
-						SRK_UUID );
-	if (result != TSS_SUCCESS)
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-			exitCode = 1;
-		}
-		else
-		{
-			print_error_nonapi( function, result );
-			exitCode = 1;
-		}
-	}
-	else
-	{
-		print_success( function, result );
-		exitCode = 0;
-	}
-#endif
 	print_end_test( function );
 cleanup:
 	for (i = 0; i < NUM_KEYS; i++) {
@@ -344,15 +317,8 @@ cleanup:
 							hKey[i].uuid, &throw_away);
 		}
 	}
-#if 0
-	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_USER,
-					userSignUUID,
-					&hUSigningKey );
-	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_SYSTEM,
-					migratableSignUUID,
-					&hMSigningKey );
-#endif
+
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit( result );
 }
