@@ -165,6 +165,14 @@ main_v1_1(void){
 		exit(result);
 	}
 
+	result = Tspi_Key_LoadKey(hParentKey, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_LoadKey", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
 		//Create Key
 	result = Tspi_Key_CreateKey(hKey, hParentKey, 0);
 	if (result != TSS_SUCCESS) {
