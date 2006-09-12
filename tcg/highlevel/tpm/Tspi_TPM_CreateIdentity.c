@@ -68,6 +68,9 @@
 
 #define CERT_VERIFY_BYTE 0x5a
 
+TCPA_ALGORITHM_ID symAlg = TCPA_ALG_3DES;
+TSS_ALGORITHM_ID tssSymAlg = TSS_ALG_3DES;
+
 /* substitute this for TPM_IDENTITY_CREDENTIAL in the TPM docs */
 struct trousers_ca_tpm_identity_credential
 {
@@ -289,9 +292,23 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 	}
 
 	/* fill out the asym contents structure */
-	asymContents.sessionKey.algId = TCPA_ALG_AES;
-	asymContents.sessionKey.encScheme = 0;
-	asymContents.sessionKey.size = 32;
+	asymContents.sessionKey.algId = symAlg;
+	asymContents.sessionKey.encScheme = TCPA_ES_NONE;
+
+	switch (asymContents.sessionKey.algId) {
+		case TCPA_ALG_AES:
+			asymContents.sessionKey.size = 128/8;
+			break;
+		case TCPA_ALG_DES:
+			asymContents.sessionKey.size = 64/8;
+			break;
+		case TCPA_ALG_3DES:
+			asymContents.sessionKey.size = 192/8;
+			break;
+		default:
+			print_error("Invalid symmetric algorithm!", -1);
+			return TSS_E_INTERNAL_ERROR;
+	}
 
 	if ((result = Tspi_TPM_GetRandom(hTPM, asymContents.sessionKey.size,
 					 &asymContents.sessionKey.data))) {
@@ -325,8 +342,8 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 		   (BYTE *)&asymContents.idDigest.digest);
 
 	/* create the TCPA_SYM_CA_ATTESTATION structure */
-	symAttestation.algorithm.algorithmID = TCPA_ALG_AES;
-	symAttestation.algorithm.encScheme = 0;
+	symAttestation.algorithm.algorithmID = symAlg;
+	symAttestation.algorithm.encScheme = TCPA_ES_NONE;
 	symAttestation.algorithm.sigScheme = 0;
 	symAttestation.algorithm.parmSize = 0;
 	symAttestation.algorithm.parms = NULL;
@@ -347,10 +364,9 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 	Trspi_LoadBlob_SYM_CA_ATTESTATION(&offset, blob, &symAttestation);
 
 	/* encrypt the TCPA_SYM_CA_ATTESTATION blob w/ the sym key */
-	if ((result = Trspi_Encrypt_ECB(TSS_ALG_AES,
-					asymContents.sessionKey.data, blob,
-					offset, blob, &blobSize))) {
-		print_error("Trspi_Encrypt_ECB", result);
+	if ((result = Trspi_SymEncrypt(symAlg, TCPA_ES_NONE, asymContents.sessionKey.data, NULL,
+				       blob, offset, blob, &blobSize))) {
+		print_error("Trspi_SymEncrypt", result);
 		Tspi_Context_FreeMemory(hContext,
 					asymContents.sessionKey.data);
 		return result;
@@ -439,6 +455,7 @@ main_v1_1(void){
 	TCPA_IDENTITY_REQ	identityReq;
 	TCPA_IDENTITY_PROOF	identityProof;
 	TCPA_SYMMETRIC_KEY	symKey;
+	TCPA_ALGORITHM_ID	algID;
 	TCPA_SYM_CA_ATTESTATION symAttestation;
 	BYTE			utilityBlob[USHRT_MAX], *cred;
 	int			padding = RSA_PKCS1_OAEP_PADDING, tmp;
@@ -522,7 +539,7 @@ main_v1_1(void){
 
 	result = Tspi_TPM_CollateIdentityRequest(hTPM, hSRK, hCAKey, labelLen,
 						 rgbIdentityLabelData,
-						 hIdentKey, TSS_ALG_AES,
+						 hIdentKey, tssSymAlg,
 						 &ulIdentityReqBlobLen,
 						 &identityReqBlob);
 	if (result != TSS_SUCCESS){
@@ -567,7 +584,14 @@ main_v1_1(void){
 	}
 
 	switch (symKey.algId) {
+		case TCPA_ALG_DES:
+			algID = TSS_ALG_DES;
+			break;
+		case TCPA_ALG_3DES:
+			algID = TSS_ALG_3DES;
+			break;
 		case TCPA_ALG_AES:
+			algID = TSS_ALG_AES;
 			break;
 		default:
 			fprintf(stderr, "symmetric blob encrypted with an "
@@ -579,12 +603,10 @@ main_v1_1(void){
 	}
 
 	utilityBlobSize = sizeof(utilityBlob);
-	if ((result = Trspi_Decrypt_ECB(TSS_ALG_AES, symKey.data,
-					identityReq.symBlob,
-					identityReq.symSize,
-					utilityBlob,
-					&utilityBlobSize))) {
-		print_error("Trspi_Decrypt_ECB", result);
+	if ((result = Trspi_SymDecrypt(algID, symKey.encScheme, symKey.data, NULL,
+				       identityReq.symBlob, identityReq.symSize, utilityBlob,
+				       &utilityBlobSize))) {
+		print_error("Trspi_SymDecrypt", result);
 		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -640,6 +662,9 @@ main_v1_1(void){
 	if (result) {
 		print_error("Tspi_TPM_ActivateIdentity", result);
 		print_error_exit(fn, err_string(result));
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+		exit(result);
 	}
 
 	offset = 0;
