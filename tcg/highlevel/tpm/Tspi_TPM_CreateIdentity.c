@@ -265,9 +265,9 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 {
 	TCPA_SYM_CA_ATTESTATION symAttestation;
 	TCPA_ASYM_CA_CONTENTS asymContents;
-	BYTE blob[2048];
+	BYTE blob[2048], blob2[2048];
 	BYTE *identityBlob;
-	UINT32 identityBlobSize, blobSize = 2048;
+	UINT32 identityBlobSize, blobSize = 2048, blob2Size = 2048;
 	TCPA_KEY idKey;
 	UINT16 offset;
 	TSS_HKEY hPubEK;
@@ -365,22 +365,21 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 
 	/* encrypt the TCPA_SYM_CA_ATTESTATION blob w/ the sym key */
 	if ((result = Trspi_SymEncrypt(symAlg, TCPA_ES_NONE, asymContents.sessionKey.data, NULL,
-				       blob, offset, blob, &blobSize))) {
+				       blob, offset, blob2, &blob2Size))) {
 		print_error("Trspi_SymEncrypt", result);
 		Tspi_Context_FreeMemory(hContext,
 					asymContents.sessionKey.data);
 		return result;
 	}
 
-	if ((b->symBlob = malloc(blobSize)) == NULL) {
+	if ((b->symBlob = malloc(blob2Size)) == NULL) {
 		fprintf(stderr, "malloc failed.");
-		Tspi_Context_FreeMemory(hContext,
-					asymContents.sessionKey.data);
+		Tspi_Context_FreeMemory(hContext, asymContents.sessionKey.data);
 		return TSS_E_OUTOFMEMORY;
 	}
 
-	memcpy(b->symBlob, blob, blobSize);
-	b->symBlobSize = blobSize;
+	memcpy(b->symBlob, blob2, blob2Size);
+	b->symBlobSize = blob2Size;
 
 	/* encrypt the TCPA_ASYM_CA_CONTENTS blob with the TPM's PubEK */
 	offset = 0;
