@@ -19,7 +19,7 @@
 
 /*
  * NAME
- *	Tspi_PolicyPopup02.c
+ *	Tspi_PolicyPopup03.c
  *
  * DESCRIPTION
  *	This test will verify that a policy set to display
@@ -88,7 +88,7 @@ main( int argc, char **argv )
 int
 main_v1_1( void )
 {
-	char			*function = "Tspi_PolicyPopup02";
+	char			*function = "Tspi_PolicyPopup03";
 	char			*hashData = "09876543210987654321";
 	TSS_RESULT		result;
 	TSS_HKEY		hSRK, hKey;
