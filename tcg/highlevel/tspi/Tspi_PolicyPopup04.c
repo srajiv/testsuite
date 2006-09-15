@@ -187,13 +187,20 @@ main_v1_1( void )
 		exit( result );
 	}
 
+	/* By default for TSS 1.1, the UNICODE NULL terminator is included in the hash
+	 * of the password when its entered through the popup mechanism. So, convert
+	 * the string 'password' to unicode and pass that in as the secret using
+	 * secret mode plain and a length that includes the NULL terminator. After the
+	 * key is created, the user of this test will be prompted for a password using
+	 * a popup. If the user enters 'password', the auth should work. */
+
 	uPass_len = strlen(pass);
 	uPass = char_to_unicode(pass, &uPass_len);
 	fprintf(stderr, "Using these %u bytes as the PLAIN secret:\n", uPass_len);
 	print_hex(uPass, uPass_len);
 
 	result = Tspi_Policy_SetSecret( hPolicy, TSS_SECRET_MODE_PLAIN,
-					uPass_len - sizeof(UNICODE), uPass );
+					uPass_len, uPass );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
@@ -273,11 +280,16 @@ main_v1_1( void )
 	}
 
 
-	/* Now, change the default handling of NULLs and do the test again */
+	/* Now, set the TSS context so that NULLs are not included by default, convert
+	 * the string 'password' to unicode and pass that in as the secret using
+	 * secret mode plain and a length that excludes the NULL terminator. After the
+	 * key is created, the user of this test will be prompted for a password using
+	 * a popup. If the user enters 'password', the auth should work. */
+
 
 	Tspi_Context_CloseObject(hContext, hKey);
 
-	/* Set the context so that popup NULLs are now included */
+	/* Set the context so that popup NULLs are not included */
 	result = Tspi_SetAttribUint32(hContext, TSS_TSPATTRIB_SECRET_HASH_MODE, 0,
 				      TSS_TSPATTRIB_HASH_MODE_NOT_NULL);
 	if ( result != TSS_SUCCESS )
@@ -318,7 +330,7 @@ main_v1_1( void )
 	print_hex(uPass, uPass_len - sizeof(UNICODE));
 
 	result = Tspi_Policy_SetSecret( hPolicy, TSS_SECRET_MODE_PLAIN,
-					uPass_len, uPass );
+					uPass_len - sizeof(UNICODE), uPass );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
