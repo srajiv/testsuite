@@ -86,7 +86,6 @@ main_v1_1( void )
 	UINT32		ulDataLength = DATA_SIZE, ulEncryptedDataLength = 0;
 	TSS_UUID	uuid;
 	TSS_RESULT	result;
-	UINT32		exitCode;
 
 	print_begin_test( function );
 
@@ -309,5 +308,5 @@ main_v1_1( void )
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( exitCode );
+	exit( 0 );
 }
