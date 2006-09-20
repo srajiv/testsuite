@@ -97,7 +97,7 @@ const char *fn = "Tspi_TPM_CreateIdentityWithCallbacks";
 
 TSS_RESULT
 collate_cb(PVOID myArgs, UINT32 proofSize, BYTE *proof, TSS_ALGORITHM_ID algID,
-	   UINT32 *ulSessKeyLength, BYTE **rgbSessKey, UINT32 *ulEncProofLen, BYTE **rgbEncProof)
+	   UINT32 *ulSessKeyLength, BYTE *rgbSessKey, UINT32 *ulEncProofLen, BYTE *rgbEncProof)
 {
 	TCPA_SYMMETRIC_KEY symKey;
 	BYTE iv[32];
@@ -161,18 +161,13 @@ collate_cb(PVOID myArgs, UINT32 proofSize, BYTE *proof, TSS_ALGORITHM_ID algID,
 		return 1;
 	}
 
-	*rgbSessKey = malloc(encSymKeySize);
-	*rgbEncProof = malloc(encProofSize);
-
-	if (!(*rgbSessKey) || !(*rgbEncProof)) {
-		free(*rgbSessKey);
-		free(*rgbEncProof);
-		*rgbSessKey = NULL;
-		*rgbEncProof = NULL;
+	if (encSymKeySize > *ulSessKeyLength ||
+	    encProofSize > *ulEncProofLen) {
+		return TSS_E_FAIL;
 	}
 
-	memcpy(*rgbSessKey, encSymKey, encSymKeySize);
-	memcpy(*rgbEncProof, encProof, encProofSize);
+	memcpy(rgbSessKey, encSymKey, encSymKeySize);
+	memcpy(rgbEncProof, encProof, encProofSize);
 
 	*ulSessKeyLength = encSymKeySize;
 	*ulEncProofLen = encProofSize;
@@ -182,7 +177,7 @@ collate_cb(PVOID myArgs, UINT32 proofSize, BYTE *proof, TSS_ALGORITHM_ID algID,
 
 TSS_RESULT
 activate_cb(PVOID myArgs, UINT32 symBlobLen, BYTE *symBlob, UINT32 symAttestBlobLen,
-	    BYTE *symAttestBlob, UINT32 *credLen, BYTE **cred)
+	    BYTE *symAttestBlob, UINT32 *credLen, BYTE *cred)
 {
 	TSS_RESULT result;
 	UINT16 offset;
@@ -222,13 +217,11 @@ activate_cb(PVOID myArgs, UINT32 symBlobLen, BYTE *symBlob, UINT32 symAttestBlob
 		return result;
 	}
 
-	if ((*cred = malloc(credBlobLen)) == NULL) {
-		free(symKey.data);
-		return TSS_E_OUTOFMEMORY;
-	}
-
 	free(symKey.data);
-	memcpy(*cred, credBlob, credBlobLen);
+	if (credBlobLen > *credLen)
+		return TSS_E_FAIL;
+
+	memcpy(cred, credBlob, credBlobLen);
 	*credLen = credBlobLen;
 
 	return TSS_SUCCESS;
