@@ -102,6 +102,7 @@ disconnect_and_reconnect()
 		return result;
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE,
 					&srkUsagePolicy );
@@ -119,6 +120,7 @@ disconnect_and_reconnect()
 		print_error( "Tspi_Policy_SetSecret", result );
 		return result;
 	}
+#endif
 
 	return TSS_SUCCESS;
 }
@@ -196,6 +198,7 @@ main_v1_1()
 		goto done;
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE,
 					&srkUsagePolicy );
@@ -213,6 +216,7 @@ main_v1_1()
 		print_error( "Tspi_Policy_SetSecret", result );
 		goto done;
 	}
+#endif
 
 	/* create one key of each size, 512, 1024 and 2048 */
 	if ((result = create_key(hContext,

@@ -139,6 +139,7 @@ int main_v1_1(void)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+#ifndef TESTSUITE_NOAUTH_SRK
 	// set the SRK auth data
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &hSRKPolicy);
 	if (result != TSS_SUCCESS) {
@@ -160,6 +161,7 @@ int main_v1_1(void)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+#endif
 	// set the new key's authdata
 	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &hKeyPolicy);
 	if (result != TSS_SUCCESS) {

@@ -132,6 +132,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object for the srkUsagePolicy
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
@@ -149,6 +150,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+#endif
 		//Create the hKey with the hSRK wrapping key
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {

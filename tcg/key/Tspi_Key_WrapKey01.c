@@ -146,6 +146,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, 
 					&srkUsagePolicy);
@@ -167,7 +168,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-
+#endif
 		// generate a software key to wrap
 	if ((rsa = RSA_generate_key(2048, 65537, NULL, NULL)) == NULL) {
 		print_error_exit(nameOfFunction, err_string(result));

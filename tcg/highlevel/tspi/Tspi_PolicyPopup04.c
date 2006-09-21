@@ -121,6 +121,18 @@ main_v1_1( void )
 		exit( result );
 	}
 
+	/* Set the context so that popup NULLs are included */
+	result = Tspi_SetAttribUint32(hContext, TSS_TSPATTRIB_SECRET_HASH_MODE, 0,
+				      TSS_TSPATTRIB_HASH_MODE_NULL);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_SetAttribUint32", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
 		// Connect to Context
 	result = Tspi_Context_Connect( hContext, NULL );
 	if ( result != TSS_SUCCESS )
@@ -143,6 +155,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE,
 					&srkUsagePolicy );
 	if ( result != TSS_SUCCESS )
@@ -164,6 +177,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+#endif
 
 	result = Tspi_Context_CreateObject ( hContext,
 						TSS_OBJECT_TYPE_RSAKEY,

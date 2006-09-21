@@ -135,6 +135,7 @@ main_v1_1(void){
 		Tspi_Context_CloseObject(hContext, hKey);
 		exit(result);
 	}
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
@@ -154,10 +155,11 @@ main_v1_1(void){
 		Tspi_Context_CloseObject(hContext, hKey);
 		exit(result);
 	}
+#endif
 		//Create a storage key to certify
 	result = Tspi_Context_CreateObject(hContext,
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_TYPE_STORAGE | TSS_KEY_SIZE_2048, &hKey);
+			TSS_KEY_TYPE_LEGACY | TSS_KEY_SIZE_512, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));

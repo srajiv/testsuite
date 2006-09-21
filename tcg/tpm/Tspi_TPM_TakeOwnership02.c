@@ -172,6 +172,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 	result = Tspi_GetPolicyObject( hKeySRK, TSS_POLICY_USAGE,
 					&hSrkPolicy );
 	if ( result != TSS_SUCCESS )
@@ -193,7 +194,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
-
+#endif
 	result = Tspi_TPM_TakeOwnership( whTPM, hKeySRK, hEndorsement );
 	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
 	{

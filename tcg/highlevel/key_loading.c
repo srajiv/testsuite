@@ -186,6 +186,7 @@ main_v1_1(char *argv3)
 		goto done;
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE,
 					&srkUsagePolicy );
@@ -203,7 +204,7 @@ main_v1_1(char *argv3)
 		print_error( "Tspi_Policy_SetSecret", result );
 		goto done;
 	}
-
+#endif
 
 	/* load a bunch of keys, creating when necessary */
 	for (i = 1; i < NUM_KEYS+1; i++) {

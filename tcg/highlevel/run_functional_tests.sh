@@ -34,6 +34,7 @@ fi
 # Warning: These two will trash a PCR!
 ./key/Tspi_Key_CreateKeyWithPcrs -v $VERSION || exit $?
 ./key/Tspi_Key_WrapKeyToPcr -v $VERSION || exit $?
+./key/Tspi_Key_ConvertMigrationBlob02 -v $VERSION || exit $?
 
 # tpm tests
 ./tpm/Tspi_TPM_Quote05 -v $VERSION || exit $?
@@ -50,6 +51,7 @@ fi
 ./tpm/Tspi_TPM_GetCapability06 -v $VERSION || exit $?
 ./tpm/Tspi_TPM_GetCapability07 -v $VERSION || exit $?
 ./tpm/Tspi_TPM_DirWrite04 -v $VERSION || exit $?
+./tpm/Tspi_TPM_CreateIdentity -v $VERSION || exit $?
 
 # tspi tests
 ./tspi/Tspi_Callbacks01 -v $VERSION || exit $?

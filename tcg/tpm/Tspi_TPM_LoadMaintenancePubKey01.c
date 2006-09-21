@@ -139,6 +139,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE,
 					&srkUsagePolicy );
@@ -162,7 +163,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
-
+#endif
 		//Create Signing Key
 	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
 						TSS_KEY_SIZE_2048 |

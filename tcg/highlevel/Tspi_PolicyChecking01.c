@@ -138,7 +138,6 @@ main_v1_1( void )
 		else
 		{
 			print_success( function1, result);
-			exitCode1 = 0;
 		}
 	}
 	fprintf( stderr, "\t\tAddress of callback hmac: %x\n", ES );
@@ -161,7 +160,6 @@ main_v1_1( void )
 		else
 		{
 			print_success( function1, result);
-			exitCode1 = 0;
 		}
 	}
 	fprintf( stderr, "\t\tAddress of callback xor enc: %x\n", ES );
@@ -207,7 +205,6 @@ main_v1_1( void )
 		else
 		{
 			print_success( function1, result);
-			exitCode1 = 0;
 		}
 	}
 	fprintf( stderr, "\t\tAddress of callback change auth asym: %x\n", ES );
@@ -231,11 +228,10 @@ main_v1_1( void )
 		else
 		{
 			print_success( function1, result);
-			exitCode1 = 0;
 		}
 	}
 	fprintf( stderr, "\t\tFlag set in policy object?: %x\n", ES );
-	
+
 	if( exitCode1 == 0 )
 		print_success( function, result );
 	else
@@ -256,7 +252,6 @@ main_v1_1( void )
 	else
 	{
 		print_success( function1, result); 
-		exitCode1 = 0;
 	}
 
 	result = Tspi_GetAttribUint32( hPolicy,
@@ -273,7 +268,6 @@ main_v1_1( void )
 	else
 	{
 		print_success( function1, result );
-		exitCode1 = 0;
 	}
 
 	print_end_test( function );

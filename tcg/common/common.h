@@ -85,6 +85,11 @@ extern TSS_UUID SRK_UUID;
 #define TESTSUITE_ENCDATA_SECRET	"ENC PWD"
 #define TESTSUITE_ENCDATA_SECRET_LEN	strlen(TESTSUITE_ENCDATA_SECRET)
 
+/* If TESTSUITE_NOAUTH_SRK is defined, the no secret will be set in the SRK's policy
+ * while any of the tests are run. If it remains undefined, the secret mode,
+ * secret and secret length below will be used for the SRK in the tests.
+ */
+#undef  TESTSUITE_NOAUTH_SRK
 #define TESTSUITE_SRK_SECRET_MODE	TSS_SECRET_MODE_PLAIN
 #define TESTSUITE_SRK_SECRET		getenv("TESTSUITE_SRK_SECRET")
 #define TESTSUITE_SRK_SECRET_LEN	TESTSUITE_SRK_SECRET == NULL ? 0 : strlen(TESTSUITE_SRK_SECRET)

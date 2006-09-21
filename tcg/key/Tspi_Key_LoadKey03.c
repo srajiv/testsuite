@@ -143,6 +143,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
@@ -162,6 +163,7 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+#endif
 		//Get Policy Object
 	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, 
 					&keyUsagePolicy);

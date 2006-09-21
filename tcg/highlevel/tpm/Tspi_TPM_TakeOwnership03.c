@@ -161,6 +161,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 	result = Tspi_GetPolicyObject( hKeySRK, TSS_POLICY_USAGE,
 					&hSrkPolicy );
 	if ( result != TSS_SUCCESS )
@@ -182,6 +183,7 @@ main_v1_1( void )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
+#endif
 
 	/* call take ownership with a NULL endorsement key handle */
 	result = Tspi_TPM_TakeOwnership( hTPM, hKeySRK, NULL_HKEY );

@@ -142,6 +142,7 @@ main_v1_1( void )
 		goto done;
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject( hSRK, TSS_POLICY_USAGE,
 					&srkUsagePolicy );
@@ -159,6 +160,7 @@ main_v1_1( void )
 		print_error( "Tspi_Policy_SetSecret", result );
 		goto done;
 	}
+#endif
 
 	/* ######## Start Key 0 ######## */
 	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,

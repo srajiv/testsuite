@@ -149,6 +149,7 @@ int main_v1_1(void)
 		exit(result);
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &hSrkPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
@@ -169,7 +170,7 @@ int main_v1_1(void)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-
+#endif
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
