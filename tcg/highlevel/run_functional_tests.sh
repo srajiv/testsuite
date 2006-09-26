@@ -28,6 +28,8 @@ fi
 ./context/Tspi_Context_CreateHashObject01 -v $VERSION || exit $?
 ./context/Tspi_Context_CreatePcrsObject01 -v $VERSION || exit $?
 ./context/Tspi_Context_CreatePolicyObject01 -v $VERSION || exit $?
+./context/Tspi_Context_LoadKeyByUUID07 -v $VERSION || exit $?
+./context/Tspi_Context_LoadKeyByUUID08 -v $VERSION || exit $?
 
 # key tests
 ./key/Tspi_Key_CreateKey05 -v $VERSION || exit $?
