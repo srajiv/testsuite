@@ -43,6 +43,13 @@
 #include <getopt.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <iconv.h>
+#include <langinfo.h>
+#include <limits.h>
+
+#include <openssl/err.h>
+#include <openssl/evp.h>
 
 #include "trousers/tss.h"
 #include "common.h"
@@ -60,7 +67,7 @@ get_server(char *server)
 	if (server == NULL)
 		return NULL;
 	else
-		return (UNICODE *)Trspi_Native_To_UNICODE(server, NULL);
+		return (UNICODE *)TestSuite_Native_To_UNICODE(server, NULL);
 }
 
 void
@@ -750,7 +757,7 @@ set_public_modulus(TSS_HCONTEXT hContext, TSS_HKEY hKey, UINT32 size_n, BYTE *n)
 	}
 
 	offset = 0;
-	result = Trspi_UnloadBlob_PUBKEY(&offset, blob, &pub_key);
+	result = TestSuite_UnloadBlob_PUBKEY(&offset, blob, &pub_key);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetAttribData", result);
 		return result;
@@ -763,7 +770,7 @@ set_public_modulus(TSS_HCONTEXT hContext, TSS_HKEY hKey, UINT32 size_n, BYTE *n)
 	pub_key.pubKey.key = n;
 
 	offset = 0;
-	Trspi_LoadBlob_PUBKEY(&offset, pub_blob, &pub_key);
+	TestSuite_LoadBlob_PUBKEY(&offset, pub_blob, &pub_key);
 
 	/* Free the second dangling reference */
 	free(pub_key.algorithmParms.parms);
@@ -778,4 +785,1012 @@ set_public_modulus(TSS_HCONTEXT hContext, TSS_HKEY hKey, UINT32 size_n, BYTE *n)
 
 	return TSS_SUCCESS;
 }
+
+void
+TestSuite_LoadBlob_KEY_FLAGS(UINT16 * offset, BYTE * blob, TCPA_KEY_FLAGS * flags)
+{
+        UINT32 tempFlag = 0;
+
+        if (*flags & migratable)
+                tempFlag |= migratable;
+        if (*flags & redirection)
+                tempFlag |= redirection;
+        if (*flags & volatileKey)
+                tempFlag |= volatileKey;
+        TestSuite_LoadBlob_UINT32(offset, tempFlag, blob);
+}
+
+void
+TestSuite_UnloadBlob_KEY_FLAGS(UINT16 * offset, BYTE * blob, TCPA_KEY_FLAGS * flags)
+{
+        UINT32 tempFlag = 0;
+        memset(flags, 0x00, sizeof(TCPA_KEY_FLAGS));
+
+        TestSuite_UnloadBlob_UINT32(offset, &tempFlag, blob);
+
+        if (tempFlag & redirection)
+                *flags |= redirection;
+        if (tempFlag & migratable)
+                *flags |= migratable;
+        if (tempFlag & volatileKey)
+                *flags |= volatileKey;
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_SYMMETRIC_KEY(UINT16 *offset, BYTE *blob, TCPA_SYMMETRIC_KEY *key)
+{
+	TestSuite_UnloadBlob_UINT32(offset, &key->algId, blob);
+	TestSuite_UnloadBlob_UINT16(offset, &key->encScheme, blob);
+	TestSuite_UnloadBlob_UINT16(offset, &key->size, blob);
+
+	if (key->size > 0) {
+		key->data = malloc(key->size);
+		if (key->data == NULL) {
+			key->size = 0;
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, key->size, blob, key->data);
+	} else {
+		key->data = NULL;
+	}
+
+	return TSS_SUCCESS;
+}
+
+
+void
+TestSuite_LoadBlob_PUBKEY(UINT16 *offset, BYTE *blob, TCPA_PUBKEY *pubKey)
+{
+	TestSuite_LoadBlob_KEY_PARMS(offset, blob, &pubKey->algorithmParms);
+	TestSuite_LoadBlob_STORE_PUBKEY(offset, blob, &pubKey->pubKey);
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_PUBKEY(UINT16 * offset, BYTE * blob, TCPA_PUBKEY * pubKey)
+{
+	TSS_RESULT result;
+
+	if ((result = TestSuite_UnloadBlob_KEY_PARMS(offset, blob, &pubKey->algorithmParms)))
+		return result;
+	if ((result = TestSuite_UnloadBlob_STORE_PUBKEY(offset, blob, &pubKey->pubKey))) {
+		free(pubKey->pubKey.key);
+		free(pubKey->algorithmParms.parms);
+		pubKey->pubKey.key = NULL;
+		pubKey->pubKey.keyLength = 0;
+		pubKey->algorithmParms.parms = NULL;
+		pubKey->algorithmParms.parmSize = 0;
+		return result;
+	}
+
+	return TSS_SUCCESS;
+}
+
+void
+TestSuite_LoadBlob(UINT16 * offset, UINT32 size, BYTE * container, BYTE * object)
+{
+	if (size == 0)
+		return;
+	memcpy(&container[(*offset)], object, size);
+	(*offset) += (UINT16) size;
+}
+
+void
+TestSuite_UnloadBlob(UINT16 * offset, UINT32 size, BYTE * container, BYTE * object)
+{
+	if (size == 0)
+		return;
+	memcpy(object, &container[(*offset)], size);
+	(*offset) += (UINT16) size;
+}
+
+void
+TestSuite_LoadBlob_BYTE(UINT16 * offset, BYTE data, BYTE * blob)
+{
+	blob[*offset] = data;
+	(*offset)++;
+}
+
+void
+TestSuite_UnloadBlob_BYTE(UINT16 * offset, BYTE * dataOut, BYTE * blob)
+{
+	*dataOut = blob[*offset];
+	(*offset)++;
+}
+
+void
+TestSuite_LoadBlob_BOOL(UINT16 * offset, TSS_BOOL data, BYTE * blob)
+{
+	blob[*offset] = (BYTE) data;
+	(*offset)++;
+}
+
+void
+TestSuite_UnloadBlob_BOOL(UINT16 * offset, TSS_BOOL * dataOut, BYTE * blob)
+{
+	*dataOut = blob[*offset];
+	(*offset)++;
+}
+
+void
+TestSuite_LoadBlob_UINT32(UINT16 * offset, UINT32 in, BYTE * blob)
+{
+	UINT32ToArray(in, &blob[*offset]);
+	*offset += 4;
+}
+
+void
+TestSuite_LoadBlob_UINT16(UINT16 * offset, UINT16 in, BYTE * blob)
+{
+	UINT16ToArray(in, &blob[*offset]);
+	*offset += sizeof(UINT16);
+}
+
+void
+TestSuite_UnloadBlob_UINT32(UINT16 * offset, UINT32 * out, BYTE * blob)
+{
+	*out = Decode_UINT32(&blob[*offset]);
+	*offset += sizeof(UINT32);
+}
+
+void
+TestSuite_UnloadBlob_UINT16(UINT16 * offset, UINT16 * out, BYTE * blob)
+{
+	*out = Decode_UINT16(&blob[*offset]);
+	*offset += sizeof(UINT16);
+}
+
+void
+TestSuite_LoadBlob_RSA_KEY_PARMS(UINT16 * offset, BYTE * blob, TCPA_RSA_KEY_PARMS * parms)
+{
+	TestSuite_LoadBlob_UINT32(offset, parms->keyLength, blob);
+	TestSuite_LoadBlob_UINT32(offset, parms->numPrimes, blob);
+	TestSuite_LoadBlob_UINT32(offset, parms->exponentSize, blob);
+
+	if (parms->exponentSize > 0)
+		TestSuite_LoadBlob(offset, parms->exponentSize, blob, parms->exponent);
+}
+
+void
+TestSuite_LoadBlob_TSS_VERSION(UINT16 * offset, BYTE * blob, TSS_VERSION version)
+{
+	blob[(*offset)++] = version.bMajor;
+	blob[(*offset)++] = version.bMinor;
+	blob[(*offset)++] = version.bRevMajor;
+	blob[(*offset)++] = version.bRevMinor;
+}
+
+void
+TestSuite_UnloadBlob_TCPA_VERSION(UINT16 * offset, BYTE * blob, TCPA_VERSION * out)
+{
+	out->major = blob[(*offset)++];
+	out->minor = blob[(*offset)++];
+	out->revMajor = blob[(*offset)++];
+	out->revMinor = blob[(*offset)++];
+}
+
+void
+TestSuite_LoadBlob_TCPA_VERSION(UINT16 * offset, BYTE * blob, TCPA_VERSION version)
+{
+	blob[(*offset)++] = version.major;
+	blob[(*offset)++] = version.minor;
+	blob[(*offset)++] = version.revMajor;
+	blob[(*offset)++] = version.revMinor;
+}
+
+void
+TestSuite_LoadBlob_KEY(UINT16 * offset, BYTE * blob, TCPA_KEY * key)
+{
+	TestSuite_LoadBlob_TCPA_VERSION(offset, blob, key->ver);
+	TestSuite_LoadBlob_UINT16(offset, key->keyUsage, blob);
+	TestSuite_LoadBlob_KEY_FLAGS(offset, blob, &key->keyFlags);
+	blob[(*offset)++] = key->authDataUsage;
+	TestSuite_LoadBlob_KEY_PARMS(offset, blob, &key->algorithmParms);
+	TestSuite_LoadBlob_UINT32(offset, key->PCRInfoSize, blob);
+	TestSuite_LoadBlob(offset, key->PCRInfoSize, blob, key->PCRInfo);
+	TestSuite_LoadBlob_STORE_PUBKEY(offset, blob, &key->pubKey);
+	TestSuite_LoadBlob_UINT32(offset, key->encSize, blob);
+	TestSuite_LoadBlob(offset, key->encSize, blob, key->encData);
+}
+
+void
+TestSuite_LoadBlob_KEY_PARMS(UINT16 * offset, BYTE * blob, TCPA_KEY_PARMS * keyInfo)
+{
+	TestSuite_LoadBlob_UINT32(offset, keyInfo->algorithmID, blob);
+	TestSuite_LoadBlob_UINT16(offset, keyInfo->encScheme, blob);
+	TestSuite_LoadBlob_UINT16(offset, keyInfo->sigScheme, blob);
+	TestSuite_LoadBlob_UINT32(offset, keyInfo->parmSize, blob);
+
+	if (keyInfo->parmSize > 0)
+		TestSuite_LoadBlob(offset, keyInfo->parmSize, blob, keyInfo->parms);
+}
+
+void
+TestSuite_LoadBlob_STORE_PUBKEY(UINT16 * offset, BYTE * blob, TCPA_STORE_PUBKEY * store)
+{
+	TestSuite_LoadBlob_UINT32(offset, store->keyLength, blob);
+	TestSuite_LoadBlob(offset, store->keyLength, blob, store->key);
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_KEY_PARMS(UINT16 * offset, BYTE * blob, TCPA_KEY_PARMS * keyParms)
+{
+	TestSuite_UnloadBlob_UINT32(offset, &keyParms->algorithmID, blob);
+	TestSuite_UnloadBlob_UINT16(offset, &keyParms->encScheme, blob);
+	TestSuite_UnloadBlob_UINT16(offset, &keyParms->sigScheme, blob);
+	TestSuite_UnloadBlob_UINT32(offset, &keyParms->parmSize, blob);
+
+	if (keyParms->parmSize > 0) {
+		keyParms->parms = malloc(keyParms->parmSize);
+		if (keyParms->parms == NULL) {
+			fprintf(stderr, "malloc of %d bytes failed.", keyParms->parmSize);
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, keyParms->parmSize, blob, keyParms->parms);
+	} else {
+		keyParms->parms = NULL;
+	}
+
+	return TSS_SUCCESS;
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_KEY(UINT16 * offset, BYTE * blob, TCPA_KEY * key)
+{
+	TSS_RESULT result;
+
+	TestSuite_UnloadBlob_TCPA_VERSION(offset, blob, &key->ver);
+	TestSuite_UnloadBlob_UINT16(offset, &key->keyUsage, blob);
+	TestSuite_UnloadBlob_KEY_FLAGS(offset, blob, &key->keyFlags);
+	key->authDataUsage = blob[(*offset)++];
+	if ((result = TestSuite_UnloadBlob_KEY_PARMS(offset, (BYTE *) blob, &key->algorithmParms)))
+		return result;
+	TestSuite_UnloadBlob_UINT32(offset, &key->PCRInfoSize, blob);
+
+	if (key->PCRInfoSize > 0) {
+		key->PCRInfo = malloc(key->PCRInfoSize);
+		if (key->PCRInfo == NULL) {
+			fprintf(stderr, "malloc of %d bytes failed.", key->PCRInfoSize);
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, key->PCRInfoSize, blob, key->PCRInfo);
+	} else {
+		key->PCRInfo = NULL;
+	}
+
+	if ((result = TestSuite_UnloadBlob_STORE_PUBKEY(offset, blob, &key->pubKey)))
+		return result;
+	TestSuite_UnloadBlob_UINT32(offset, &key->encSize, blob);
+
+	if (key->encSize > 0) {
+		key->encData = malloc(key->encSize);
+		if (key->encData == NULL) {
+			fprintf(stderr, "malloc of %d bytes failed.", key->encSize);
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, key->encSize, blob, key->encData);
+	} else {
+		key->encData = NULL;
+	}
+
+	return result;
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_STORE_PUBKEY(UINT16 * offset, BYTE * blob, TCPA_STORE_PUBKEY * store)
+{
+	TestSuite_UnloadBlob_UINT32(offset, &store->keyLength, blob);
+
+	if (store->keyLength > 0) {
+		store->key = malloc(store->keyLength);
+		if (store->key == NULL) {
+			fprintf(stderr, "malloc of %d bytes failed.", store->keyLength);
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, store->keyLength, blob, store->key);
+	} else {
+		store->key = NULL;
+	}
+
+	return TSS_SUCCESS;
+}
+
+void
+TestSuite_UnloadBlob_VERSION(UINT16 * offset, BYTE * blob, TCPA_VERSION * out)
+{
+	TestSuite_UnloadBlob_BYTE(offset, &out->major, blob);
+	TestSuite_UnloadBlob_BYTE(offset, &out->minor, blob);
+	TestSuite_UnloadBlob_BYTE(offset, &out->revMajor, blob);
+	TestSuite_UnloadBlob_BYTE(offset, &out->revMinor, blob);
+}
+
+void
+TestSuite_LoadBlob_SYMMETRIC_KEY(UINT16 *offset, BYTE *blob, TCPA_SYMMETRIC_KEY *key)
+{
+	TestSuite_LoadBlob_UINT32(offset, key->algId, blob);
+	TestSuite_LoadBlob_UINT16(offset, key->encScheme, blob);
+	TestSuite_LoadBlob_UINT16(offset, key->size, blob);
+
+	if (key->size > 0)
+		TestSuite_LoadBlob(offset, key->size, blob, key->data);
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_IDENTITY_PROOF(UINT16 *offset, BYTE *blob, TCPA_IDENTITY_PROOF *proof)
+{
+	TSS_RESULT result;
+
+	/* helps when an error occurs */
+	memset(proof, 0, sizeof(TCPA_IDENTITY_PROOF));
+
+	TestSuite_UnloadBlob_VERSION(offset, blob, (TCPA_VERSION *)&proof->ver);
+	TestSuite_UnloadBlob_UINT32(offset, &proof->labelSize, blob);
+	TestSuite_UnloadBlob_UINT32(offset, &proof->identityBindingSize, blob);
+	TestSuite_UnloadBlob_UINT32(offset, &proof->endorsementSize, blob);
+	TestSuite_UnloadBlob_UINT32(offset, &proof->platformSize, blob);
+	TestSuite_UnloadBlob_UINT32(offset, &proof->conformanceSize, blob);
+
+	if ((result = TestSuite_UnloadBlob_PUBKEY(offset, blob,
+					      &proof->identityKey))) {
+		proof->labelSize = 0;
+		proof->identityBindingSize = 0;
+		proof->endorsementSize = 0;
+		proof->platformSize = 0;
+		proof->conformanceSize = 0;
+		return result;
+	}
+
+	if (proof->labelSize > 0) {
+		proof->labelArea = malloc(proof->labelSize);
+		if (proof->labelArea == NULL) {
+			result = TSS_E_OUTOFMEMORY;
+			goto error;
+		}
+		TestSuite_UnloadBlob(offset, proof->labelSize, blob, proof->labelArea);
+	} else {
+		proof->labelArea = NULL;
+	}
+
+	if (proof->identityBindingSize > 0) {
+		proof->identityBinding = malloc(proof->identityBindingSize);
+		if (proof->identityBinding == NULL) {
+			result = TSS_E_OUTOFMEMORY;
+			goto error;
+		}
+		TestSuite_UnloadBlob(offset, proof->identityBindingSize, blob,
+				 proof->identityBinding);
+	} else {
+		proof->identityBinding = NULL;
+	}
+
+	if (proof->endorsementSize > 0) {
+		proof->endorsementCredential = malloc(proof->endorsementSize);
+		if (proof->endorsementCredential == NULL) {
+			result = TSS_E_OUTOFMEMORY;
+			goto error;
+		}
+		TestSuite_UnloadBlob(offset, proof->endorsementSize, blob,
+				 proof->endorsementCredential);
+	} else {
+		proof->endorsementCredential = NULL;
+	}
+
+	if (proof->platformSize > 0) {
+		proof->platformCredential = malloc(proof->platformSize);
+		if (proof->platformCredential == NULL) {
+			result = TSS_E_OUTOFMEMORY;
+			goto error;
+		}
+		TestSuite_UnloadBlob(offset, proof->platformSize, blob,
+				 proof->platformCredential);
+	} else {
+		proof->platformCredential = NULL;
+	}
+
+	if (proof->conformanceSize > 0) {
+		proof->conformanceCredential = malloc(proof->conformanceSize);
+		if (proof->conformanceCredential == NULL) {
+			result = TSS_E_OUTOFMEMORY;
+			goto error;
+		}
+		TestSuite_UnloadBlob(offset, proof->conformanceSize, blob,
+				 proof->conformanceCredential);
+	} else {
+		proof->conformanceCredential = NULL;
+	}
+
+	return TSS_SUCCESS;
+error:
+	proof->labelSize = 0;
+	proof->identityBindingSize = 0;
+	proof->endorsementSize = 0;
+	proof->platformSize = 0;
+	proof->conformanceSize = 0;
+	free(proof->labelArea);
+	proof->labelArea = NULL;
+	free(proof->identityBinding);
+	proof->identityBinding = NULL;
+	free(proof->endorsementCredential);
+	proof->endorsementCredential = NULL;
+	free(proof->conformanceCredential);
+	proof->conformanceCredential = NULL;
+	/* free identityKey */
+	free(proof->identityKey.pubKey.key);
+	free(proof->identityKey.algorithmParms.parms);
+	proof->identityKey.pubKey.key = NULL;
+	proof->identityKey.pubKey.keyLength = 0;
+	proof->identityKey.algorithmParms.parms = NULL;
+	proof->identityKey.algorithmParms.parmSize = 0;
+
+	return result;
+}
+
+void
+TestSuite_LoadBlob_SYM_CA_ATTESTATION(UINT16 *offset, BYTE *blob,
+				  TCPA_SYM_CA_ATTESTATION *sym)
+{
+	TestSuite_LoadBlob_UINT32(offset, sym->credSize, blob);
+	TestSuite_LoadBlob_KEY_PARMS(offset, blob, &sym->algorithm);
+	TestSuite_LoadBlob(offset, sym->credSize, blob, sym->credential);
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_SYM_CA_ATTESTATION(UINT16 *offset, BYTE *blob,
+				    TCPA_SYM_CA_ATTESTATION *sym)
+{
+	TSS_RESULT result;
+
+	TestSuite_UnloadBlob_UINT32(offset, &sym->credSize, blob);
+	if ((result = TestSuite_UnloadBlob_KEY_PARMS(offset, blob,
+						 &sym->algorithm))) {
+		sym->credSize = 0;
+		return result;
+	}
+
+	if (sym->credSize > 0) {
+		if ((sym->credential = malloc(sym->credSize)) == NULL) {
+			free(sym->algorithm.parms);
+			sym->algorithm.parmSize = 0;
+			sym->credSize = 0;
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, sym->credSize, blob, sym->credential);
+	} else {
+		sym->credential = NULL;
+	}
+
+	return TSS_SUCCESS;
+}
+
+void
+TestSuite_LoadBlob_ASYM_CA_CONTENTS(UINT16 *offset, BYTE *blob,
+				TCPA_ASYM_CA_CONTENTS *asym)
+{
+	TestSuite_LoadBlob_SYMMETRIC_KEY(offset, blob, &asym->sessionKey);
+	TestSuite_LoadBlob(offset, TCPA_SHA1_160_HASH_LEN, blob,
+		       (BYTE *)&asym->idDigest);
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_ASYM_CA_CONTENTS(UINT16 *offset, BYTE *blob,
+				  TCPA_ASYM_CA_CONTENTS *asym)
+{
+	TSS_RESULT result;
+
+	if ((result = TestSuite_UnloadBlob_SYMMETRIC_KEY(offset, blob,
+						     &asym->sessionKey)))
+		return result;
+
+	TestSuite_UnloadBlob(offset, TCPA_SHA1_160_HASH_LEN, blob,
+			 (BYTE *)&asym->idDigest);
+
+	return TSS_SUCCESS;
+}
+
+static int
+hacky_strlen(char *codeset, BYTE *string)
+{
+	BYTE *ptr = string;
+	int len = 0;
+
+	if (strcmp("UTF-16", codeset) == 0) {
+		while (!(ptr[0] == '\0' && ptr[1] == '\0')) {
+			len += 2;
+			ptr += 2;
+		}
+	} else if (strcmp("UTF-32", codeset) == 0) {
+		while (!(ptr[0] == '\0' && ptr[1] == '\0' &&
+			 ptr[2] == '\0' && ptr[3] == '\0')) {
+			len += 4;
+			ptr += 4;
+		}
+	} else {
+		/* default to 8bit chars */
+		while (*ptr++ != '\0') {
+			len++;
+		}
+	}
+
+	return len;
+}
+
+static inline int
+char_width(char *codeset)
+{
+	if (strcmp("UTF-16", codeset) == 0) {
+		return 2;
+	} else if (strcmp("UTF-32", codeset) == 0) {
+		return 4;
+	}
+
+	return 1;
+}
+
+#define MAX_BUF_SIZE	4096
+
+BYTE *
+TestSuite_Native_To_UNICODE(BYTE *string, unsigned *size)
+{
+	char *ptr, *ret, *outbuf, tmpbuf[MAX_BUF_SIZE] = { 0, };
+	unsigned len = 0, tmplen;
+	iconv_t cd = 0;
+	size_t rc, outbytesleft, inbytesleft;
+
+	if (string == NULL)
+		goto alloc_string;
+
+	if ((cd = iconv_open("UTF-16LE", nl_langinfo(CODESET))) == (iconv_t)-1) {
+		fprintf(stderr, "iconv_open: %s", strerror(errno));
+		return NULL;
+	}
+
+	if ((tmplen = hacky_strlen(nl_langinfo(CODESET), string)) == 0) {
+		fprintf(stderr, "hacky_strlen returned 0");
+		goto alloc_string;
+	}
+
+	do {
+		len++;
+		outbytesleft = len;
+		inbytesleft = tmplen;
+		outbuf = tmpbuf;
+		ptr = (char *)string;
+		errno = 0;
+
+		rc = iconv(cd, &ptr, &inbytesleft, &outbuf, &outbytesleft);
+	} while (rc == (size_t)-1 && errno == E2BIG);
+
+	if (len > MAX_BUF_SIZE) {
+		fprintf(stderr, "string too long.");
+		iconv_close(cd);
+		return NULL;
+	}
+
+alloc_string:
+	/* add terminating bytes of the correct width */
+	len += char_width("UTF-16");
+	if ((ret = calloc(1, len)) == NULL) {
+		fprintf(stderr, "malloc of %u bytes failed.", len);
+		iconv_close(cd);
+		return NULL;
+	}
+
+	memcpy(ret, &tmpbuf, len);
+	if (size)
+		*size = len;
+
+	if (cd)
+		iconv_close(cd);
+
+	return (BYTE *)ret;
+
+}
+
+BYTE *
+TestSuite_UNICODE_To_Native(BYTE *string, unsigned *size)
+{
+	char *ret, *ptr, *outbuf, tmpbuf[MAX_BUF_SIZE] = { 0, };
+	unsigned len = 0, tmplen;
+	iconv_t cd;
+	size_t rc, outbytesleft, inbytesleft;
+
+	if (string == NULL) {
+		if (size)
+			*size = 0;
+		return NULL;
+	}
+
+	if ((cd = iconv_open(nl_langinfo(CODESET), "UTF-16LE")) == (iconv_t)-1) {
+		fprintf(stderr, "iconv_open: %s", strerror(errno));
+		return NULL;
+	}
+
+	if ((tmplen = hacky_strlen("UTF-16", string)) == 0) {
+		fprintf(stderr, "hacky_strlen returned 0");
+		return 0;
+	}
+
+	do {
+		len++;
+		outbytesleft = len;
+		inbytesleft = tmplen;
+		outbuf = tmpbuf;
+		ptr = (char *)string;
+		errno = 0;
+
+		rc = iconv(cd, &ptr, &inbytesleft, &outbuf, &outbytesleft);
+	} while (rc == (size_t)-1 && errno == E2BIG);
+
+	/* add terminating bytes of the correct width */
+	len += char_width(nl_langinfo(CODESET));
+	if (len > MAX_BUF_SIZE) {
+		fprintf(stderr, "string too long.");
+		iconv_close(cd);
+		return NULL;
+	}
+
+	if ((ret = calloc(1, len)) == NULL) {
+		fprintf(stderr, "malloc of %d bytes failed.", len);
+		iconv_close(cd);
+		return NULL;
+	}
+
+	memcpy(ret, &tmpbuf, len);
+	if (size)
+		*size = len;
+	iconv_close(cd);
+
+	return (BYTE *)ret;
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_IDENTITY_REQ(UINT16 *offset, BYTE *blob, TCPA_IDENTITY_REQ *req)
+{
+	TestSuite_UnloadBlob_UINT32(offset, &req->asymSize, blob);
+	TestSuite_UnloadBlob_UINT32(offset, &req->symSize, blob);
+	/* XXX */
+	TestSuite_UnloadBlob_KEY_PARMS(offset, blob, &req->asymAlgorithm);
+	TestSuite_UnloadBlob_KEY_PARMS(offset, blob, &req->symAlgorithm);
+
+	if (req->asymSize > 0) {
+		req->asymBlob = malloc(req->asymSize);
+		if (req->asymBlob == NULL) {
+			req->asymSize = 0;
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, req->asymSize, blob, req->asymBlob);
+	} else {
+		req->asymBlob = NULL;
+	}
+
+	if (req->symSize > 0) {
+		req->symBlob = malloc(req->symSize);
+		if (req->symBlob == NULL) {
+			req->symSize = 0;
+			req->asymSize = 0;
+			free(req->asymBlob);
+			req->asymBlob = NULL;
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, req->symSize, blob, req->symBlob);
+	} else {
+		req->symBlob = NULL;
+	}
+
+	return TSS_SUCCESS;
+}
+
+#define EVP_SUCCESS 1
+
+void
+print_openssl_errors()
+{
+	ERR_load_crypto_strings();
+	ERR_print_errors_fp(stderr);
+}
+
+TSS_RESULT
+TestSuite_Hash(UINT32 HashType, UINT32 BufSize, BYTE* Buf, BYTE* Digest)
+{
+	EVP_MD_CTX md_ctx;
+	unsigned int result_size;
+	int rv;
+
+	switch (HashType) {
+		case TSS_HASH_SHA1:
+			rv = EVP_DigestInit(&md_ctx, EVP_sha1());
+			break;
+		default:
+			rv = TSS_E_BAD_PARAMETER;
+			goto out;
+			break;
+	}
+
+	if (rv != EVP_SUCCESS) {
+		rv = TSS_E_INTERNAL_ERROR;
+		goto err;
+	}
+
+	rv = EVP_DigestUpdate(&md_ctx, Buf, BufSize);
+	if (rv != EVP_SUCCESS) {
+		rv = TSS_E_INTERNAL_ERROR;
+		goto err;
+	}
+
+	result_size = EVP_MD_CTX_size(&md_ctx);
+	rv = EVP_DigestFinal(&md_ctx, Digest, &result_size);
+	if (rv != EVP_SUCCESS) {
+		rv = TSS_E_INTERNAL_ERROR;
+		goto err;
+	} else
+		rv = TSS_SUCCESS;
+
+	goto out;
+
+err:
+	print_openssl_errors();
+out:
+	return rv;
+}
+
+TSS_RESULT
+TestSuite_SymEncrypt(UINT16 alg, BYTE mode, BYTE *key, BYTE *iv, BYTE *in, UINT32 in_len, BYTE *out,
+		     UINT32 *out_len)
+{
+	TSS_RESULT result = TSS_SUCCESS;
+	EVP_CIPHER_CTX ctx;
+	EVP_CIPHER *cipher;
+	BYTE *def_iv = NULL, *outiv_ptr;
+	UINT32 tmp;
+	int iv_len, outiv_len;
+
+	if (*out_len > INT_MAX)
+		outiv_len = INT_MAX;
+	else
+		outiv_len = *(int *)out_len;
+
+	/* TPM 1.1 had no defines for symmetric encryption modes, must use CBC */
+	switch (mode) {
+		case TCPA_ES_NONE:
+		case TSS_ES_NONE:
+			break;
+		default:
+			fprintf(stderr, "Invalid mode in doing symmetric decryption");
+			return TSS_E_INTERNAL_ERROR;
+	}
+
+	switch (alg) {
+		case TSS_ALG_AES:
+		case TCPA_ALG_AES:
+			cipher = (EVP_CIPHER *)EVP_aes_128_cbc();
+			break;
+		case TSS_ALG_DES:
+		case TCPA_ALG_DES:
+			cipher = (EVP_CIPHER *)EVP_des_cbc();
+			break;
+		case TSS_ALG_3DES:
+		case TCPA_ALG_3DES:
+			cipher = (EVP_CIPHER *)EVP_des_ede3_cbc();
+			break;
+		default:
+			return TSS_E_INTERNAL_ERROR;
+			break;
+	}
+
+	EVP_CIPHER_CTX_init(&ctx);
+
+	/* If the iv passed in is NULL, create a new random iv and prepend it to the ciphertext */
+	iv_len = EVP_CIPHER_iv_length(cipher);
+	if (iv == NULL) {
+		def_iv = malloc(iv_len);
+		if (def_iv == NULL) {
+			fprintf(stderr, "malloc of %d bytes failed.", iv_len);
+			return TSS_E_OUTOFMEMORY;
+		}
+		RAND_bytes(def_iv, iv_len);
+
+		memcpy(out, def_iv, iv_len);
+		outiv_ptr = &out[iv_len];
+		outiv_len -= iv_len;
+	} else {
+		def_iv = iv;
+		outiv_ptr = out;
+	}
+
+	if (!EVP_EncryptInit(&ctx, (const EVP_CIPHER *)cipher, key, def_iv)) {
+		result = TSS_E_INTERNAL_ERROR;
+		print_openssl_errors();
+		goto done;
+	}
+
+	if ((UINT32)outiv_len < in_len + (EVP_CIPHER_CTX_block_size(&ctx) * 2) - 1) {
+		fprintf(stderr, "Not enough space to do symmetric encryption");
+		result = TSS_E_INTERNAL_ERROR;
+		goto done;
+	}
+
+	if (!EVP_EncryptUpdate(&ctx, outiv_ptr, &outiv_len, in, in_len)) {
+		result = TSS_E_INTERNAL_ERROR;
+		print_openssl_errors();
+		goto done;
+	}
+
+	if (!EVP_EncryptFinal(&ctx, outiv_ptr + outiv_len, (int *)&tmp)) {
+		result = TSS_E_INTERNAL_ERROR;
+		print_openssl_errors();
+		goto done;
+	}
+
+	outiv_len += tmp;
+	*out_len = outiv_len;
+done:
+	if (def_iv != iv) {
+		*out_len += iv_len;
+		free(def_iv);
+	}
+	EVP_CIPHER_CTX_cleanup(&ctx);
+	return result;
+}
+
+TSS_RESULT
+TestSuite_SymDecrypt(UINT16 alg, BYTE mode, BYTE *key, BYTE *iv, BYTE *in, UINT32 in_len, BYTE *out,
+		     UINT32 *out_len)
+{
+	TSS_RESULT result = TSS_SUCCESS;
+	EVP_CIPHER_CTX ctx;
+	EVP_CIPHER *cipher;
+	BYTE *def_iv = NULL, *iniv_ptr;
+	UINT32 tmp;
+	int iv_len, iniv_len;
+
+	if (in_len > INT_MAX)
+		return TSS_E_BAD_PARAMETER;
+
+	/* TPM 1.1 had no defines for symmetric encryption modes, must use CBC */
+	switch (mode) {
+		case TCPA_ES_NONE:
+		case TSS_ES_NONE:
+			break;
+		default:
+			fprintf(stderr, "Invalid mode in doing symmetric decryption");
+			return TSS_E_INTERNAL_ERROR;
+	}
+
+	switch (alg) {
+		case TSS_ALG_AES:
+		case TCPA_ALG_AES:
+			cipher = (EVP_CIPHER *)EVP_aes_128_cbc();
+			break;
+		case TSS_ALG_DES:
+		case TCPA_ALG_DES:
+			cipher = (EVP_CIPHER *)EVP_des_cbc();
+			break;
+		case TSS_ALG_3DES:
+		case TCPA_ALG_3DES:
+			cipher = (EVP_CIPHER *)EVP_des_ede3_cbc();
+			break;
+		default:
+			return TSS_E_INTERNAL_ERROR;
+			break;
+	}
+
+	EVP_CIPHER_CTX_init(&ctx);
+
+	/* If the iv is NULL, assume that its prepended to the ciphertext */
+	if (iv == NULL) {
+		iv_len = EVP_CIPHER_iv_length(cipher);
+		def_iv = malloc(iv_len);
+		if (def_iv == NULL) {
+			fprintf(stderr, "malloc of %d bytes failed.", iv_len);
+			return TSS_E_OUTOFMEMORY;
+		}
+
+		memcpy(def_iv, in, iv_len);
+		iniv_ptr = &in[iv_len];
+		iniv_len = in_len - iv_len;
+	} else {
+		def_iv = iv;
+		iniv_ptr = in;
+		iniv_len = in_len;
+	}
+
+	if (!EVP_DecryptInit(&ctx, cipher, key, def_iv)) {
+		result = TSS_E_INTERNAL_ERROR;
+		print_openssl_errors();
+		goto done;
+	}
+
+	if (!EVP_DecryptUpdate(&ctx, out, (int *)out_len, iniv_ptr, iniv_len)) {
+		result = TSS_E_INTERNAL_ERROR;
+		print_openssl_errors();
+		goto done;
+	}
+
+	if (!EVP_DecryptFinal(&ctx, out + *out_len, (int *)&tmp)) {
+		result = TSS_E_INTERNAL_ERROR;
+		print_openssl_errors();
+		goto done;
+	}
+
+	*out_len += tmp;
+done:
+	if (def_iv != iv)
+		free(def_iv);
+	EVP_CIPHER_CTX_cleanup(&ctx);
+	return result;
+}
+
+int
+TestSuite_RSA_Public_Encrypt(unsigned char *in, unsigned int inlen,
+			     unsigned char *out, unsigned int *outlen,
+			     unsigned char *pubkey, unsigned int pubsize,
+			     unsigned int e, int padding)
+{
+	int rv, e_size = 3;
+	unsigned char exp[] = { 0x01, 0x00, 0x01 };
+	RSA *rsa = RSA_new();
+
+	if (rsa == NULL) {
+		rv = TSS_E_OUTOFMEMORY;
+		goto err;
+	}
+
+	switch (e) {
+		case 0:
+			/* fall through */
+		case 65537:
+			break;
+		case 17:
+			exp[0] = 17;
+			e_size = 1;
+			break;
+		case 3:
+			exp[0] = 3;
+			e_size = 1;
+			break;
+		default:
+			rv = TSS_E_INTERNAL_ERROR;
+			goto out;
+			break;
+	}
+
+	switch (padding) {
+		case RSA_PKCS1_OAEP_PADDING:
+		case RSA_PKCS1_PADDING:
+		case RSA_NO_PADDING:
+			break;
+		default:
+			rv = TSS_E_INTERNAL_ERROR;
+			goto out;
+			break;
+	}
+
+	/* set the public key value in the OpenSSL object */
+	rsa->n = BN_bin2bn(pubkey, pubsize, rsa->n);
+	/* set the public exponent */
+	rsa->e = BN_bin2bn(exp, e_size, rsa->e);
+
+	if (rsa->n == NULL || rsa->e == NULL) {
+		rv = TSS_E_OUTOFMEMORY;
+		goto err;
+	}
+
+	rv = RSA_public_encrypt(inlen, in, out, rsa, padding);
+	if (rv == -1) {
+		rv = TSS_E_INTERNAL_ERROR;
+		goto err;
+	}
+
+	/* RSA_public_encrypt returns the size of the encrypted data */
+	*outlen = rv;
+	rv = TSS_SUCCESS;
+	goto out;
+
+err:
+	print_openssl_errors();
+out:
+	if (rsa)
+		RSA_free(rsa);
+	return rv;
+}
+
 

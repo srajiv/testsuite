@@ -65,6 +65,51 @@ TSS_RESULT seal_and_unseal(TSS_HCONTEXT, TSS_HKEY, TSS_HENCDATA, TSS_HPCRS);
 TSS_RESULT set_public_modulus(TSS_HCONTEXT, TSS_HKEY, UINT32, BYTE *);
 
 
+void TestSuite_LoadBlob_PUBKEY(UINT16 *, BYTE *, TCPA_PUBKEY *);
+void TestSuite_LoadBlob(UINT16 *, UINT32, BYTE *, BYTE *);
+void TestSuite_UnloadBlob(UINT16 *, UINT32, BYTE *, BYTE *);
+void TestSuite_LoadBlob_BYTE(UINT16 *, BYTE, BYTE *);
+void TestSuite_UnloadBlob_BYTE(UINT16 *, BYTE *, BYTE *);
+void TestSuite_LoadBlob_BOOL(UINT16 *, TSS_BOOL, BYTE *);
+void TestSuite_UnloadBlob_BOOL(UINT16 *, TSS_BOOL *, BYTE *);
+void TestSuite_LoadBlob_UINT32(UINT16 *, UINT32, BYTE *);
+void TestSuite_LoadBlob_UINT16(UINT16 *, UINT16, BYTE *);
+void TestSuite_UnloadBlob_UINT32(UINT16 *, UINT32 *, BYTE *);
+void TestSuite_UnloadBlob_UINT16(UINT16 *, UINT16 *, BYTE *);
+void TestSuite_LoadBlob_RSA_KEY_PARMS(UINT16 *, BYTE *, TCPA_RSA_KEY_PARMS *);
+void TestSuite_LoadBlob_TSS_VERSION(UINT16 *, BYTE *, TSS_VERSION);
+void TestSuite_UnloadBlob_TCPA_VERSION(UINT16 *, BYTE *, TCPA_VERSION *);
+void TestSuite_LoadBlob_TCPA_VERSION(UINT16 *, BYTE *, TCPA_VERSION);
+void TestSuite_LoadBlob_KEY(UINT16 *, BYTE *, TCPA_KEY *);
+void TestSuite_LoadBlob_KEY_PARMS(UINT16 *, BYTE *, TCPA_KEY_PARMS *);
+void TestSuite_LoadBlob_STORE_PUBKEY(UINT16 *, BYTE *, TCPA_STORE_PUBKEY *);
+void TestSuite_LoadBlob_SYMMETRIC_KEY(UINT16 *, BYTE *, TCPA_SYMMETRIC_KEY *);
+TSS_RESULT TestSuite_UnloadBlob_SYMMETRIC_KEY(UINT16 *, BYTE *, TCPA_SYMMETRIC_KEY *);
+TSS_RESULT TestSuite_UnloadBlob_KEY_PARMS(UINT16 *, BYTE *, TCPA_KEY_PARMS *);
+TSS_RESULT TestSuite_UnloadBlob_KEY(UINT16 *, BYTE *, TCPA_KEY *);
+TSS_RESULT TestSuite_UnloadBlob_STORE_PUBKEY(UINT16 *, BYTE *, TCPA_STORE_PUBKEY *);
+TSS_RESULT TestSuite_UnloadBlob_PUBKEY(UINT16 *, BYTE *, TCPA_PUBKEY *);
+void TestSuite_UnloadBlob_VERSION(UINT16 *, BYTE *, TCPA_VERSION *);
+TSS_RESULT TestSuite_UnloadBlob_IDENTITY_PROOF(UINT16 *, BYTE *, TCPA_IDENTITY_PROOF *);
+void TestSuite_LoadBlob_SYM_CA_ATTESTATION(UINT16 *, BYTE *, TCPA_SYM_CA_ATTESTATION *);
+TSS_RESULT TestSuite_UnloadBlob_SYM_CA_ATTESTATION(UINT16 *, BYTE *, TCPA_SYM_CA_ATTESTATION *);
+void TestSuite_LoadBlob_ASYM_CA_CONTENTS(UINT16 *, BYTE *, TCPA_ASYM_CA_CONTENTS *);
+TSS_RESULT TestSuite_UnloadBlob_ASYM_CA_CONTENTS(UINT16 *, BYTE *, TCPA_ASYM_CA_CONTENTS *);
+void TestSuite_LoadBlob_KEY_FLAGS(UINT16 *, BYTE *, TCPA_KEY_FLAGS *);
+void TestSuite_UnloadBlob_KEY_FLAGS(UINT16 *, BYTE *, TCPA_KEY_FLAGS *);
+TSS_RESULT TestSuite_UnloadBlob_IDENTITY_REQ(UINT16 *, BYTE *, TCPA_IDENTITY_REQ *);
+BYTE *TestSuite_Native_To_UNICODE(BYTE *, unsigned *);
+BYTE *TestSuite_UNICODE_To_Native(BYTE *, unsigned *);
+
+TSS_RESULT TestSuite_SymEncrypt(UINT16 alg, BYTE mode, BYTE *key, BYTE *iv, BYTE *in, UINT32 in_len,
+				BYTE *out, UINT32 *out_len);
+TSS_RESULT TestSuite_SymDecrypt(UINT16 alg, BYTE mode, BYTE *key, BYTE *iv, BYTE *in, UINT32 in_len,
+				BYTE *out, UINT32 *out_len);
+int TestSuite_RSA_Public_Encrypt(unsigned char *in, unsigned int inlen, unsigned char *out,
+				 unsigned int *outlen, unsigned char *pubkey, unsigned int pubsize,
+				 unsigned int e, int padding);
+
+
 int main_v1_1();
 
 extern TSS_UUID SRK_UUID;
@@ -117,7 +162,7 @@ extern TSS_UUID SRK_UUID;
 		expected, result);
 
 /* use get_server as a generic UNICODE conversion routine */
-#define char_to_unicode	Trspi_Native_To_UNICODE
+#define char_to_unicode	TestSuite_Native_To_UNICODE
 
 #define GLOBALSERVER	NULL
 
