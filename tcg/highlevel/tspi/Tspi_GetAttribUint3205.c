@@ -63,7 +63,6 @@
 
 #include <stdio.h>
 #include <trousers/tss.h>
-#include <trousers/trousers.h>
 #include "../common/common.h"
 
 int
@@ -135,9 +134,9 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	string = Trspi_Native_To_UNICODE("Click OK", &string_len);
+	string = TestSuite_Native_To_UNICODE("Click OK", &string_len);
 	if (string == NULL) {
-		print_error("Trspi_Native_To_UNICODE", result);
+		print_error("TestSuite_Native_To_UNICODE", result);
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}

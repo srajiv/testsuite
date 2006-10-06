@@ -125,7 +125,7 @@ int main_v1_1(void)
 		}
 	} else {
 		fprintf(stderr, "Manufacturer string is: %s\n",
-			Trspi_UNICODE_To_Native(prgbRespData, &pulRespDataLength));
+			TestSuite_UNICODE_To_Native(prgbRespData, &pulRespDataLength));
 		result = Tspi_Context_FreeMemory(hContext, prgbRespData);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);

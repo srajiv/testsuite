@@ -54,7 +54,6 @@
 
 
 #include <trousers/tss.h>
-#include <trousers/trousers.h>
 #include "../common/common.h"
 
 
@@ -126,9 +125,9 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	Trspi_LoadBlob_PUBKEY(&offset, blob, &pub);
+	TestSuite_LoadBlob_PUBKEY(&offset, blob, &pub);
 	if (result != TSS_SUCCESS) {
-		print_error("Trspi_LoadBlob_PUBKEY", result);
+		print_error("TestSuite_LoadBlob_PUBKEY", result);
 		Tspi_Context_Close(hContext);
 		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);

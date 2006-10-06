@@ -191,9 +191,9 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	rgbIdentityLabelData = Trspi_Native_To_UNICODE(labelString, &labelLen);
+	rgbIdentityLabelData = TestSuite_Native_To_UNICODE(labelString, &labelLen);
 	if (rgbIdentityLabelData == NULL) {
-		fprintf(stderr, "Trspi_Native_To_UNICODE failed\n");
+		fprintf(stderr, "TestSuite_Native_To_UNICODE failed\n");
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
                 exit(result);
@@ -230,7 +230,6 @@ main_v1_1(void){
 		}
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
-		Tspi_Context_FreeMemory(hContext, rgbTCPAIdentityReq);
 		RSA_free(rsa);
 		exit(0);
 	}

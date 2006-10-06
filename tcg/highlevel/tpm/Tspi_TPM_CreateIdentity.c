@@ -57,7 +57,6 @@
 #include <limits.h>
 
 #include <trousers/tss.h>
-#include <trousers/trousers.h>
 #include "../common/common.h"
 
 #include <openssl/rsa.h>
@@ -209,8 +208,8 @@ ca_verify_identity_binding(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 	}
 
 	offset = 0;
-	if ((result = Trspi_UnloadBlob_KEY(&offset, keyBlob, &key))) {
-		print_error("Trspi_UnloadBlob_KEY", result);
+	if ((result = TestSuite_UnloadBlob_KEY(&offset, keyBlob, &key))) {
+		print_error("TestSuite_UnloadBlob_KEY", result);
 		return result;
 	}
 
@@ -218,11 +217,11 @@ ca_verify_identity_binding(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 
 	/* make the chosen id hash */
 	offset = 0;
-	Trspi_LoadBlob(&offset, proof->labelSize, blob, proof->labelArea);
-	Trspi_LoadBlob_KEY_PARMS(&offset, blob, &key.algorithmParms);
-	Trspi_LoadBlob_STORE_PUBKEY(&offset, blob, &key.pubKey);
+	TestSuite_LoadBlob(&offset, proof->labelSize, blob, proof->labelArea);
+	TestSuite_LoadBlob_KEY_PARMS(&offset, blob, &key.algorithmParms);
+	TestSuite_LoadBlob_STORE_PUBKEY(&offset, blob, &key.pubKey);
 
-	if ((result = Trspi_Hash(TSS_HASH_SHA1, offset, blob,
+	if ((result = TestSuite_Hash(TSS_HASH_SHA1, offset, blob,
 				 (BYTE *)&chosenId.digest)))
 		return result;
 
@@ -232,20 +231,22 @@ ca_verify_identity_binding(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 		print_error("Tspi_TPM_GetCapability", result);
 		return result;
 	}
+#ifndef TPM_ORD_MakeIdentity
 #define TPM_ORD_MakeIdentity 121
+#endif
 
 	offset = 0;
-	Trspi_LoadBlob(&offset, versionSize, blob, versionBlob);
-	Trspi_LoadBlob_UINT32(&offset, TPM_ORD_MakeIdentity, blob);
-	Trspi_LoadBlob(&offset, 20, blob, (BYTE *)&chosenId.digest);
-	Trspi_LoadBlob_PUBKEY(&offset, blob, &proof->identityKey);
+	TestSuite_LoadBlob(&offset, versionSize, blob, versionBlob);
+	TestSuite_LoadBlob_UINT32(&offset, TPM_ORD_MakeIdentity, blob);
+	TestSuite_LoadBlob(&offset, 20, blob, (BYTE *)&chosenId.digest);
+	TestSuite_LoadBlob_PUBKEY(&offset, blob, &proof->identityKey);
 
 	free(key.algorithmParms.parms);
 	free(key.pubKey.key);
 	free(key.encData);
 	free(key.PCRInfo);
 
-	if ((result = Trspi_Hash(TSS_HASH_SHA1, offset, blob,
+	if ((result = TestSuite_Hash(TSS_HASH_SHA1, offset, blob,
 				 (BYTE *)&digest.digest)))
 		return result;
 
@@ -330,15 +331,15 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 	}
 
 	offset = 0;
-	if ((result = Trspi_UnloadBlob_KEY(&offset, identityBlob, &idKey))) {
-		print_error("Trspi_UnloadBlob_KEY", result);
+	if ((result = TestSuite_UnloadBlob_KEY(&offset, identityBlob, &idKey))) {
+		print_error("TestSuite_UnloadBlob_KEY", result);
 		return result;
 	}
 
 	offset = 0;
-	Trspi_LoadBlob_KEY_PARMS(&offset, blob, &idKey.algorithmParms);
-	Trspi_LoadBlob_STORE_PUBKEY(&offset, blob, &idKey.pubKey);
-	Trspi_Hash(TSS_HASH_SHA1, offset, blob,
+	TestSuite_LoadBlob_KEY_PARMS(&offset, blob, &idKey.algorithmParms);
+	TestSuite_LoadBlob_STORE_PUBKEY(&offset, blob, &idKey.pubKey);
+	TestSuite_Hash(TSS_HASH_SHA1, offset, blob,
 		   (BYTE *)&asymContents.idDigest.digest);
 
 	/* create the TCPA_SYM_CA_ATTESTATION structure */
@@ -361,12 +362,12 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 	symAttestation.credential = (BYTE *)&ca_cred;
 
 	offset = 0;
-	Trspi_LoadBlob_SYM_CA_ATTESTATION(&offset, blob, &symAttestation);
+	TestSuite_LoadBlob_SYM_CA_ATTESTATION(&offset, blob, &symAttestation);
 
 	/* encrypt the TCPA_SYM_CA_ATTESTATION blob w/ the sym key */
-	if ((result = Trspi_SymEncrypt(symAlg, TCPA_ES_NONE, asymContents.sessionKey.data, NULL,
+	if ((result = TestSuite_SymEncrypt(symAlg, TCPA_ES_NONE, asymContents.sessionKey.data, NULL,
 				       blob, offset, blob2, &blob2Size))) {
-		print_error("Trspi_SymEncrypt", result);
+		print_error("TestSuite_SymEncrypt", result);
 		Tspi_Context_FreeMemory(hContext,
 					asymContents.sessionKey.data);
 		return result;
@@ -383,7 +384,7 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 
 	/* encrypt the TCPA_ASYM_CA_CONTENTS blob with the TPM's PubEK */
 	offset = 0;
-	Trspi_LoadBlob_ASYM_CA_CONTENTS(&offset, blob, &asymContents);
+	TestSuite_LoadBlob_ASYM_CA_CONTENTS(&offset, blob, &asymContents);
 
 	/* free the malloc'd structure member now that its in the blob */
 	Tspi_Context_FreeMemory(hContext, asymContents.sessionKey.data);
@@ -397,9 +398,10 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 	}
 
 	/* encrypt using the TPM's custom OAEP padding parameter */
-	if ((result = Trspi_TPM_RSA_OAEP_Encrypt(blob, offset, tmpblob,
-						 &tmpblobsize, pubEK,
-						 pubEKSize))) {
+	if ((result = TestSuite_RSA_Public_Encrypt(blob, offset, tmpblob,
+						   &tmpblobsize, pubEK,
+						   pubEKSize, 65537,
+						   RSA_PKCS1_OAEP_PADDING))) {
 		Tspi_Context_FreeMemory(hContext, pubEK);
 		free(b->symBlob);
 		b->symBlob = NULL;
@@ -528,9 +530,9 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	rgbIdentityLabelData = Trspi_Native_To_UNICODE(labelString, &labelLen);
+	rgbIdentityLabelData = TestSuite_Native_To_UNICODE(labelString, &labelLen);
 	if (rgbIdentityLabelData == NULL) {
-		fprintf(stderr, "Trspi_Native_To_UNICODE failed\n");
+		fprintf(stderr, "TestSuite_Native_To_UNICODE failed\n");
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
                 exit(result);
@@ -552,10 +554,10 @@ main_v1_1(void){
 
 	/* decrypt the TCPA_IDENTITY_REQ blobs */
 	offset = 0;
-	if ((result = Trspi_UnloadBlob_IDENTITY_REQ(&offset,
+	if ((result = TestSuite_UnloadBlob_IDENTITY_REQ(&offset,
 						    identityReqBlob,
 						    &identityReq))) {
-		print_error("Trspi_UnloadBlob_IDENTITY_REQ", result);
+		print_error("TestSuite_UnloadBlob_IDENTITY_REQ", result);
 		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -573,9 +575,9 @@ main_v1_1(void){
 	}
 
 	offset = 0;
-	if ((result = Trspi_UnloadBlob_SYMMETRIC_KEY(&offset, utilityBlob,
+	if ((result = TestSuite_UnloadBlob_SYMMETRIC_KEY(&offset, utilityBlob,
 						     &symKey))) {
-		print_error("Trspi_UnloadBlob_SYMMETRIC_KEY", result);
+		print_error("TestSuite_UnloadBlob_SYMMETRIC_KEY", result);
 		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -602,10 +604,10 @@ main_v1_1(void){
 	}
 
 	utilityBlobSize = sizeof(utilityBlob);
-	if ((result = Trspi_SymDecrypt(algID, symKey.encScheme, symKey.data, NULL,
+	if ((result = TestSuite_SymDecrypt(algID, symKey.encScheme, symKey.data, NULL,
 				       identityReq.symBlob, identityReq.symSize, utilityBlob,
 				       &utilityBlobSize))) {
-		print_error("Trspi_SymDecrypt", result);
+		print_error("TestSuite_SymDecrypt", result);
 		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -613,9 +615,9 @@ main_v1_1(void){
 	}
 
 	offset = 0;
-	if ((result = Trspi_UnloadBlob_IDENTITY_PROOF(&offset, utilityBlob,
+	if ((result = TestSuite_UnloadBlob_IDENTITY_PROOF(&offset, utilityBlob,
 						      &identityProof))) {
-		print_error("Trspi_UnloadBlob_IDENTITY_PROOF", result);
+		print_error("TestSuite_UnloadBlob_IDENTITY_PROOF", result);
 		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -667,7 +669,7 @@ main_v1_1(void){
 	}
 
 	offset = 0;
-	if ((result = Trspi_UnloadBlob_SYM_CA_ATTESTATION(&offset, cred,
+	if ((result = TestSuite_UnloadBlob_SYM_CA_ATTESTATION(&offset, cred,
 							  &symAttestation))) {
 		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);

@@ -216,7 +216,7 @@ main_v1_1(void){
 			hKey,
 			&dataUnsealedLength,
 			&rgbDataUnsealed );
-	if (Trspi_Error_Code(result) != TCPA_E_WRONGPCRVAL) {
+	if (TSS_ERROR_CODE(result) != TCPA_E_WRONGPCRVAL) {
 		print_error_nonapi(function, result);
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);

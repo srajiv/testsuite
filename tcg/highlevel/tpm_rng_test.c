@@ -28,8 +28,6 @@
 #include <tss/tss_structs.h>
 #include <tss/tspi.h>
 
-#include <trousers/trousers.h>
-
 #include "../common/common.h"
 
 #define ERR(x, ...)	fprintf(stderr, x, ##__VA_ARGS__)
@@ -55,7 +53,7 @@ main(int argc, char **argv)
 		seed = 1;
 
 	if ((result = connect_load_all(&hContext, &hSRK, &hTPM))) {
-		ERR("connect_load_all failed: %s.", Trspi_Error_String(result));
+		ERR("connect_load_all failed: %s.", err_string(result));
 		return 1;
 	}
 
@@ -78,7 +76,7 @@ main(int argc, char **argv)
 		fclose(f);
 
 		if ((result = Tspi_TPM_StirRandom(hTPM, SEED_SIZE, entropy))) {
-			ERR("Tspi_TPM_StirRandom failed: %s.", Trspi_Error_String(result));
+			ERR("Tspi_TPM_StirRandom failed: %s.", err_string(result));
 			Tspi_Context_Close(hContext);
 			return 1;
 		}
@@ -87,7 +85,7 @@ main(int argc, char **argv)
 	rnd_len = RNG_BLOCK_SIZE;
 	for (i = 0; i < LOOPS; i++) {
 		if ((result = Tspi_TPM_GetRandom(hTPM, rnd_len, &rnd))) {
-			ERR("Tspi_TPM_GetRandom failed: %s.", Trspi_Error_String(result));
+			ERR("Tspi_TPM_GetRandom failed: %s.", err_string(result));
 			Tspi_Context_Close(hContext);
 			return 1;
 		}

@@ -68,7 +68,6 @@
 
 #include <stdio.h>
 #include <trousers/tss.h>
-#include <trousers/trousers.h>
 #include "../common/common.h"
 
 

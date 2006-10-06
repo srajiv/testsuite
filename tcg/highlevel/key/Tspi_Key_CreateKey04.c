@@ -24,8 +24,11 @@
 #include <errno.h>
 
 #include <trousers/tss.h>
-#include <trousers/trousers.h>
 #include "../../common/common.h"
+
+#define TSS_KEY_TYPE_MASK       0x000000F0
+#define TSS_KEY_TYPE(x)         (x & TSS_KEY_TYPE_MASK)
+
 
 static struct option long_options[] = {
 	{"enc-scheme", 1, 0, 'e'},

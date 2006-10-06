@@ -24,8 +24,6 @@
 #include <tss/tss_structs.h>
 #include <tss/tspi.h>
 
-#include <trousers/trousers.h>
-
 #include "../common/common.h"
 
 #define ERR(x, ...)	fprintf(stderr, x "\n", ##__VA_ARGS__)
@@ -58,7 +56,7 @@ main(int argc, char **argv)
 
 	for (i = 0; i < NUM_STRINGS; i++) {
 		size = ascii_strings[i].size;
-		u = Trspi_Native_To_UNICODE(ascii_strings[i].data, &size);
+		u = TestSuite_Native_To_UNICODE(ascii_strings[i].data, &size);
 
 		if (size != utf16le_strings[i].size) {
 			ERR("Size of string %u is bad", i);
