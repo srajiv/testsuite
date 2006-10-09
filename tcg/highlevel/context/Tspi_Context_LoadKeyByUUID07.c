@@ -89,7 +89,6 @@ main_v1_1( void )
 	char		*function = "Tspi_Context_LoadKeyByUUID07";
 	TSS_HKEY	hSRK;
 	TSS_UUID	migratableSignUUID =	{1,2,3,4,5,{6,7,8,9,10,2}};
-	TSS_UUID	userSignUUID =		{1,2,3,4,5,{6,7,9,8,10,3}};
 	TSS_HKEY	hMSigningKey, hUSigningKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
@@ -205,6 +204,8 @@ main_v1_1( void )
 	{
 		print_error( "Tspi_Context_CloseObject", result );
 		print_error_exit( function, err_string(result) );
+		Tspi_Context_UnregisterKey(hContext, TSS_PS_TYPE_USER,
+					   migratableSignUUID, &hMSigningKey );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -231,7 +232,7 @@ main_v1_1( void )
 
 	print_end_test( function );
 
-	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_SYSTEM,
+	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_USER,
 					migratableSignUUID,
 					&hMSigningKey );
 	Tspi_Context_FreeMemory( hContext, NULL );
