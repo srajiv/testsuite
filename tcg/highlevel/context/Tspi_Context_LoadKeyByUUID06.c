@@ -97,7 +97,7 @@ store_keys(TSS_HCONTEXT hContext, TSS_HKEY hParentKey, TSS_UUID *uuidParent0,
 		}
 	}
 
-	initFlags = TSS_KEY_SIZE_512 | TSS_KEY_TYPE_STORAGE |
+	initFlags = TSS_KEY_SIZE_2048 | TSS_KEY_TYPE_STORAGE |
 		    TSS_KEY_NO_AUTHORIZATION;
 	uuidParent = uuidParent0;
 	for (i = 0; uuids[i]; i++) {
@@ -111,14 +111,14 @@ store_keys(TSS_HCONTEXT hContext, TSS_HKEY hParentKey, TSS_UUID *uuidParent0,
 		}
 
 		if ((result = Tspi_Key_CreateKey(hKey, hParentKey, 0))) {
-			print_error("Tspi_Context_CreateObject", result);
+			print_error("Tspi_Key_CreateKey", result);
 			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 
 		/* load key so that the child can be created */
 		if ((result = Tspi_Key_LoadKey(hKey, hParentKey))) {
-			print_error("Tspi_Context_CreateObject", result);
+			print_error("Tspi_Key_LoadKey", result);
 			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
