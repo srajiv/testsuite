@@ -22,7 +22,7 @@
  *	Tspi_Context_LoadKeyByUUID08.c
  *
  * DESCRIPTION
- *	This test will registera child of the SRK and a grandchild of the SRL
+ *	This test will registera child of the SRK and a grandchild of the SRK
  *	in user PS, then attempt to load the grandchild by UUID.
  *
  * ALGORITHM
@@ -93,6 +93,7 @@ main_v1_1( void )
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HPOLICY	srkUsagePolicy;
+	UINT32		trash;
 
 	print_begin_test( function );
 
@@ -226,10 +227,10 @@ main_v1_1( void )
 	/* unregister it to make sure we succeed */
 	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_USER,
 					childUUID,
-					&hChildKey );
+					&trash );
 	Tspi_Context_UnregisterKey( hContext, TSS_PS_TYPE_USER,
 					parentUUID,
-					&hParentKey );
+					&trash );
 		// register key
 	result = Tspi_Context_RegisterKey( hContext, hParentKey,
 						TSS_PS_TYPE_USER,
