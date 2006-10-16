@@ -539,10 +539,9 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 	}
 
 	/* encrypt using the TPM's custom OAEP padding parameter */
-	if ((result = TestSuite_RSA_Public_Encrypt(blob, offset, tmpblob,
-						   &tmpblobsize, pubEK,
-						   pubEKSize, 65537,
-						   RSA_PKCS1_OAEP_PADDING))) {
+	if ((result = TestSuite_TPM_RSA_Encrypt(blob, offset, tmpblob,
+						&tmpblobsize, pubEK,
+						pubEKSize))) {
 		Tspi_Context_FreeMemory(hContext, pubEK);
 		free(b->symBlob);
 		b->symBlob = NULL;
