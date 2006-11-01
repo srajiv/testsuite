@@ -108,7 +108,8 @@ TSS_RESULT TestSuite_SymDecrypt(UINT16 alg, BYTE mode, BYTE *key, BYTE *iv, BYTE
 int TestSuite_RSA_Public_Encrypt(unsigned char *in, unsigned int inlen, unsigned char *out,
 				 unsigned int *outlen, unsigned char *pubkey, unsigned int pubsize,
 				 unsigned int e, int padding);
-
+int TestSuite_TPM_RSA_Encrypt(unsigned char *in, unsigned int inlen, unsigned char *out,
+			      unsigned int *outlen, unsigned char *pubkey, unsigned int pubsize);
 
 int main_v1_1();
 
@@ -176,5 +177,7 @@ extern TSS_UUID SRK_UUID;
 #define NULL_HENCDATA	NULL_HOBJECT
 #define NULL_HTPM	NULL_HOBJECT
 #define NULL_HCONTEXT	NULL_HOBJECT
+
+#define MIN(x,y)	(x) < (y) ? (x) : (y)
 
 #endif

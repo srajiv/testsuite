@@ -1793,4 +1793,70 @@ out:
 	return rv;
 }
 
+int
+TestSuite_TPM_RSA_Encrypt(unsigned char *dataToEncrypt,
+			  unsigned int dataToEncryptLen,
+			  unsigned char *encryptedData,
+			  unsigned int *encryptedDataLen,
+			  unsigned char *publicKey,
+			  unsigned int keysize)
+{
+	int rv;
+	unsigned char exp[] = { 0x01, 0x00, 0x01 }; /* 65537 hex */
+	unsigned char oaepPad[] = "TCPA";
+	int oaepPadLen = 4;
+	RSA *rsa = RSA_new();
+	BYTE encodedData[256];
+	int encodedDataLen;
+
+	if (rsa == NULL) {
+		rv = TSS_E_OUTOFMEMORY;
+		goto err;
+	}
+
+	/* set the public key value in the OpenSSL object */
+	rsa->n = BN_bin2bn(publicKey, keysize, rsa->n);
+	/* set the public exponent */
+	rsa->e = BN_bin2bn(exp, sizeof(exp), rsa->e);
+
+	if (rsa->n == NULL || rsa->e == NULL) {
+		rv = TSS_E_OUTOFMEMORY;
+		goto err;
+	}
+
+	/* padding constraint for PKCS#1 OAEP padding */
+	if ((int)dataToEncryptLen >= (RSA_size(rsa) - ((2 * SHA_DIGEST_LENGTH) + 1))) {
+		rv = TSS_E_INTERNAL_ERROR;
+		goto err;
+	}
+
+	encodedDataLen = MIN(RSA_size(rsa), 256);
+
+	/* perform our OAEP padding here with custom padding parameter */
+	rv = RSA_padding_add_PKCS1_OAEP(encodedData, encodedDataLen, dataToEncrypt,
+					dataToEncryptLen, oaepPad, oaepPadLen);
+	if (rv != EVP_SUCCESS) {
+		rv = TSS_E_INTERNAL_ERROR;
+		goto err;
+	}
+
+	/* call OpenSSL with no additional padding */
+	rv = RSA_public_encrypt(encodedDataLen, encodedData, encryptedData, rsa, RSA_NO_PADDING);
+	if (rv == -1) {
+		rv = TSS_E_INTERNAL_ERROR;
+		goto err;
+	}
+
+	/* RSA_public_encrypt returns the size of the encrypted data */
+	*encryptedDataLen = rv;
+	rv = TSS_SUCCESS;
+	goto out;
+
+err:
+	print_openssl_errors();
+out:
+	if (rsa)
+		RSA_free(rsa);
+	return rv;
+}
 
