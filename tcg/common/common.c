@@ -50,6 +50,8 @@
 
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#include <openssl/sha.h>
+#include <openssl/rsa.h>
 
 #include "trousers/tss.h"
 #include "common.h"
