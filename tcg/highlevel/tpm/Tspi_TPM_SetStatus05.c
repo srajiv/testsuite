@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004, 2005
+ *   Copyright (C) International Business Machines  Corp., 2004-2006
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 /*
  * NAME
- *	Tspi_TPM_SetStatus04.c
+ *	Tspi_TPM_SetStatus05.c
  *
  * DESCRIPTION
  *	This test will verify that Tspi_TPM_SetStatus can clear the disablePubSRKRead flag
@@ -73,7 +73,7 @@ main( int argc, char **argv )
 int
 main_v1_2( void )
 {
-	char			*function = "Tspi_TPM_SetStatus04";
+	char			*function = "Tspi_TPM_SetStatus05";
 	TSS_HCONTEXT		hContext;
 	TSS_HTPM		hTPM;
 	TSS_HPOLICY		hPolicy;
