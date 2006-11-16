@@ -45,9 +45,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <trousers/tss.h>
 
-#include "../common/common.h"
+#include "common.h"
 
 //#define PS_TO_TEST	TSS_PS_TYPE_SYSTEM
 #define PS_TO_TEST	TSS_PS_TYPE_USER

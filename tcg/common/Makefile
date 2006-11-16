@@ -21,7 +21,7 @@
 # description   : make(1) description file for the common modules.        #
 ###########################################################################
 CC = gcc
-CFLAGS += -g
+CFLAGS += -g -I../include
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<

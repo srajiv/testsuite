@@ -54,8 +54,7 @@
  *	Date:	June 2004
  *	Email:	klrobert@us.ibm.com
 */
-#include <trousers/tss.h>
-#include "../common/common.h"
+#include "common.h"
 
 
 

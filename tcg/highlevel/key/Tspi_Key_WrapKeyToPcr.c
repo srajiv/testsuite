@@ -62,8 +62,7 @@
  *	None.
  */
 
-#include <trousers/tss.h>
-#include "../common/common.h"
+#include "common.h"
 
 #include <openssl/rsa.h>
 

@@ -28,10 +28,10 @@ else
 endif
 ALL = $(shell ls *.c | sed "s/\.c//g")
 LIBS = ../../common/common.o -ltspi
-CFLAGS += -g -O0
+CFLAGS += -g -O0 -I../../include
 
-.c: ../../common/common.c ../../common/common.h
-	$(CC) $(OPTS) -I../../common $(CFLAGS) -o $@ $< $(LIBS)
+.c: ../../common/common.c
+	$(CC) $(OPTS) $(CFLAGS) -o $@ $< $(LIBS)
 
 all: $(ALL)
 

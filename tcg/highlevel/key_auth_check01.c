@@ -64,8 +64,7 @@
  */
 
 #include <stdio.h>
-#include <trousers/tss.h>
-#include "../common/common.h"
+#include "common.h"
 
 
 int

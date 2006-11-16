@@ -23,8 +23,7 @@
 #include <strings.h>
 #include <errno.h>
 
-#include <trousers/tss.h>
-#include "../../common/common.h"
+#include "common.h"
 
 #define TSS_KEY_TYPE_MASK       0x000000F0
 #define TSS_KEY_TYPE(x)         (x & TSS_KEY_TYPE_MASK)

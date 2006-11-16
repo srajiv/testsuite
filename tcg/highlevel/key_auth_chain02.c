@@ -75,9 +75,8 @@
  */
 
 #include <stdio.h>
-#include <trousers/tss.h>
 
-#include "../common/common.h"
+#include "common.h"
 
 TSS_UUID uuid_0 = { 9, 9, 9, 9, 9, { 8, 8, 8, 8, 8, 8 } };
 TSS_UUID uuid_1 = { 8, 8, 8, 8, 8, { 7, 7, 7, 7, 7, 7 } };

@@ -53,7 +53,6 @@
 #include <openssl/sha.h>
 #include <openssl/rsa.h>
 
-#include "trousers/tss.h"
 #include "common.h"
 
 TSS_UUID SRK_UUID = TSS_UUID_SRK;
@@ -1033,6 +1032,49 @@ TestSuite_UnloadBlob_KEY_PARMS(UINT16 * offset, BYTE * blob, TCPA_KEY_PARMS * ke
 	}
 
 	return TSS_SUCCESS;
+}
+
+TSS_RESULT
+TestSuite_UnloadBlob_KEY12(UINT16 * offset, BYTE * blob, TPM_KEY12 * key)
+{
+	TSS_RESULT result;
+
+	TestSuite_UnloadBlob_UINT16(offset, &key->tag, blob);
+	TestSuite_UnloadBlob_UINT16(offset, &key->fill, blob);
+	TestSuite_UnloadBlob_UINT16(offset, &key->keyUsage, blob);
+	TestSuite_UnloadBlob_KEY_FLAGS(offset, blob, &key->keyFlags);
+	key->authDataUsage = blob[(*offset)++];
+	if ((result = TestSuite_UnloadBlob_KEY_PARMS(offset, (BYTE *) blob, &key->algorithmParms)))
+		return result;
+	TestSuite_UnloadBlob_UINT32(offset, &key->PCRInfoSize, blob);
+
+	if (key->PCRInfoSize > 0) {
+		key->PCRInfo = malloc(key->PCRInfoSize);
+		if (key->PCRInfo == NULL) {
+			fprintf(stderr, "malloc of %d bytes failed.", key->PCRInfoSize);
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, key->PCRInfoSize, blob, key->PCRInfo);
+	} else {
+		key->PCRInfo = NULL;
+	}
+
+	if ((result = TestSuite_UnloadBlob_STORE_PUBKEY(offset, blob, &key->pubKey)))
+		return result;
+	TestSuite_UnloadBlob_UINT32(offset, &key->encSize, blob);
+
+	if (key->encSize > 0) {
+		key->encData = malloc(key->encSize);
+		if (key->encData == NULL) {
+			fprintf(stderr, "malloc of %d bytes failed.", key->encSize);
+			return TSS_E_OUTOFMEMORY;
+		}
+		TestSuite_UnloadBlob(offset, key->encSize, blob, key->encData);
+	} else {
+		key->encData = NULL;
+	}
+
+	return result;
 }
 
 TSS_RESULT

@@ -55,7 +55,6 @@
  *	None.
  */
 
-#include <trousers/tss.h>
 #include "common.h"
 
 

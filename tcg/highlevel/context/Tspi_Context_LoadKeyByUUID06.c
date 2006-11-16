@@ -52,8 +52,7 @@
  */
 #include <stdlib.h>
 
-#include <trousers/tss.h>
-#include "../common/common.h"
+#include "common.h"
 
 char *nameOfFunction = "Tspi_Context_LoadKeyByUUID06";
 

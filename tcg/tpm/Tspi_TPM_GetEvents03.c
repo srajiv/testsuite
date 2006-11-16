@@ -55,8 +55,7 @@
  */
 //hContext for the first four parameters
 //Invalid Handle
-#include <trousers/tss.h>
-#include "../common/common.h"
+#include "common.h"
 
 
 

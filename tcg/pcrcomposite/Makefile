@@ -28,7 +28,7 @@ else
 endif
 ALL = $(shell ls *.c | sed "s/\.c//g")
 LIBS = ../common/common.o -ltspi $(LDFLAGS)
-CFLAGS += -g
+CFLAGS += -g -I../include
 
 .c:
 	$(CC) $(OPTS) $(CFLAGS) -o $@ $< $(LIBS)

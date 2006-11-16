@@ -71,9 +71,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
-#include <trousers/tss.h>
 
-#include "../common/common.h"
+#include "common.h"
 
 #define KEY_CONFLICT_NUM_THREADS	4
 

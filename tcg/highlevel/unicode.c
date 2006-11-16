@@ -16,15 +16,7 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include <tss/platform.h>
-#include <tss/tcpa_defines.h>
-#include <tss/tcpa_typedef.h>
-#include <tss/tcpa_struct.h>
-#include <tss/tss_typedef.h>
-#include <tss/tss_structs.h>
-#include <tss/tspi.h>
-
-#include "../common/common.h"
+#include "common.h"
 
 #define ERR(x, ...)	fprintf(stderr, x "\n", ##__VA_ARGS__)
 

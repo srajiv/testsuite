@@ -65,8 +65,7 @@
  * RESTRICTIONS
  *	None.
  */ 
-#include <trousers/tss.h>
-#include "../common/common.h"
+#include "common.h"
 
 extern int commonErrors(TSS_RESULT result);
 extern TSS_UUID SRK_UUID;

@@ -53,8 +53,7 @@
  */
 
 #include <stdio.h>
-#include <trousers/tss.h>
-#include "../common/common.h"
+#include "common.h"
 
 #define TEST_KEY_SIZE	14648
 

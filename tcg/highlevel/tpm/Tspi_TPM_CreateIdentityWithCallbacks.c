@@ -56,8 +56,7 @@
 
 #include <limits.h>
 
-#include <trousers/tss.h>
-#include "../common/common.h"
+#include "common.h"
 
 #include <openssl/rsa.h>
 #include <openssl/evp.h>
