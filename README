@@ -16,7 +16,7 @@ $ testsuite/tcg/highlevel/tpm/Tspi_TPM_TakeOwnership01 -v 1.1
 This test will set the owner and SRK passwords to the value of the environment
 variables TESTSUITE_OWNER_SECRET and TESTSUITE_SRK_SECRET, respectively. During
 the testsuite run, you will need to either set these environment variables to
-their correct values, or change their values explicitly in tcg/common/common.h
+their correct values, or change their values explicitly in tcg/include/common.h
 and rebuild the testsuite.
 
 To build and run the testsuite:
