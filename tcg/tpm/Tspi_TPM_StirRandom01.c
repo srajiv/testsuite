@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) International Business Machines  Corp., 2004, 2005
+ *   Copyright IBM Corp., 2004-2006
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -45,10 +45,11 @@
  *      First parameter is --options
  *                         -v or --version
  *      Second parameter is the version of the test case to be run
- *      This test case is currently only implemented for v1.1
+ *      This test case is currently only implemented for v1.1 and 1.2
  *
  * HISTORY
  *      Megan Schneider, mschnei@us.ibm.com, 6/04.
+ *	EJR, 12/06
  *
  * RESTRICTIONS
  *	None.
@@ -57,86 +58,73 @@
 #include <stdio.h>
 #include "common.h"
 
-int
-main( int argc, char **argv )
+int main(int argc, char **argv)
 {
-	char			*version;
+	char *version;
 
-	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if( strcmp(version, "1.1") )
-		print_wrongVersion();
-	else
+	version = parseArgs(argc, argv);
+	/* if it is not version 1.1 or 1.2, print error */
+	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
 		main_v1_1();
+	else
+		print_wrongVersion();
 }
 
-int
-main_v1_1( void )
+int main_v1_1(void)
 {
-	char			*function = "Tspi_TPM_StirRandom01";
-	BYTE			entropy;
-	TSS_HCONTEXT		hContext;
-	TSS_HTPM		hTPM;
-	TSS_RESULT		result;
+	char *function = "Tspi_TPM_StirRandom01";
+	BYTE entropy[16];
+	TSS_HCONTEXT hContext;
+	TSS_HTPM hTPM;
+	TSS_RESULT result;
+	int i;
 
-	print_begin_test( function );
+	print_begin_test(function);
 
-		// seed entropy with time
-	srand( time(0) );
+	/* seed entropy with time */
+	srand(time(0));
 
-		// Create Context
-	result = Tspi_Context_Create( &hContext );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
-		exit( result );
+	/* Create Context */
+	result = Tspi_Context_Create(&hContext);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_Create", result);
+		print_error_exit(function, err_string(result));
+		exit(result);
+	}
+	/* Connect to Context */
+	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_Connect", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	/* Retrieve TPM object of context */
+	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_GetTpmObject", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
 	}
 
-		// Connect to Context
-	result = Tspi_Context_Connect( hContext, get_server(GLOBALSERVER) );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
+	for (i = 0; i < 16; i++) 
+		entropy[i] = (rand() % 100);
 
-		// Retrieve TPM object of context
-	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	entropy = ( rand() % 100 );
-
-		//Get random number
-	result = Tspi_TPM_StirRandom( hTPM, 16, &entropy );
-	if ( result != TSS_SUCCESS )
-	{
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( function, result );
-		}
+	/* Get random number */
+	result = Tspi_TPM_StirRandom(hTPM, 16, entropy);
+	if (result != TSS_SUCCESS)
+		if (!(checkNonAPI(result)))
+			print_error(function, result);
 		else
-		{
-			print_error_nonapi( function, result );
-		}
-	}
+			print_error_nonapi(function, result);
 	else
-	{
-		print_success( function, result );
-	}
+		print_success(function, result);
 
-	print_end_test( function );
-	Tspi_Context_FreeMemory( hContext, NULL );
-	Tspi_Context_Close( hContext );
-	exit( result );
+	print_end_test(function);
+	Tspi_Context_FreeMemory(hContext, NULL);
+	Tspi_Context_Close(hContext);
+	exit(result);
 }
