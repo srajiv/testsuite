@@ -210,7 +210,8 @@ activate_cb(PVOID myArgs, UINT32 symBlobLen, BYTE *symBlob, UINT32 symAttestBlob
 	}
 
 	if ((result = TestSuite_SymDecrypt(symKey.algId, symKey.encScheme, symKey.data, iv,
-					symAttestBlob, symAttestBlobLen, credBlob, &credBlobLen))) {
+					   symAttestBlob, symAttestBlobLen, credBlob,
+					   &credBlobLen))) {
 		free(symKey.data);
 		return result;
 	}
@@ -488,39 +489,36 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 	symAttestation.algorithm.parmSize = 0;
 	symAttestation.algorithm.parms = NULL;
 
-	/* XXX initialize the credential here using TPM 1.1b spec section
-	 * 9.5.5 and hIdentityKey.  Convert the cert to a blob here. */
-	symAttestation.credSize =
-		sizeof(struct trousers_ca_tpm_identity_credential);
-
 	/* set the credential to something known before encrypting it
 	 * so that we can compare the credential that the TSS returns to
 	 * something other than all 0's */
-	memset(&ca_cred, CERT_VERIFY_BYTE, symAttestation.credSize);
+	memset(&ca_cred, CERT_VERIFY_BYTE, sizeof(struct trousers_ca_tpm_identity_credential));
 
-	symAttestation.credential = (BYTE *)&ca_cred;
-
-	offset = 0;
-	TestSuite_LoadBlob_SYM_CA_ATTESTATION(&offset, blob, &symAttestation);
-
-	/* encrypt the TCPA_SYM_CA_ATTESTATION blob w/ the sym key */
+	/* encrypt the credential w/ the sym key */
 	if ((result = TestSuite_SymEncrypt(symAlg, TCPA_ES_NONE, asymContents.sessionKey.data, iv,
-				       blob, offset, blob, &blobSize))) {
+					   (BYTE *)&ca_cred,
+					   sizeof(struct trousers_ca_tpm_identity_credential), blob,
+					   &blobSize))) {
 		print_error("TestSuite_SymEncrypt", result);
-		Tspi_Context_FreeMemory(hContext,
-					asymContents.sessionKey.data);
+		Tspi_Context_FreeMemory(hContext, asymContents.sessionKey.data);
 		return result;
 	}
 
-	if ((b->symBlob = malloc(blobSize)) == NULL) {
+	symAttestation.credential = blob;
+	symAttestation.credSize = blobSize;
+	offset = 0;
+	TestSuite_LoadBlob_SYM_CA_ATTESTATION(&offset, tmpblob, &symAttestation);
+
+	/* blob now contains the encrypted credential, which is part of the TCPA_SYM_CA_ATTESTATION
+	 * structure that we'll pass into ActivateIdentity. */
+	if ((b->symBlob = malloc(offset)) == NULL) {
 		fprintf(stderr, "malloc failed.");
-		Tspi_Context_FreeMemory(hContext,
-					asymContents.sessionKey.data);
+		Tspi_Context_FreeMemory(hContext, asymContents.sessionKey.data);
 		return TSS_E_OUTOFMEMORY;
 	}
 
-	memcpy(b->symBlob, blob, blobSize);
-	b->symBlobSize = blobSize;
+	memcpy(b->symBlob, tmpblob, offset);
+	b->symBlobSize = offset;
 
 	/* encrypt the TCPA_ASYM_CA_CONTENTS blob with the TPM's PubEK */
 	offset = 0;
@@ -830,26 +828,15 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	offset = 0;
-	if ((result = TestSuite_UnloadBlob_SYM_CA_ATTESTATION(&offset, cred,
-							  &symAttestation))) {
-		print_error_exit(fn, err_string(result));
-		Tspi_Context_Close(hContext);
-		RSA_free(rsa);
-		exit(result);
-	}
-
-	Tspi_Context_FreeMemory(hContext, cred);
-
 	/* verify that the credential is the same */
-	if (symAttestation.credSize == sizeof(ca_cred) &&
-	    !memcmp(symAttestation.credential, &ca_cred,
-		    symAttestation.credSize)) {
+	if (credLen == sizeof(ca_cred) && !memcmp(cred, &ca_cred, credLen)) {
 		print_success(fn, result );
 	} else {
 		fprintf(stderr, "credential doesn't match!\n");
 		print_error_exit(fn, err_string(TCPA_E_FAIL));
 	}
+
+	Tspi_Context_FreeMemory(hContext, cred);
 
 	Tspi_Context_Close(hContext);
 	RSA_free(rsa);
