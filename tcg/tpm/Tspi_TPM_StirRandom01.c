@@ -58,6 +58,8 @@
 #include <stdio.h>
 #include "common.h"
 
+#define MAX_ENTROPY_SIZE	255
+
 int main(int argc, char **argv)
 {
 	char *version;
@@ -73,7 +75,7 @@ int main(int argc, char **argv)
 int main_v1_1(void)
 {
 	char *function = "Tspi_TPM_StirRandom01";
-	BYTE entropy[16];
+	BYTE entropy[MAX_ENTROPY_SIZE];
 	TSS_HCONTEXT hContext;
 	TSS_HTPM hTPM;
 	TSS_RESULT result;
@@ -110,11 +112,11 @@ int main_v1_1(void)
 		exit(result);
 	}
 
-	for (i = 0; i < 16; i++) 
-		entropy[i] = (rand() % 100);
+	for (i = 0; i < MAX_ENTROPY_SIZE; i++)
+		entropy[i] = (rand() % 256);
 
 	/* Get random number */
-	result = Tspi_TPM_StirRandom(hTPM, 16, entropy);
+	result = Tspi_TPM_StirRandom(hTPM, MAX_ENTROPY_SIZE, entropy);
 	if (result != TSS_SUCCESS)
 		if (!(checkNonAPI(result)))
 			print_error(function, result);
