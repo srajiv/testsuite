@@ -193,7 +193,7 @@ main_v1_1(void){
 		//Create the hKey with the hSRK wrapping key
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateKey", result);
+		print_error("Tspi_Key_CreateKey", result);
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);

@@ -179,7 +179,7 @@ int main_v1_1(void)
 
 	result = Tspi_Key_CreateKey(hMSigningKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateKey (signing key)",
+		print_error("Tspi_Key_CreateKey (signing key)",
 			    result);
 		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
