@@ -91,7 +91,7 @@ main_v1_1( void )
 	BYTE			allones[8];
 	TSS_VALIDATION		valid;
 	TSS_RESULT		result;
-	UINT32			exitCode;
+	UINT32			exitCode, initFlags;
 
 	print_begin_test( function );
 
@@ -149,8 +149,14 @@ main_v1_1( void )
 		exit( result );
 	}
 
+#ifndef TESTSUITE_NOAUTH_SRK
+	initFlags = TSS_KEY_TSP_SRK | TSS_KEY_AUTHORIZATION;
+#else
+	initFlags = TSS_KEY_TSP_SRK;
+#endif
+
 	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
-						TSS_KEY_TSP_SRK, &hKeySRK );
+						initFlags, &hKeySRK );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
