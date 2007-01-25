@@ -622,6 +622,32 @@ main_v1_1( void )
 	} else
 		print_success( "Test 26", result );
 
+	/*
+	 * Test 27
+	 *
+	 * Close hKey's usage policy and make sure getPolicyObject returns correctly
+	 *
+	 */
+	result = Tspi_Context_CloseObject(hContext, hKeyUsagePolicy);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_CloseObject", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &hNewPolicy);
+	if ( TSS_ERROR_CODE(result) != TSS_E_INTERNAL_ERROR )
+	{
+		print_error( "Test 27: Accessing a closed policy should trigger"
+			     " TSS_E_INTERNAL_ERROR", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	} else
+		print_success( "Test 27", result );
+
 
 	print_success(function, TSS_SUCCESS);
 	print_end_test( function );
