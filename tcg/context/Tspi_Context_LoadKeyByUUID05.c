@@ -78,7 +78,9 @@ main_v1_1(void){
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
 	TSS_HKEY	hSRK;
-	TSS_UUID	SRKUUID; // not initalized
+	TSS_UUID	BADUUID = { 0xf1e2d3c4, 0xb5a6, 0x9788, 0x79, 0x6a,
+		                    { 0x5b, 0x4c, 0x3d, 0x2e, 0x1f, 0x00 }
+	};
 
 	print_begin_test(nameOfFunction);
 
@@ -99,7 +101,7 @@ main_v1_1(void){
 	}
 		//Load Key By UUID
 	result = Tspi_Context_LoadKeyByUUID(hContext,
-		TSS_PS_TYPE_SYSTEM, SRKUUID, &hSRK);
+		TSS_PS_TYPE_SYSTEM, BADUUID, &hSRK);
 	if (TSS_ERROR_CODE(result) != TSS_E_PS_KEY_NOTFOUND) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
