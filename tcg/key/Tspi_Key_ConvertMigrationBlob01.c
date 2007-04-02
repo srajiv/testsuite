@@ -100,7 +100,7 @@ main_v1_1(void)
 	BYTE *migBlob;
 	TSS_RESULT result;
 	TSS_HTPM hTPM;
-	TSS_HPOLICY hPolicy, tpmUsagePolicy;
+	TSS_HPOLICY hUsagePolicy, hMigPolicy, tpmUsagePolicy;
 
 	print_begin_test(nameOfFunction);
 
@@ -139,7 +139,7 @@ main_v1_1(void)
 	}
 #ifndef TESTSUITE_NOAUTH_SRK
 	//Get Policy Object
-	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &hPolicy);
+	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &hUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -147,7 +147,7 @@ main_v1_1(void)
 		exit(result);
 	}
 	//Set Secret
-	result = Tspi_Policy_SetSecret(hPolicy, TESTSUITE_SRK_SECRET_MODE,
+	result = Tspi_Policy_SetSecret(hUsagePolicy, TESTSUITE_SRK_SECRET_MODE,
 				       TESTSUITE_SRK_SECRET_LEN,
 				       TESTSUITE_SRK_SECRET);
 	if (result != TSS_SUCCESS) {
@@ -199,7 +199,7 @@ main_v1_1(void)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	//Create Object
+	//Create key Object
 	result =
 	    Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
 				      TSS_KEY_TYPE_SIGNING |
@@ -212,20 +212,56 @@ main_v1_1(void)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	result = Tspi_GetPolicyObject(hKeyToMigrate, TSS_POLICY_MIGRATION,
-				      &hPolicy);
+	// Create usage policy
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
+					   TSS_POLICY_USAGE, &hUsagePolicy);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject", result);
+		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 	//Set Secret
-	result = Tspi_Policy_SetSecret(hPolicy, TESTSUITE_KEY_SECRET_MODE,
+	result = Tspi_Policy_SetSecret(hUsagePolicy, TESTSUITE_KEY_SECRET_MODE,
 				       TESTSUITE_KEY_SECRET_LEN,
 				       TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	//Assign migration policy
+	result = Tspi_Policy_AssignToObject(hUsagePolicy, hKeyToMigrate);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	//Create migration policy
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
+					   TSS_POLICY_MIGRATION, &hMigPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	//Set Secret
+	result = Tspi_Policy_SetSecret(hMigPolicy, TESTSUITE_KEY_SECRET_MODE,
+				       TESTSUITE_KEY_SECRET_LEN,
+				       TESTSUITE_KEY_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	//Assign migration policy
+	result = Tspi_Policy_AssignToObject(hMigPolicy, hKeyToMigrate);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);

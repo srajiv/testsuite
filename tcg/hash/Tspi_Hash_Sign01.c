@@ -150,7 +150,6 @@ int main_v1_1(void)
 	    Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
 				      TSS_KEY_SIZE_2048 |
 				      TSS_KEY_TYPE_SIGNING |
-				      TSS_KEY_MIGRATABLE |
 				      TSS_KEY_NO_AUTHORIZATION,
 				      &hMSigningKey);
 	if (result != TSS_SUCCESS) {

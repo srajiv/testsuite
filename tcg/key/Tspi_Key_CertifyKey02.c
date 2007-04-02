@@ -208,8 +208,7 @@ main_v1_1(void){
 		//Create Object for Ident Key
 	result = Tspi_Context_CreateObject(hContext, 
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING 
-			|TSS_KEY_MIGRATABLE, &hIdentKey);
+			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING, &hIdentKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -251,8 +250,8 @@ main_v1_1(void){
 		//Create Object for NonMigratableSigningKey
 	result = Tspi_Context_CreateObject(hContext, 
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING 
-			|TSS_KEY_MIGRATABLE, &NonMigratableSigningKey);
+			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING,
+			&NonMigratableSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));

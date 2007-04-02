@@ -159,8 +159,7 @@ main_v1_1(void){
 		//Create Storage Key
 	result = Tspi_Context_CreateObject(hContext, 
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING 
-			|TSS_KEY_MIGRATABLE, &hMStorageKey);
+			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING, &hMStorageKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -181,8 +180,7 @@ main_v1_1(void){
 		//Create Object for Signing Key
 	result = Tspi_Context_CreateObject(hContext, 
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING 
-			|TSS_KEY_MIGRATABLE, &hMSigningKey);
+			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING, &hMSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));

@@ -215,6 +215,36 @@ main_v1_1(void){
 		exit(result);
 	}
 
+	// Create migration policy
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
+					   TSS_POLICY_MIGRATION, &keyMigPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	//Set Secret
+	result = Tspi_Policy_SetSecret(keyMigPolicy, TESTSUITE_KEY_SECRET_MODE,
+				       TESTSUITE_KEY_SECRET_LEN,
+				       TESTSUITE_KEY_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	//Assign migration policy
+	result = Tspi_Policy_AssignToObject(keyMigPolicy, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
 		//Create Object
 	result = Tspi_Context_CreateObject(hContext,
 					TSS_OBJECT_TYPE_RSAKEY,

@@ -188,8 +188,7 @@ main_v1_1(void){
 		//Create signing Key object
 	result = Tspi_Context_CreateObject(hContext, 
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING 
-			|TSS_KEY_MIGRATABLE, &hCertifyingKey);
+			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING, &hCertifyingKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));

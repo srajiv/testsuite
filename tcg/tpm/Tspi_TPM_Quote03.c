@@ -200,8 +200,7 @@ main_v1_1(void){
 		//Create object for the hIdentKey
 	result = Tspi_Context_CreateObject(hContext, 
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING 
-			|TSS_KEY_MIGRATABLE, &hIdentKey);
+			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING, &hIdentKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject for Signing Key", result);
 		print_error_exit(nameOfFunction, err_string(result));
