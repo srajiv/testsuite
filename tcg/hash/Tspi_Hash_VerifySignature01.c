@@ -164,7 +164,6 @@ int main_v1_1(void)
 	    Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
 				      TSS_KEY_SIZE_2048 |
 				      TSS_KEY_TYPE_SIGNING |
-				      TSS_KEY_MIGRATABLE |
 				      TSS_KEY_NO_AUTHORIZATION,
 				      &hMSigningKey);
 	if (result != TSS_SUCCESS) {
@@ -222,71 +221,7 @@ int main_v1_1(void)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-#if 0
-	//Create Signing Key
-	result =
-	    Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
-				      initFlags, &hSignaturePublicKey);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateObject (hKey)", result);
-		print_error_exit(function, err_string(result));
-		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 
-	result = Tspi_Key_CreateKey(hSignaturePublicKey, hSRK, 0);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_CreateKey (hKey)", result);
-		print_error_exit(function, err_string(result));
-		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
-	result = Tspi_Key_LoadKey(hSignaturePublicKey, hSRK);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_LoadKey (hKey)", result);
-		print_error_exit(function, err_string(result));
-		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
-	result = Tspi_Key_GetPubKey(hSignaturePublicKey,
-				    &signaturePublicKeyDataLength,
-				    &signaturePublicKeyData);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_GetPubKey", result);
-		print_error_exit(function, err_string(result));
-		Tspi_Context_UnregisterKey(hContext, TSS_PS_TYPE_SYSTEM,
-					   migratableSignUUID,
-					   &hMSigningKey);
-		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
-	result = Tspi_SetAttribData(hSignaturePublicKey,
-				    TSS_TSPATTRIB_KEY_BLOB,
-				    TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
-				    signaturePublicKeyDataLength,
-				    signaturePublicKeyData);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_SetAttribData", result);
-		print_error_exit(function, err_string(result));
-		Tspi_Context_UnregisterKey(hContext, TSS_PS_TYPE_SYSTEM,
-					   migratableSignUUID,
-					   &hMSigningKey);
-		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
-	result = Tspi_Hash_VerifySignature(hHash, hSignaturePublicKey,
-					   pulSignatureLength,
-					   prgbSignature);
-#endif
 	result = Tspi_Hash_VerifySignature(hHash, hMSigningKey,
 					   pulSignatureLength,
 					   prgbSignature);
