@@ -333,7 +333,7 @@ main_v1_1( void )
 	}
 
 	// set up policies
-	if ((result = set_secret(hBindingKey, &hPolicy))) {
+	if ((result = set_secret(hContext, hBindingKey, &hPolicy))) {
 		print_error_exit(function, err_string(result));
 		Tspi_Context_Close( hContext );
 		exit( result );
