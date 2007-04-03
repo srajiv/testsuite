@@ -376,7 +376,7 @@ create_key(TSS_HCONTEXT hContext, TSS_FLAG initFlags,
 	}
 
 	if (initFlags & TSS_KEY_AUTHORIZATION) {
-		if ((result = set_secret(*hKey, &hPolicy)))
+		if ((result = set_secret(hContext, *hKey, &hPolicy)))
 			return result;
 	}
 
@@ -411,7 +411,7 @@ create_load_key(TSS_HCONTEXT hContext, TSS_FLAG initFlags,
 
 /* set the secret for an object to a 0 length string */
 TSS_RESULT
-set_secret(TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
+set_secret(TSS_HCONTEXT hContext, TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
 {
 	TSS_RESULT result;
 	TSS_HPOLICY hLocalPolicy;
@@ -432,7 +432,8 @@ set_secret(TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
 		}
 	} else {
 		//GetPolicyObject
-		result = Tspi_GetPolicyObject(hObj, TSS_POLICY_USAGE, hPolicy);
+		result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
+						   TSS_POLICY_USAGE, hPolicy);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_GetPolicyObject", result);
 			return(result);
@@ -440,6 +441,12 @@ set_secret(TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
 		//SetSecret
 		result = Tspi_Policy_SetSecret(*hPolicy, TESTSUITE_KEY_SECRET_MODE,
 					       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Policy_SetSecret", result);
+			return(result);
+		}
+
+		result = Tspi_Policy_AssignToObject(*hPolicy, hObj);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Policy_SetSecret", result);
 			return(result);
@@ -482,7 +489,7 @@ connect_load_srk(TSS_HCONTEXT *hContext, TSS_HKEY *hSRK)
 		return(result);
 	}
 
-	if ((result = set_secret(*hSRK, NULL))) {
+	if ((result = set_secret(*hContext, *hSRK, NULL))) {
 		Tspi_Context_Close(*hContext);
 		return result;
 	}
