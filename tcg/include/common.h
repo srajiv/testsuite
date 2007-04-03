@@ -60,7 +60,7 @@ void print_hex(BYTE *, UINT32);
 
 TSS_RESULT create_key(TSS_HCONTEXT, TSS_FLAG, TSS_HKEY, TSS_HKEY *);
 TSS_RESULT create_load_key(TSS_HCONTEXT, TSS_FLAG, TSS_HKEY, TSS_HKEY *);
-TSS_RESULT set_secret(TSS_HOBJECT, TSS_HPOLICY *);
+TSS_RESULT set_secret(TSS_HCONTEXT, TSS_HOBJECT, TSS_HPOLICY *);
 TSS_RESULT connect_load_srk(TSS_HCONTEXT *, TSS_HKEY *);
 TSS_RESULT connect_load_all(TSS_HCONTEXT *, TSS_HKEY *, TSS_HTPM *);
 TSS_RESULT bind_and_unbind(TSS_HCONTEXT, TSS_HKEY);
@@ -149,7 +149,7 @@ extern TSS_UUID SRK_UUID;
 #define print_error(function, result) \
 	do { \
 		printf("\t0 FAIL  :  %s  returned (%d) %s\n", function, result, err_string(result)); \
-		fprintf(stderr, "\t0 FAIL  :  %s  returned (%d) %s\n", function, result, err_string(result));  \
+		fprintf(stderr, "%s\t0 FAIL  :  %s  returned (%d) %s\n", __FILE__, function, result, err_string(result));  \
 	} while (0)
 
 #define print_success(function, result) printf("\t1 PASS  :  %s  returned (%d) %s\n", function, result, err_string(result))
