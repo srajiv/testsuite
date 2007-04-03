@@ -211,10 +211,10 @@ main_v1_1(void)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	result = Tspi_GetPolicyObject(hKeyToMigrate, TSS_POLICY_MIGRATION,
-				      &hPolicy);
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
+					TSS_POLICY_MIGRATION, &hPolicy);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject", result);
+		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -225,6 +225,14 @@ main_v1_1(void)
 				       TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	//Assign migration policy to the key
+	result = Tspi_Policy_AssignToObject(hPolicy, hKeyToMigrate);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);

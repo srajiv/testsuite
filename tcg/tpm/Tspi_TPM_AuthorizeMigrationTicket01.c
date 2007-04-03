@@ -96,7 +96,7 @@ main_v1_1(void){
 	TSS_HKEY	hTargetPubKey;
 	BYTE*		MigTicket;
 	UINT32		TicketLength;
-	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy;
+	TSS_HPOLICY	srkUsagePolicy, tpmUsagePolicy, keyMigPolicy;
 
 	print_begin_test(nameOfFunction);
 
@@ -162,7 +162,7 @@ main_v1_1(void){
 		exit(result);
 	}
 	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE,
-					&keyUsagePolicy);
+					&tpmUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -171,7 +171,7 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Set Secret
-	result = Tspi_Policy_SetSecret(keyUsagePolicy, TESTSUITE_OWNER_SECRET_MODE,
+	result = Tspi_Policy_SetSecret(tpmUsagePolicy, TESTSUITE_OWNER_SECRET_MODE,
 				       TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
@@ -180,6 +180,33 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
+					   TSS_POLICY_MIGRATION, &keyMigPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+		//Set Secret
+	result = Tspi_Policy_SetSecret(keyMigPolicy, TESTSUITE_KEY_SECRET_MODE,
+				       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret ", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hTargetPubKey);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	result = Tspi_Policy_AssignToObject(keyMigPolicy, hTargetPubKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_CloseObject(hContext, hTargetPubKey);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
 	result = Tspi_Key_CreateKey(hTargetPubKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
