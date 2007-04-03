@@ -128,7 +128,7 @@ main_v1_1(void){
 		exit(result);
 	}
 
-	if ((result = set_secret(hEncData, NULL)))
+	if ((result = set_secret(hContext, hEncData, &hEncPolicy)))
 		return result;
 
 	//Create Encrypted Data Object

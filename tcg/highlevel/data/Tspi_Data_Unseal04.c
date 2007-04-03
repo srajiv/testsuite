@@ -139,7 +139,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = set_secret(hAuthKey, NULL);
+	result = set_secret(hContext, hAuthKey, NULL);
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "set_secret", result );
@@ -148,7 +148,7 @@ main_v1_1( void )
 		exit( result );
 	}
 
-	result = set_secret(hAuthEncData, NULL);
+	result = set_secret(hContext, hAuthEncData, NULL);
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "set_secret", result );
