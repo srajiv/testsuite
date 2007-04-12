@@ -89,11 +89,11 @@ void printUsage(char *argv0)
 	fprintf( stderr, "Usage: %s [options]\n", argv0);
 	fprintf( stderr, "\t-v or --version\t\tThe version of the TSS you would like to test.\n" );
 }
-char* parseArgs(int argc, char **argv)
+char parseArgs(int argc, char **argv)
 {
 	int option_index;
 	int c;
-	char *version;
+	char version;
 
 	if (argc <3){
 		printUsage(argv[0]);
@@ -104,7 +104,12 @@ char* parseArgs(int argc, char **argv)
 				&option_index)) != EOF){
 		switch(c){
 			case 'v':
-				version = strdup(optarg);
+				if (!strncmp("1.1", optarg, 3))
+					version = TESTSUITE_TEST_TSS_1_1;
+				else if (!strncmp("1.2", optarg, 3))
+					version = TESTSUITE_TEST_TSS_1_2;
+				else
+					version = TESTSUITE_UNSUPPORTED_TSS_VERSION;
 				break;
 			case ':':
 				//fall through
@@ -360,16 +365,13 @@ err_string(TSS_RESULT r)
 
 /* create a key off the SRK */
 TSS_RESULT
-create_key(TSS_HCONTEXT hContext, TSS_FLAG initFlags,
-		TSS_HKEY hSRK, TSS_HKEY *hKey)
+create_key(TSS_HCONTEXT hContext, TSS_FLAG initFlags, TSS_HKEY hSRK, TSS_HKEY *hKey)
 {
 	TSS_RESULT result;
 	TSS_HPOLICY hPolicy;
 
 		//Create Object
-	result = Tspi_Context_CreateObject(hContext,
-			TSS_OBJECT_TYPE_RSAKEY,
-			initFlags, hKey);
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY, initFlags, hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		return(result);
@@ -415,43 +417,40 @@ set_secret(TSS_HCONTEXT hContext, TSS_HOBJECT hObj, TSS_HPOLICY *hPolicy)
 {
 	TSS_RESULT result;
 	TSS_HPOLICY hLocalPolicy;
+	UINT32 secret_mode, secret_len;
+	BYTE *secret;
 
 	if (hPolicy == NULL) {
-		//GetPolicyObject
-		result = Tspi_GetPolicyObject(hObj, TSS_POLICY_USAGE, &hLocalPolicy);
-		if (result != TSS_SUCCESS) {
-			print_error("Tspi_GetPolicyObject", result);
-			return(result);
-		}
-		//SetSecret
-		result = Tspi_Policy_SetSecret(hLocalPolicy, TESTSUITE_SRK_SECRET_MODE,
-					       TESTSUITE_SRK_SECRET_LEN, TESTSUITE_SRK_SECRET);
-		if (result != TSS_SUCCESS) {
-			print_error("Tspi_Policy_SetSecret", result);
-			return(result);
-		}
+		secret_len = TESTSUITE_SRK_SECRET_LEN;
+		secret_mode = TESTSUITE_SRK_SECRET_MODE;
+		secret = TESTSUITE_SRK_SECRET;
 	} else {
-		//GetPolicyObject
-		result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
-						   TSS_POLICY_USAGE, hPolicy);
-		if (result != TSS_SUCCESS) {
-			print_error("Tspi_GetPolicyObject", result);
-			return(result);
-		}
-		//SetSecret
-		result = Tspi_Policy_SetSecret(*hPolicy, TESTSUITE_KEY_SECRET_MODE,
-					       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
-		if (result != TSS_SUCCESS) {
-			print_error("Tspi_Policy_SetSecret", result);
-			return(result);
-		}
-
-		result = Tspi_Policy_AssignToObject(*hPolicy, hObj);
-		if (result != TSS_SUCCESS) {
-			print_error("Tspi_Policy_SetSecret", result);
-			return(result);
-		}
+		secret_len = TESTSUITE_KEY_SECRET_LEN;
+		secret_mode = TESTSUITE_KEY_SECRET_MODE;
+		secret = TESTSUITE_KEY_SECRET;
 	}
+
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE,
+					   &hLocalPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		return(result);
+	}
+
+	result = Tspi_Policy_SetSecret(hLocalPolicy, secret_mode, secret_len, secret);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		return(result);
+	}
+
+	result = Tspi_Policy_AssignToObject(hLocalPolicy, hObj);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
+		return(result);
+	}
+
+	if (hPolicy)
+		*hPolicy = hLocalPolicy;
 
 	return TSS_SUCCESS;
 }
