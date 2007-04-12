@@ -60,11 +60,10 @@
 
 int main(int argc, char **argv)
 {
-	char *version;
+	char version;
 
-	version = parseArgs(argc, argv);
-	// if it is not version 1.1 or , print error
-	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
+	version = parseArgs( argc, argv );
+	if (version)
 		main_v1_1();
 	else
 		print_wrongVersion();
@@ -150,7 +149,7 @@ main_v1_1(void)
 	//Create Key
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
-		print_error(nameOfFunction, result);
+		print_error("Tspi_Key_CreateKey", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);

@@ -75,11 +75,10 @@
 
 int main(int argc, char **argv)
 {
-	char *version;
+	char version;
 
-	version = parseArgs(argc, argv);
-	// if it is not version 1.1 or 1.2, print error
-	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
+	version = parseArgs( argc, argv );
+	if (version)
 		main_v1_1();
 	else
 		print_wrongVersion();
@@ -298,14 +297,14 @@ main_v1_1(void)
 					      &randomLength, &randomData,
 					      &migBlobLength, &migBlob);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_TPM_AuthorizeMigrationTicket ", result);
+		print_error("Tspi_Key_CreateMigrationBlob", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 	result = Tspi_Key_LoadKey(hDestParent, hSRK);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_TPM_AuthorizeMigrationTicket ", result);
+		print_error("Tspi_Key_LoadKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -315,7 +314,7 @@ main_v1_1(void)
 					       randomLength, randomData,
 					       migBlobLength, migBlob);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_TPM_AuthorizeMigrationTicket", result);
+		print_error("Tspi_Key_ConvertMigrationBlob", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);

@@ -63,14 +63,13 @@
 int
 main( int argc, char **argv )
 {
-	char		*version;
+	char		version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if( strcmp(version, "1.1") )
-		print_wrongVersion();
-	else
+	if (version)
 		main_v1_1();
+	else
+		print_wrongVersion();
 }
 
 int
@@ -174,18 +173,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Key_CreateKey", result );
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_SetAttribUint32( hKey, TSS_TSPATTRIB_KEY_INFO,
-					TSS_TSPATTRIB_KEYINFO_ENCSCHEME,
-					TSS_ES_RSAESPKCSV15 );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_SetAtttribUint32", result );
 		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );

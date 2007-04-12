@@ -424,16 +424,13 @@ ca_create_credential(TSS_HCONTEXT hContext, TSS_HTPM hTPM,
 int
 main(int argc, char **argv)
 {
-	char		*version;
+	char version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if(strcmp(version, "1.1")){
-		print_wrongVersion();
-	}
-	else{
+	if (version)
 		main_v1_1();
-	}
+	else
+		print_wrongVersion();
 }
 
 main_v1_1(void){

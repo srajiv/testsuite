@@ -67,11 +67,10 @@
 
 int main(int argc, char **argv)
 {
-	char *version;
+	char version;
 
 	version = parseArgs(argc, argv);
-	// if it is not version 1.1 or 1.2, print error
-	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
+	if (version)
 		main_v1_1();
 	else
 		print_wrongVersion();
@@ -144,26 +143,29 @@ int main_v1_1(void)
 		exit(result);
 	}
 	// get the use policy for the encrypted data to set its secret
-	result =
-	    Tspi_GetPolicyObject(hEncData, TSS_POLICY_USAGE,
-				 &hEncUsagePolicy);
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE,
+					   &hEncUsagePolicy);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_GetPolicyObject (hEncData)",
-			    result);
+		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 
-	result =
-	    Tspi_Policy_SetSecret(hEncUsagePolicy,
-				  TESTSUITE_ENCDATA_SECRET_MODE,
-				  TESTSUITE_ENCDATA_SECRET_LEN,
-				  TESTSUITE_ENCDATA_SECRET);
+	result = Tspi_Policy_SetSecret(hEncUsagePolicy, TESTSUITE_ENCDATA_SECRET_MODE,
+				       TESTSUITE_ENCDATA_SECRET_LEN, TESTSUITE_ENCDATA_SECRET);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret (hEncUsagePolicy)",
-			    result);
+		print_error("Tspi_Policy_SetSecret (hEncUsagePolicy)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	// Assign the use policy to the object
+	result = Tspi_Policy_AssignToObject(hEncUsagePolicy, hEncData);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
 		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -203,9 +205,10 @@ int main_v1_1(void)
 	}
 #endif
 	// set the new key's authdata
-	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &hKeyPolicy);
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE,
+					   &hKeyPolicy);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject (hKey)", result);
+		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -213,11 +216,19 @@ int main_v1_1(void)
 	}
 
 	result =
-	    Tspi_Policy_SetSecret(hKeyPolicy, TESTSUITE_KEY_SECRET_MODE,
-				  TESTSUITE_KEY_SECRET_LEN,
+	    Tspi_Policy_SetSecret(hKeyPolicy, TESTSUITE_KEY_SECRET_MODE, TESTSUITE_KEY_SECRET_LEN,
 				  TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret (hKeyPolicy)", result);
+		print_error_exit(function, err_string(result));
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	// Assign the use policy to the object
+	result = Tspi_Policy_AssignToObject(hKeyPolicy, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
 		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);

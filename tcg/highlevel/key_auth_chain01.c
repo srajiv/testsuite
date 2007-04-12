@@ -85,14 +85,13 @@ TSS_UUID uuid_2 = { 7, 7, 7, 7, 7, { 6, 6, 6, 6, 6, 6 } };
 int
 main( int argc, char **argv )
 {
-	char		*version;
+	char version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if( strcmp(version, "1.1") )
-		print_wrongVersion();
-	else
+	if (version)
 		main_v1_1();
+	else
+		print_wrongVersion();
 }
 
 int

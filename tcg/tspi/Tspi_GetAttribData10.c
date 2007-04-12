@@ -82,16 +82,13 @@ BYTE privKey[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 
 int main(int argc, char **argv)
 {
-	char		*version;
+	char version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if(strcmp(version, "1.1")){
-		print_wrongVersion();
-	}
-	else{
+	if (version)
 		main_v1_1();
-	}
+	else
+		print_wrongVersion();
 }
 
 main_v1_1(void){

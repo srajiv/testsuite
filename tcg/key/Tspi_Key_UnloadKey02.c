@@ -61,14 +61,13 @@
 int
 main( int argc, char **argv )
 {
-	char		*version;
+	char		version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if( strcmp(version, "1.1") )
-		print_wrongVersion();
-	else
+	if (version)
 		main_v1_1();
+	else
+		print_wrongVersion();
 }
 
 int
@@ -76,19 +75,7 @@ main_v1_1( void )
 {
 	char		*function = "Tspi_Key_UnloadKey02";
 	TSS_HCONTEXT	hContext;
-	TSS_HKEY	hSRK;
-        TSS_HKEY        hKey;
-	TSS_UUID	SRKUUID			= {0,0,0,0,0,0,0,0,0,0,1};
-/*	TSS_UUID	migratableSignUUID	= {1,2,3,4,5,6,7,8,9,10,2};
-	TSS_UUID	migratableStorageUUID	= {1,2,3,4,5,6,7,8,9,10,1};
-*/	TSS_UUID	uuid;
-	BYTE*		migratableSignKeyBlob;
-	UINT32		blobLength;
 	TSS_RESULT	result;
-	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
-	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
-				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-				TSS_KEY_NOT_MIGRATABLE;
 	UINT32		exitCode = 0;
 
 	print_begin_test( function );
@@ -101,7 +88,6 @@ main_v1_1( void )
 		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
-
 
 		//Load Key Blob
 	result = Tspi_Key_UnloadKey( 0xffffffff );

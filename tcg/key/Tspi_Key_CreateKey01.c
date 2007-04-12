@@ -67,11 +67,10 @@
 
 int main(int argc, char **argv)
 {
-	char *version;
+	char version;
 
 	version = parseArgs(argc, argv);
-	// if it is not version 1.1 or , print error
-	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
+	if (version)
 		main_v1_1();
 	else
 		print_wrongVersion();
@@ -87,9 +86,9 @@ main_v1_1(void)
 	TSS_HKEY hKey;
 	TSS_HKEY hSRK;
 	TSS_RESULT result;
-	TSS_UUID uuid;
-	BYTE *randomData;
-	TSS_HPOLICY srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
+	TSS_HPOLICY srkUsagePolicy, keyUsagePolicy;
+
+
 	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048 |
 	    TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
 	    TSS_KEY_NOT_MIGRATABLE;
@@ -157,11 +156,12 @@ main_v1_1(void)
 		exit(result);
 	}
 #endif
-	//Get Policy Object
+	//Create Policy Object
 	result =
-	    Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &keyUsagePolicy);
+	    Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE,
+				      &keyUsagePolicy);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject", result);
+		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
@@ -177,6 +177,14 @@ main_v1_1(void)
 		print_error("Tspi_Policy_SetSecret", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	//Assign policy to key
+	result = Tspi_Policy_AssignToObject(keyUsagePolicy, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}

@@ -77,19 +77,13 @@
 int
 main( int argc, char **argv )
 {
-	char		*version;
+	char version;
 
-		//Check the Version
 	version = parseArgs( argc, argv );
-		//If it is not Version 1.1 then print error
-	if ( strcmp(version, "1.1") )
-	{
-		print_wrongVersion();
-	}
-	else
-	{
+	if (version)
 		main_v1_1();
-	}
+	else
+		print_wrongVersion();
 }
 
 int

@@ -68,11 +68,10 @@
 
 int main(int argc, char **argv)
 {
-	char *version;
+	char version;
 
 	version = parseArgs(argc, argv);
-	// if it is not version 1.1 or 1.2, print error
-	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
+	if (version)
 		main_v1_1();
 	else
 		print_wrongVersion();
@@ -95,7 +94,7 @@ int main_v1_1(void)
 	UINT32 ulDataLength = 32, exitCode = 0;
 	TSS_RESULT result;
 	TSS_FLAG initFlags = TSS_KEY_TYPE_STORAGE | TSS_KEY_SIZE_2048 |
-	    TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
+	    TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 	    TSS_KEY_NOT_MIGRATABLE;
 
 
@@ -161,27 +160,6 @@ int main_v1_1(void)
 		exit(result);
 	}
 #endif
-	// set the new key's authdata
-	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &hKeyPolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject (hKey)", result);
-		print_error_exit(function, err_string(result));
-		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
-	result =
-	    Tspi_Policy_SetSecret(hKeyPolicy, TESTSUITE_KEY_SECRET_MODE,
-				  TESTSUITE_KEY_SECRET_LEN,
-				  TESTSUITE_KEY_SECRET);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret (hKeyPolicy)", result);
-		print_error_exit(function, err_string(result));
-		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 	// create the key
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {

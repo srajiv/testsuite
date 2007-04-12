@@ -65,16 +65,13 @@
 
 int main(int argc, char **argv)
 {
-	char		*version;
+	char version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if(strcmp(version, "1.1")){
-		print_wrongVersion();
-	}
-	else{
+	if (version)
 		main_v1_1();
-	}
+	else
+		print_wrongVersion();
 }
 
 main_v1_1(void){
@@ -84,10 +81,6 @@ main_v1_1(void){
 	TSS_HPOLICY	srkUsagePolicy, hKeyChildPolicy, hKeyParentPolicy, hNewPolicy;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
-	TSS_FLAG	initFlags;
-	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
-			TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
-			TSS_KEY_NOT_MIGRATABLE;
 
 	print_begin_test(nameOfFunction);
 
@@ -157,9 +150,10 @@ main_v1_1(void){
 	}
 
 		// Get existing Policy Object
-	result = Tspi_GetPolicyObject(hKeyChild, TSS_POLICY_USAGE, &hKeyChildPolicy);
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE,
+					   &hKeyChildPolicy);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject", result);
+		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -169,6 +163,14 @@ main_v1_1(void){
 				       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	result = Tspi_Policy_AssignToObject(hKeyChildPolicy, hKeyChild);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);

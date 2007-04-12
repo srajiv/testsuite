@@ -77,16 +77,13 @@
 
 int main(int argc, char **argv)
 {
-	char		*version;
+	char version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if(strcmp(version, "1.1")){
-		print_wrongVersion();
-	}
-	else{
+	if (version)
 		main_v1_1();
-	}
+	else
+		print_wrongVersion();
 }
 
 main_v1_1(void){
@@ -99,8 +96,7 @@ main_v1_1(void){
 	TSS_HKEY	hIdentKey;
 	TSS_HPCRS	hPcrComposite;
 	TSS_FLAG	initFlags;
-	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
-	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
+	TSS_HPOLICY	srkUsagePolicy;
 	BYTE		*pcrValue1, *pcrValue2;
 	UINT32		pcrSize1, pcrSize2;
 
@@ -169,25 +165,6 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	result = Tspi_GetPolicyObject(hIdentKey, TSS_POLICY_USAGE,
-					&keyUsagePolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-		//Set Secret
-	result = Tspi_Policy_SetSecret(keyUsagePolicy,
-				TESTSUITE_KEY_SECRET_MODE,
-				TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
 		//Create hIdentKey
 	result = Tspi_Key_CreateKey(hIdentKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {

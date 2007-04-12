@@ -82,14 +82,13 @@ void *thread_v1_1(void *);
 int
 main( int argc, char **argv )
 {
-	char		*version;
+	char version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if( strcmp(version, "1.1") )
-		print_wrongVersion();
+	if (version)
+		main_v1_1();
 	else
-		return main_v1_1();
+		print_wrongVersion();
 }
 
 int

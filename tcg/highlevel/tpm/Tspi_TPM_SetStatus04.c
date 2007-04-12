@@ -59,11 +59,10 @@
 int
 main( int argc, char **argv )
 {
-	char			*version;
+	char version;
 
 	version = parseArgs( argc, argv );
-
-	if( !strcmp(version, "1.2") )
+	if (version == TESTSUITE_TEST_TSS_1_2)
 		main_v1_2();
 	else
 		print_wrongVersion();

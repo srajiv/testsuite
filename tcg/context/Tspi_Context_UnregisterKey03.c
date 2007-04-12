@@ -71,11 +71,10 @@
 
 int main(int argc, char **argv)
 {
-	char		*version;
+	char		version;
 
 	version = parseArgs(argc, argv);
-		// if it is not version 1.1 or 1.2, print error
-	if ((0 == strcmp(version, "1.1")) || (0 == strcmp(version, "1.2")))
+	if (version)
 		main_v1_1();
 	else
 		print_wrongVersion();
@@ -86,7 +85,6 @@ main_v1_1(void){
 
 	char		*nameOfFunction = "Tspi_Context_UnregisterKey03";
 	TSS_HCONTEXT	hContext;
-	TSS_HTPM	hTPM;
 	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
 	TSS_HKEY	hSRK;
@@ -96,7 +94,6 @@ main_v1_1(void){
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_512  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
 			TSS_KEY_NOT_MIGRATABLE;
-	TSS_FLAG	badPSType = 0xffffffff;
 
 	print_begin_test(nameOfFunction);
 

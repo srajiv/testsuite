@@ -64,40 +64,42 @@
  *	None.
  */
 
+#include <openssl/rsa.h>
+
 #include "common.h"
-
-
-
 
 int main(int argc, char **argv)
 {
-	char		*version;
+	char		version;
 
 	version = parseArgs( argc, argv );
-		// if it is not version 1.1, print error
-	if(strcmp(version, "1.1")){
-		print_wrongVersion();
-	}
-	else{
+	if (version)
 		main_v1_1();
-	}
+	else
+		print_wrongVersion();
 }
 
-main_v1_1(void){
-
+main_v1_1(void)
+{
 	char		*nameOfFunction = "Tspi_Key_WrapKey02";
 	TSS_HCONTEXT	hContext;
-	TSS_HTPM	hTPM;
 	TSS_FLAG	initFlags;
 	TSS_HKEY	hKey;
-	TSS_HKEY	hSRK;
+	TSS_HKEY	hSRK, hParentKey;
 	TSS_RESULT	result;
 	TSS_UUID	uuid;
-	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy;
+	TSS_HPOLICY	srkUsagePolicy, keyUsagePolicy, keyMigPolicy;
+	RSA		*rsa = NULL;
+	unsigned char	n[2048], p[2048];
+	int		size_n, size_p;
+	BYTE		blob[1024], *pubblob;
+	UINT32		pubblob_size;
+	TCPA_PUBKEY	pubkey;
+	UINT16		offset;
+
 	initFlags	= TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 			TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
-			TSS_KEY_NOT_MIGRATABLE;
-	BYTE		well_known_secret[20] = TSS_WELL_KNOWN_SECRET;
+			TSS_KEY_MIGRATABLE;
 
 	print_begin_test(nameOfFunction);
 
@@ -116,25 +118,18 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Get TPM Object
-	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_GetTpmObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Create Object
 	result = Tspi_Context_CreateObject(hContext, 
-				TSS_OBJECT_TYPE_RSAKEY,
-				initFlags, &hKey);
+					TSS_OBJECT_TYPE_RSAKEY,
+					initFlags, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Load Key By UUID
+
+		//Load Parent Key By UUID
 	result = Tspi_Context_LoadKeyByUUID(hContext, 
 				TSS_PS_TYPE_SYSTEM, SRK_UUID, &hSRK);
 	if (result != TSS_SUCCESS) {
@@ -147,7 +142,7 @@ main_v1_1(void){
 #ifndef TESTSUITE_NOAUTH_SRK
 		//Get Policy Object
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, 
-						&srkUsagePolicy);
+					&srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject ", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -167,36 +162,105 @@ main_v1_1(void){
 		exit(result);
 	}
 #endif
-		//Get Policy Object
-	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, 
-					&keyUsagePolicy);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetPolicyObject", result);
+		// generate a software key to wrap
+	if ((rsa = RSA_generate_key(2048, 65537, NULL, NULL)) == NULL) {
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Set Secret
-	result = Tspi_Policy_SetSecret(keyUsagePolicy,
-				TSS_SECRET_MODE_SHA1, 
-				20, well_known_secret);
+
+		// get the pub key and a prime
+	if ((size_n = BN_bn2bin(rsa->n, n)) <= 0) {
+		fprintf(stderr, "BN_bn2bin failed\n");
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+                exit(-1);
+        }
+
+        if ((size_p = BN_bn2bin(rsa->p, p)) <= 0) {
+		fprintf(stderr, "BN_bn2bin failed\n");
+		Tspi_Context_CloseObject(hContext, hKey);
+		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
+                exit(-1);
+        }
+
+	result = set_public_modulus(hContext, hKey, size_n, n);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Policy_SetSecret ", result);
+		print_error("set_public_modulus", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
 		exit(result);
 	}
-		//Create Key
-	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
+
+		// set the private key data in the TSS object
+	result = Tspi_SetAttribData(hKey, TSS_TSPATTRIB_KEY_BLOB,
+			TSS_TSPATTRIB_KEYBLOB_PRIVATE_KEY, size_p, p);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_CreateKey", result);
+		print_error("Tspi_SetAttribData ", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
+		RSA_free(rsa);
 		exit(result);
 	}
+
+	// Create migration policy
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY,
+					   TSS_POLICY_MIGRATION, &keyMigPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	//Set Secret
+	result = Tspi_Policy_SetSecret(keyMigPolicy, TESTSUITE_KEY_SECRET_MODE,
+				       TESTSUITE_KEY_SECRET_LEN,
+				       TESTSUITE_KEY_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	//Assign migration policy
+	result = Tspi_Policy_AssignToObject(keyMigPolicy, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+		//Create Object
+	result = Tspi_Context_CreateObject(hContext,
+					TSS_OBJECT_TYPE_RSAKEY,
+					TSS_KEY_TYPE_STORAGE |
+					TSS_KEY_SIZE_2048,
+					&hParentKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+		//Create Parent Key
+	result = Tspi_Key_CreateKey(hParentKey, hSRK, NULL_HPCRS);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
 		//Wrap Key
 	result = Tspi_Key_WrapKey(hKey, -1, 0);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
