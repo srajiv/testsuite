@@ -36,3 +36,16 @@ Integrated with the LTP:
 	6) make install
 	7) ./runalltests.sh -f </full/path/to/ltp>/runtest/tcg -l ./logfile -p
 
+By default, the 1.1 version of each testcase will be run. To run the testsuite
+against another version of the spec, run ./tsstests.sh -v <version>. Also,
+individual sets of tests can be run by passing the directory name of the tests
+to tsstests.sh, for example:
+
+To run the key tests only (version 1.1 tests will be run by default):
+./tsstests.sh key
+
+To run the tpm tests against TSS version 1.2:
+./tsstests.sh -v 1.2 tpm
+
+To run all tests against a TSS version 1.2:
+./tsstests.sh -v 1.2
