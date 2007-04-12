@@ -50,7 +50,7 @@
 #include "tss/tspi.h"
 
 char *err_string(TSS_RESULT);
-char *parseArgs(int, char **);
+char parseArgs(int, char **);
 void print_wrongVersion();
 int checkNonAPI(TSS_RESULT);
 void print_wrongChar();
@@ -119,6 +119,10 @@ int TestSuite_TPM_RSA_Encrypt(unsigned char *in, unsigned int inlen, unsigned ch
 int main_v1_1();
 
 extern TSS_UUID SRK_UUID;
+
+#define TESTSUITE_UNSUPPORTED_TSS_VERSION		0
+#define TESTSUITE_TEST_TSS_1_1				1
+#define TESTSUITE_TEST_TSS_1_2				2
 
 #define TESTSUITE_KEY_SECRET_MODE	TSS_SECRET_MODE_PLAIN
 #define TESTSUITE_KEY_SECRET		"KEY PWD"
