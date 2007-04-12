@@ -35,6 +35,7 @@
 #
 # HISTORY
 #      Megan Schneider, mschnei@us.ibm.com, 6/04.
+#      kyoder@users.sf.net, Added shifts to the option processing
 #
 # RESTRICTIONS
 #      None.
@@ -63,22 +64,17 @@ export LTPTSSROOT=$PWD
 
 cd $TESTCASEDIR
 
-if [ x${1} != x ]; then
-	DIRS_TO_RUN=${1}
-else
-	DIRS_TO_RUN=`ls */Makefile | sed "s/Makefile//g" | sed "s/common\///g" | sed "s/highlevel\///g" | grep -v sctp`
-fi
-
 usage()
 {
 	cat <<-END >&2
-	usage: ./tsstests.sh [-v <version>] [-l <logfile>] [-ph]
+	usage: ./tsstests.sh [-v <version>] [-l <logfile>] [-e <errfile>] [-ph] [<dir>]
 		This script will run all tspi-related tests.
 		-v	version of the TSS spec to use
 		-l	logfile to redirect output to (default is command line)
 		-p	check that the test cases can be run, but do not actually run them
 		-h	display this help
 		-q	run quietly - display only total number of tests passed/failed
+		-e	file name to log errors to
 	END
 	exit
 }
@@ -99,57 +95,33 @@ usage()
 while getopts v:l:phq arg
 do
 	case $arg in
-		v)	export TSS_VERSION=$OPTARG;;
+		v)	export TSS_VERSION=$OPTARG
+			shift;;
 		l)	export LOGFILE="$LOGDIR/"$OPTARG""
 			let LOGGING=1
 			`touch ${LOGFILE}`
-			cat /dev/null > $LOGFILE;;
+			cat /dev/null > $LOGFILE
+			shift;;
 		p)	echo "Checking setup for testcases; not running.."
 			let PRETENDING=1;;
 		h)	usage;;
 		q)	let QUIET=1;;
 		e)	export ERR_SUMMARY=$OPTARG
+			shift
 	esac
 done
-shift `let OPTIND-=1`
+if test $OPTIND -ne 1; then
+	shift `let OPTIND-=1`
+fi
+
+if [ x${1} != x ]; then
+	DIRS_TO_RUN=${1}
+else
+	DIRS_TO_RUN=`ls */Makefile | sed "s/Makefile//g" | sed "s/common\///g" | sed "s/highlevel\///g" | grep -v sctp`
+fi
 
 /bin/rm -f $ERR_SUMMARY
 
-#if [ $QUIET -eq 0 ]; then
-#	ps -ef | grep tcsd | grep -v grep
-#	if [ $? -eq 1 ]; then
-#		echo "tscd not running. Please run '/usr/local/bin/tcsd &' as root."
-#		exit 1
-#	else
-#		echo "tscd running."
-#	fi
-#else
-#	ps -ef | grep tcsd | grep -v grep &> /dev/null
-#	if [ $? -eq 1 ]; then
-#		echo "tscd not running. Please run '/usr/local/bin/tcsd &' as root."
-#		exit 1
-#	fi
-#fi
-
-echo
-
-#if [ $QUIET -eq 0 ]; then
-#	lsmod | grep tpm
-#	if [ $? -eq 1 ]; then
-#		echo "TPM module not loaded. Please run 'modprobe tpm' as root."
-#		exit 1
-#	else
-#		echo "TPM module loaded."
-#	fi
-#else
-#	lsmod | grep tpm &> /dev/null
-#	if [ $? -eq 1 ]; then
-#		echo "TPM module not loaded. Please run 'modprobe tpm' as root."
-#		exit 1
-#	fi
-#fi
-
-echo
 
 if [ $PRETENDING -ne 0 ]; then
 	echo "Requirements for running testcases met."
