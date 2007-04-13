@@ -36,6 +36,11 @@ Integrated with the LTP:
 	6) make install
 	7) ./runalltests.sh -f </full/path/to/ltp>/runtest/tcg -l ./logfile -p
 
+On platforms where the TSS lib is compiled 64bit (ppc64, x86_64, s390x), add
+the following CFLAGS to make:
+$ CFLAGS=-m64 make
+
+
 By default, the 1.1 version of each testcase will be run. To run the testsuite
 against another version of the spec, run ./tsstests.sh -v <version>. Also,
 individual sets of tests can be run by passing the directory name of the tests
