@@ -63,13 +63,15 @@ main( int argc, char **argv )
 
 	version = parseArgs( argc, argv );
 	if (version == TESTSUITE_TEST_TSS_1_2)
-		main_v1_2();
+		main_v1_2(version);
+	else if (version)
+		print_NA();
 	else
 		print_wrongVersion();
 }
 
 int
-main_v1_2( void )
+main_v1_2(char version)
 {
 	char			*function = "Tspi_TPM_SetStatus04";
 	TSS_HCONTEXT		hContext;
