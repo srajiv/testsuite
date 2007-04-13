@@ -52,6 +52,7 @@
 char *err_string(TSS_RESULT);
 char parseArgs(int, char **);
 void print_wrongVersion();
+void print_NA();
 int checkNonAPI(TSS_RESULT);
 void print_wrongChar();
 void UINT32ToArray(UINT32 i, BYTE * out);
