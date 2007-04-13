@@ -73,12 +73,12 @@ int main(int argc, char **argv)
 
 	version = parseArgs( argc, argv );
 	if (version)
-		main_v1_1();
+		main_v1_2(version);
 	else
 		print_wrongVersion();
 }
 
-main_v1_1(void){
+main_v1_2(char version){
 
 	char		*nameOfFunction = "Tspi_Key_WrapKeyToPcr";
 	TSS_HCONTEXT	hContext;
@@ -87,7 +87,7 @@ main_v1_1(void){
 	TSS_HKEY	hKey, hSRK;
 	TSS_HPCRS	hPcrs;
 	TSS_RESULT	result;
-	TSS_HPOLICY	srkUsagePolicy;
+	TSS_HPOLICY	srkUsagePolicy, hPolicy;
 	RSA		*rsa = NULL;
 	unsigned char	n[2048], p[2048];
 	int		size_n, size_p;
@@ -109,6 +109,16 @@ main_v1_1(void){
 		exit(result);
 	}
 
+		// In a 1.2 TPM, we need to make sure the SRK can be read before continuing
+	if (version == TESTSUITE_TEST_TSS_1_2) {
+		result = set_srk_readable(hContext);
+		if (result != TSS_SUCCESS) {
+			print_error("set_srk_readable", result);
+			print_error_exit(nameOfFunction, err_string(result));
+			exit(result);
+		}
+	}
+
 		// Get the SRK's pub key
 	result = Tspi_Key_GetPubKey(hSRK, &srkPubLen, &srkPub);
 	if (result != TSS_SUCCESS) {
@@ -119,9 +129,7 @@ main_v1_1(void){
 	Tspi_Context_FreeMemory(hContext, srkPub);
 
 		//Create Key Object
-	result = Tspi_Context_CreateObject(hContext,
-					TSS_OBJECT_TYPE_RSAKEY,
-					initFlags, &hKey);
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY, initFlags, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
@@ -129,10 +137,37 @@ main_v1_1(void){
 		exit(result);
 	}
 
+		//Create policy Object
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_MIGRATION,
+					   &hPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+		//Set the key's migration secret
+	result = Tspi_Policy_SetSecret(hPolicy, TESTSUITE_KEY_SECRET_MODE, TESTSUITE_KEY_SECRET_LEN,
+				       TESTSUITE_KEY_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
 		//Create PCRs Object
-	result = Tspi_Context_CreateObject(hContext,
-					TSS_OBJECT_TYPE_PCRS,
-					0, &hPcrs);
+	result = Tspi_Policy_AssignToObject(hPolicy, hKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+		//Create PCRs Object
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_PCRS, 0, &hPcrs);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
