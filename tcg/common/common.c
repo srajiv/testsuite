@@ -793,6 +793,35 @@ set_public_modulus(TSS_HCONTEXT hContext, TSS_HKEY hKey, UINT32 size_n, BYTE *n)
 	return TSS_SUCCESS;
 }
 
+TSS_RESULT
+set_srk_readable(TSS_HCONTEXT hContext)
+{
+	TSS_HTPM hTPM;
+	TSS_HPOLICY hPolicy;
+	TSS_RESULT result;
+
+	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
+	if ( result != TSS_SUCCESS ) {
+		print_error( "Tspi_Context_GetTpmObject", result );
+		return result;
+	}
+
+	result = Tspi_GetPolicyObject( hTPM, TSS_POLICY_USAGE, &hPolicy );
+	if ( result != TSS_SUCCESS ) {
+		print_error( "Tspi_GetPolicyObject", result );
+		return result;
+	}
+
+	result = Tspi_Policy_SetSecret( hPolicy, TESTSUITE_OWNER_SECRET_MODE,
+					TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
+	if ( result != TSS_SUCCESS ) {
+		print_error( "Tspi_Policy_SetSecret", result );
+		return result;
+	}
+
+	return Tspi_TPM_SetStatus( hTPM, TSS_TPMSTATUS_DISABLEPUBSRKREAD, FALSE );
+}
+
 void
 TestSuite_LoadBlob_KEY_FLAGS(UINT16 * offset, BYTE * blob, TCPA_KEY_FLAGS * flags)
 {
