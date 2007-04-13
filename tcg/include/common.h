@@ -67,6 +67,7 @@ TSS_RESULT bind_and_unbind(TSS_HCONTEXT, TSS_HKEY);
 TSS_RESULT sign_and_verify(TSS_HCONTEXT, TSS_HKEY);
 TSS_RESULT seal_and_unseal(TSS_HCONTEXT, TSS_HKEY, TSS_HENCDATA, TSS_HPCRS);
 TSS_RESULT set_public_modulus(TSS_HCONTEXT, TSS_HKEY, UINT32, BYTE *);
+TSS_RESULT set_srk_readable(TSS_HCONTEXT);
 
 
 void TestSuite_LoadBlob_PUBKEY(UINT16 *, BYTE *, TCPA_PUBKEY *);
@@ -117,6 +118,7 @@ int TestSuite_TPM_RSA_Encrypt(unsigned char *in, unsigned int inlen, unsigned ch
 			      unsigned int *outlen, unsigned char *pubkey, unsigned int pubsize);
 
 int main_v1_1();
+int main_v1_2(char);
 
 extern TSS_UUID SRK_UUID;
 
