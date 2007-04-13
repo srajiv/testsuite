@@ -61,14 +61,14 @@ int main(int argc, char **argv)
 
 	version = parseArgs( argc, argv );
 	if (version == TESTSUITE_TEST_TSS_1_2)
-		main_v1_2();
+		main_v1_2(version);
 	else if (version == TESTSUITE_TEST_TSS_1_1)
 		main_v1_1();
 	else
 		print_wrongVersion();
 }
 
-main_v1_1(void)
+main_v1_1()
 {
 	char		*nameOfFunction = "Tspi_Callbacks01";
 	TSS_FLAG	initFlags;
@@ -220,7 +220,7 @@ verify_callback(TSS_CALLBACK *c1, TSS_CALLBACK *c2)
 	return 0;
 }
 
-main_v1_2(void)
+main_v1_2(char version)
 {
 	char		*nameOfFunction = "Tspi_Callbacks01";
 	TSS_FLAG	initFlags;

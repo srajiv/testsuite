@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 
 	version = parseArgs( argc, argv );
 	if (version == TESTSUITE_TEST_TSS_1_2)
-		main_v1_2();
+		main_v1_2(version);
 	else if (version)
 		main_v1_1();
 	else
@@ -188,7 +188,7 @@ main_v1_1(void){
 	}
 }
 
-main_v1_2(void){
+main_v1_2(char version){
 
 	char		*nameOfFunction = "Tspi_Key_LoadKey01";
 	TSS_HCONTEXT	hContext;
