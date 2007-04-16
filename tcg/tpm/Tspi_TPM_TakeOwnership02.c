@@ -70,10 +70,159 @@ main( int argc, char **argv )
 	char version;
 
 	version = parseArgs( argc, argv );
-	if (version)
+	if (version == TESTSUITE_TEST_TSS_1_2)
+		main_v1_2(version);
+	else if (version)
 		main_v1_1();
 	else
 		print_wrongVersion();
+}
+
+int
+main_v1_2(char version)
+{
+	char			*function = "Tspi_TPM_TakeOwnership02";
+	BYTE			*rgbPcrValue;
+	UINT32			ulPcrValueLength, exitCode = 0;
+	TSS_HCONTEXT		hContext;
+	TSS_HTPM		hTPM;
+	TSS_HTPM		whTPM = -1;		// wrong hTPM
+	TSS_HPOLICY		hPolicy;
+	TSS_HPOLICY		hSrkPolicy;
+	TSS_HKEY		hEndorsement;
+	TSS_HKEY		hKeySRK;
+	TSS_VALIDATION		valid;
+	TSS_RESULT		result;
+
+	print_begin_test( function );
+
+		// Create Context
+	result = Tspi_Context_Create( &hContext );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_Create", result );
+		print_error_exit( function, err_string(result) );
+		exit( result );
+	}
+
+		// Connect to Context
+	result = Tspi_Context_Connect( hContext, get_server(GLOBALSERVER) );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_Connect", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+		// Retrieve TPM object of context
+	result = Tspi_Context_GetTpmObject( hContext, &hTPM );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_GetTpmObject", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_GetPolicyObject( hTPM, TSS_POLICY_USAGE, &hPolicy );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_GetPolicyObject", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_Policy_SetSecret( hPolicy, TESTSUITE_OWNER_SECRET_MODE,
+					TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Policy_SetSecret", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_TPM_SetStatus( hTPM, TSS_TPMSTATUS_DISABLEPUBEKREAD, FALSE );
+	if ( result != TSS_SUCCESS ) {
+		print_error( "Tspi_TPM_SetStatus", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_TPM_GetPubEndorsementKey( hTPM, TRUE, NULL, &hEndorsement );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_TPM_GetPubEndorsementKey", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_RSAKEY,
+						TSS_KEY_TSP_SRK, &hKeySRK );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Context_CreateObject", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+#ifndef TESTSUITE_NOAUTH_SRK
+	result = Tspi_GetPolicyObject( hKeySRK, TSS_POLICY_USAGE,
+					&hSrkPolicy );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_GetPolicyObject", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
+	result = Tspi_Policy_SetSecret( hSrkPolicy, TESTSUITE_SRK_SECRET_MODE,
+					TESTSUITE_SRK_SECRET_LEN, TESTSUITE_SRK_SECRET );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_Policy_SetSecret", result );
+		print_error_exit( function, err_string(result) );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+#endif
+	result = Tspi_TPM_TakeOwnership( whTPM, hKeySRK, hEndorsement );
+	if ( TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE )
+	{
+		if( !(checkNonAPI(result)) )
+		{
+			print_error( function, result );
+		}
+		else
+		{
+			print_error_nonapi( function, result );
+		}
+		exitCode = result;
+	}
+	else
+	{
+		print_success( function, result );
+	}
+
+	print_end_test( function );
+	Tspi_Context_FreeMemory( hContext, NULL );
+	Tspi_Context_Close( hContext );
+	exit( exitCode );
 }
 
 int
@@ -89,13 +238,10 @@ main_v1_1( void )
 	TSS_HPOLICY		hSrkPolicy;
 	TSS_HKEY		hEndorsement;
 	TSS_HKEY		hKeySRK;
-	BYTE			allones[8];
 	TSS_VALIDATION		valid;
 	TSS_RESULT		result;
 
 	print_begin_test( function );
-
-	memset( allones, 0x02, 8 );
 
 		// Create Context
 	result = Tspi_Context_Create( &hContext );
