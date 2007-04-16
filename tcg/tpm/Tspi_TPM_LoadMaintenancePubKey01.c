@@ -22,8 +22,13 @@
  *	Tspi_TPM_LoadMaintenancePubKey01.c
  *
  * DESCRIPTION
- *	This test will verify that Tspi_TPM_LoadMaintenancePubKey
- *		returns TSS_SUCCESS.
+ *	This test will verify that Tspi_TPM_LoadMaintenancePubKey can succeed.
+ *
+ *	There are 3 acceptable return codes from this API:
+ *	TSS_SUCCESS: The TPM supports this command and it succeeded.
+ *	TCPA_E_DISABLED_CMD: The testsuite or user has run the kill
+ *	                     maintenance feature API on this TPM
+ *	TCPA_E_INACTIVE: The TPM doesn't support this API (most likely)
  *
  * ALGORITHM
  *	Setup:
@@ -204,7 +209,9 @@ main_v1_1( void )
 		//Load Key Blob
 	result = Tspi_TPM_LoadMaintenancePubKey( hTPM, hMaintenanceKey,
 						&ValidationData );
-	if ( TSS_ERROR_CODE(result) != TCPA_E_INACTIVE )
+	if (result != TSS_SUCCESS &&
+	    TSS_ERROR_CODE(result) != TCPA_E_INACTIVE &&
+	    TSS_ERROR_CODE(result) != TCPA_E_DISABLED_CMD)
 	{
 		if( !(checkNonAPI(result)) )
 		{
