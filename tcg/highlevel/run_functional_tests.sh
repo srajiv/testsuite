@@ -6,14 +6,19 @@
 # as clearing the TPM owner. Its noted below when PCR registers are extended.
 #
 
-VERSION=
+set -x
 
-if test "x$1" == "x"; then
-	VERSION=1.1
-else
-	VERSION=$1
-fi
+VERSION=1.1
 
+while getopts v: arg
+do
+	case $arg in
+		v)	VERSION=$OPTARG
+			shift;;
+	esac
+done
+
+# run the RNG test if rngtest exists
 if test x`which rngtest` != x; then
 	./tpm_rng_test | rngtest
 fi
@@ -35,7 +40,7 @@ fi
 ./key/Tspi_Key_CreateKey05 -v $VERSION || exit $?
 # Warning: These two will trash a PCR!
 ./key/Tspi_Key_CreateKeyWithPcrs -v $VERSION || exit $?
-#./key/Tspi_Key_WrapKeyToPcr -v $VERSION || exit $?
+./key/Tspi_Key_WrapKeyToPcr -v $VERSION || exit $?
 ./key/Tspi_Key_ConvertMigrationBlob02 -v $VERSION || exit $?
 
 # tpm tests
@@ -73,6 +78,9 @@ fi
 
 # policy tests
 ./policy/policy_compliance -v $VERSION || exit $?
+
+# thread test
+./tthread -v $VERSION || exit $?
 
 # XXX This is an incomplete list...
 
