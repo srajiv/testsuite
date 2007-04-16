@@ -828,9 +828,11 @@ main_v1_1(void){
 	/* verify that the credential is the same */
 	if (credLen == sizeof(ca_cred) && !memcmp(cred, &ca_cred, credLen)) {
 		print_success(fn, result );
+		result = 0;
 	} else {
 		fprintf(stderr, "credential doesn't match!\n");
 		print_error_exit(fn, err_string(TCPA_E_FAIL));
+		result = TCPA_E_FAIL;
 	}
 
 	Tspi_Context_FreeMemory(hContext, cred);
@@ -838,5 +840,5 @@ main_v1_1(void){
 	Tspi_Context_Close(hContext);
 	RSA_free(rsa);
 
-	return 0;
+	return result;
 }
