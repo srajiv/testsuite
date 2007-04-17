@@ -46,8 +46,9 @@ fi
 # tpm tests
 ./tpm/Tspi_TPM_Quote05 -v $VERSION || exit $?
 ./tpm/Tspi_TPM_PcrRead04 -v $VERSION || exit $?
+./tpm/Tspi_TPM_PcrReset04 -v $VERSION || exit $?
 # Warning: Tspi_TPM_PcrExtend05 will trash all PCRs
-#./tpm/Tspi_TPM_PcrExtend05 -v $VERSION || exit $?
+./tpm/Tspi_TPM_PcrExtend05 -v $VERSION || exit $?
 ./tpm/Tspi_TPM_GetStatus04 -v $VERSION || exit $?
 ./tpm/Tspi_TPM_GetEvents06 -v $VERSION || exit $?
 ./tpm/Tspi_TPM_GetEvents07 -v $VERSION || exit $?
@@ -59,6 +60,7 @@ fi
 ./tpm/Tspi_TPM_GetCapability07 -v $VERSION || exit $?
 ./tpm/Tspi_TPM_DirWrite04 -v $VERSION || exit $?
 ./tpm/Tspi_TPM_CreateIdentity -v $VERSION || exit $?
+./tpm/Tspi_TPM_CreateIdentityWithCallbacks -v $VERSION || exit $?
 
 # tspi tests
 ./tspi/Tspi_Callbacks01 -v $VERSION || exit $?
