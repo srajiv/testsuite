@@ -102,7 +102,7 @@ main_v1_1(void){
 	}
 
 	event.rgbPcrValue = pcrValue;
-
+#if 0
 	subCap = TSS_TPMCAP_PROP_PCR;
 		// Retrieve number of PCR's from the TPM
 	result = Tspi_TPM_GetCapability(hTPM, TSS_TPMCAP_PROPERTY,
@@ -127,7 +127,9 @@ main_v1_1(void){
 	}
 
 	numPcrs = *(UINT32 *)rgbNumPcrs;
-
+#else
+	numPcrs = 16;
+#endif
 	for (i = 0; i < numPcrs; i++) {
 		memset(&event_data, i, EVENT_DATA_SIZE);
 		event.ulPcrIndex = i;
