@@ -1,3 +1,12 @@
+
+/*
+ * tthread.c: A trousers multi-threaded test application
+ *
+ * Originally written by Thomas Winkler, generously donated to the trousers project
+ * Modifications by Kent Yoder <kyoder@users.sf.net>
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
