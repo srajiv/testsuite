@@ -74,7 +74,7 @@ get_server(char *server)
 void
 print_NA()
 {
-	printf("This testcase does not apply to the requested TSS version\n");
+	printf("This testcase does not apply to the TSS version being tested.\n");
 	exit(0);
 }
 
