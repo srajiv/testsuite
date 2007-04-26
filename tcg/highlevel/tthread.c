@@ -18,7 +18,7 @@ void createKey();
  * - set to 1 for single-threaded execution
  * - set ot 2 or bigger for multiple concurrent threads
  */
-#define NUM_THREADS 99
+#define NUM_THREADS 50
 
 /*
  * if EXIT_ON_ERROR is defined, the program exits as soon as an error code other than TSS_SUCCESS
