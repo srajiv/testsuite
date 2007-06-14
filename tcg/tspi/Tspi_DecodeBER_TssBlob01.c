@@ -190,10 +190,12 @@ main_v1_2( char version )
 		{
 			print_error_exit( function, "Original blob does not equal decoded blob" );
 		}
+		result = 1;
 	}
 	else
 	{
 		print_success( function, result );
+		result = 0;
 	}
 
 	print_end_test( function );

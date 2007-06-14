@@ -148,5 +148,5 @@ main_v1_2( char version )
 	free(rgbEncBlob);
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( result );
+	exit( 0 );
 }
