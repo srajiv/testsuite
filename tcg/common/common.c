@@ -200,7 +200,7 @@ print_hex( BYTE *buf, UINT32 len )
 	UINT32 i = 0, j;
 
 	while (i < len) {
-		for (j=0; (j < 15) && (i < len); j++, i++)
+		for (j=0; (j < 16) && (i < len); j++, i++)
 			printf("%02x ", buf[i] & 0xff);
 		printf("\n");
 	}
