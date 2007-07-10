@@ -80,6 +80,7 @@ fi
 
 # policy tests
 ./policy/policy_compliance -v $VERSION || exit $?
+./policy/policy_no_secret -v $VERSION || exit $?
 
 # thread test
 ./tthread -v $VERSION || exit $?
