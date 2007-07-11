@@ -51,6 +51,7 @@ PASSED=0
 FAILED=0
 SEGFAULTED=0
 NOTIMPL=0
+NA=0
 PRETENDING=0
 QUIET=0
 export ERR_SUMMARY=../../err.summary
@@ -182,18 +183,22 @@ else
 				fi
 				if [ $RUNRESULT -ne "0" ]; then
 					PASSFAIL=1;
-					let FAILED+=1;
-					if [ $RUNRESULT -gt "127" ]; then
+					if [ $RUNRESULT -gt 127 ]; then
 						let SEGFAULTED+=1;
+						let FAILED+=1;
+					elif [ $RUNRESULT -eq 127 ]; then
+						let NA+=1;
 					elif [ $RUNRESULT -eq 6 ]; then
 						let NOTIMPL+=1;
+					else
+						let FAILED+=1;
 					fi
 				else
 					let PASSED+=1;
 				fi
 				if [ $QUIET -eq 0 ]; then
 					if [ $LOGGING -eq 0 ]; then
-						echo PASSED: $PASSED
+						echo PASSED: $PASSED \($NA N/A\)
 						echo FAILED: $FAILED \($NOTIMPL NOTIMPL\)
 						echo SEGFAULTED: $SEGFAULTED
 					else
