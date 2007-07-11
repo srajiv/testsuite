@@ -75,7 +75,7 @@ void
 print_NA()
 {
 	printf("This testcase does not apply to the TSS version being tested.\n");
-	exit(0);
+	exit(127);
 }
 
 void
