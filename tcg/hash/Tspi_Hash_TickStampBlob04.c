@@ -206,12 +206,16 @@ int main_v1_2(char version)
 		} else {
 			print_error_nonapi(function, result);
 		}
-	} else {
-		print_success(function, result);
+
+		print_end_test(function);
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(TSS_E_FAIL);
 	}
 
+	print_success(function, result);
 	print_end_test(function);
 	Tspi_Context_FreeMemory(hContext, NULL);
 	Tspi_Context_Close(hContext);
-	exit(result);
+	exit(0);
 }
