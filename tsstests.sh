@@ -186,6 +186,7 @@ else
 					if [ $RUNRESULT -gt 127 ]; then
 						let SEGFAULTED+=1;
 						let FAILED+=1;
+						echo "./$e -v ${TSS_VERSION}" >> $ERR_SUMMARY
 					elif [ $RUNRESULT -eq 127 ]; then
 						let NA+=1;
 					elif [ $RUNRESULT -eq 6 ]; then
