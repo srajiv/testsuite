@@ -94,15 +94,6 @@ main_v1_2(char version){
 		exit(result);
 	}
 
-		//Load Key By UUID
-	result = Tspi_Context_LoadKeyByUUID(hContext, TSS_PS_TYPE_SYSTEM, SRK_UUID, &hSRK);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_LoadKeyByUUID", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
 	result = Tspi_GetPolicyObject( hTPM, TSS_POLICY_USAGE, &hPolicy );
 	if ( result != TSS_SUCCESS ) {
 		print_error( "Tspi_GetPolicyObject", result );
