@@ -66,10 +66,8 @@ main( int argc, char **argv )
 	char version;
 
 	version = parseArgs( argc, argv );
-	if (version == TESTSUITE_TEST_TSS_1_1)
+	if (version)
 		main_v1_1();
-	else if (version)
-		print_NA();
 	else
 		print_wrongVersion();
 }
@@ -86,7 +84,7 @@ main_v1_1( void )
 	TSS_VALIDATION	ValidationData;
 	TSS_RESULT	result;
 	TSS_HTPM	hTPM;
-	TSS_HTPM	whTPM;
+	TSS_HTPM	whTPM = -1;
 	TSS_HPOLICY	srkUsagePolicy;
 	TSS_FLAG	initFlags = TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048  |
 				TSS_KEY_VOLATILE | TSS_KEY_NO_AUTHORIZATION |
