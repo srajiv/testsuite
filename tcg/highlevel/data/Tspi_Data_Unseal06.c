@@ -219,7 +219,7 @@ main_v1_1(void){
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_CloseObject(hContext, hEncData);
 		Tspi_Context_Close(hContext);
-		exit(result);
+		exit(TSS_E_FAIL);
 	}
 	else {
 		print_success(function, result);
