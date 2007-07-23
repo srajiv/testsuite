@@ -1,0 +1,9 @@
+
+The files contained in this directory are a conglomeration of testcases
+that need to be run interactively because of various circumstances.
+
+For example, the Tspi_TPM_SetStatus_TempDeactivated01 testcase will
+temporarily deactivate the TPM and pretty much cause all commands sent
+to the TPM to fail.  A reboot is required to re-activate the TPM at
+this point.
+
