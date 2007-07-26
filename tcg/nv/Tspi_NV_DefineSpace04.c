@@ -1,6 +1,6 @@
 /*
- * The Initial Developer of the Original Code is Intel Corporation. 
- * Portions created by Intel Corporation are Copyright (C) 2007 Intel Corporation. 
+ * The Initial Developer of the Original Code is Intel Corporation.
+ * Portions created by Intel Corporation are Copyright (C) 2007 Intel Corporation.
  * All Rights Reserved.
  *
  * This program is free software;  you can redistribute it and/or modify
@@ -39,9 +39,9 @@
  *		(The Index is 0x00011104)
  *		(The Permission is 0x4)
  *		(The datasize is 0xa)
- *		Tspi_NV_DefineSpace      
+ *		Tspi_NV_DefineSpace
  *
- *	Test:	
+ *	Test:
  *		Call Tspi_NV_DefineSpace. If it is not a success
  *		Make sure that it returns the proper return codes
  *
@@ -50,7 +50,7 @@
  *		Close context
  *		Print error/success message
  *
- * USAGE:	
+ * USAGE:
  *	First parameter is --options
  *	-v or --version
  *	Second Parameter is the version of the test case to be run.
@@ -85,13 +85,13 @@ int
 main_v1_2(char version)
 {
 	char	     *nameOfFunction    = "Tspi_Nv_DefineSpace04";
-	
+
 	TSS_HCONTEXT hContext           = NULL_HCONTEXT;
 	TSS_HNVSTORE hNVStore           = 0;//NULL_HNVSTORE
 	TSS_HPOLICY  hPolicy            = NULL_HPOLICY;
 	TSS_HTPM     hTPM               = NULL_HTPM;
 	TSS_RESULT   result;
- 
+
 	print_begin_test(nameOfFunction);
 
 		//Create Context
@@ -106,12 +106,12 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect", result);
 		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_FreeMemory(hContext, NULL);                
+		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 
-	    	/* Create TPM NV object */
+		/* Create TPM NV object */
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_NV, 0,&hNVStore);
 	if (result != TSS_SUCCESS)
 	{
@@ -122,7 +122,7 @@ main_v1_2(char version)
 		exit(result);
 	}
 
-#ifdef NV_LOCKED  
+#ifdef NV_LOCKED
 		/* Get TPM object */
 	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
 	if (result != TSS_SUCCESS)
@@ -178,7 +178,7 @@ main_v1_2(char version)
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
-		exit(result);	
+		exit(result);
        }
 
 
@@ -191,14 +191,14 @@ main_v1_2(char version)
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
-     	}
+	}
 
       /*Define NV space*/
 	result = Tspi_NV_DefineSpace(hNVStore, 0, 0);
-#ifdef NV_LOCKED	
+#ifdef NV_LOCKED
        if (TSS_ERROR_CODE(result)== TSS_E_BAD_PARAMETER)
-       {              
-        	print_success(nameOfFunction, result);
+       {
+		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -206,13 +206,13 @@ main_v1_2(char version)
        }
        else{
 		print_error("Tspi_NV_DefineSpace", result);
-	  	print_end_test(nameOfFunction);
+		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		if ( result == TSS_SUCCESS )
 			exit(-1);
 		exit(result);
-     	}
+	}
 
 #else
        if (TSS_ERROR_CODE(result)== TSS_E_BAD_PARAMETER)
@@ -231,6 +231,6 @@ main_v1_2(char version)
 		if ( result == TSS_SUCCESS )
 			exit(-1);
 		exit(result);
-     	}
+	}
 #endif
 }
