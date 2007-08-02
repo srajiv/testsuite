@@ -113,7 +113,7 @@ main_v1_1(void){
 			exit(result);
 		}
 	}
-	printf("There are %d events total.\n", ulEventNumber);
+	printf("There are %u events total.\n", ulEventNumber);
 
 	return 0;
 }
