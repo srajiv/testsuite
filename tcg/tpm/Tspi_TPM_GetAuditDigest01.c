@@ -98,7 +98,7 @@ main_v1_2( char version )
 		exit( result );
 	}
 
-	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE, &hTpmPolicy);
+	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hTpmPolicy);
 	if ( result != TSS_SUCCESS )
 	{
 		print_error_exit( function, err_string(result) );
@@ -117,18 +117,9 @@ main_v1_2( char version )
 		exit( result );
 	}
 
-	result = Tspi_Policy_AssignToObject(hTpmPolicy, hTPM);
-	if ( result != TSS_SUCCESS )
-	{
-		print_error_exit( function, err_string(result) );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
 		//Call GetAuditDigest
-	result = Tspi_TPM_GetAuditDigest(hTPM, NULL_HKEY, FALSE, &auditDigestLen, &auditDigest, &counterValue, NULL,
-						&ordListLen, &ordList);
+	result = Tspi_TPM_GetAuditDigest(hTPM, NULL_HKEY, FALSE, &auditDigestLen, &auditDigest,
+					 &counterValue, NULL, &ordListLen, &ordList);
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetAuditDigest", result );
@@ -136,8 +127,7 @@ main_v1_2( char version )
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
-	}
-	else {
+	} else {
 		result = Tspi_Context_FreeMemory(hContext, auditDigest);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
@@ -165,7 +155,8 @@ main_v1_2( char version )
 	}
 
 		//Call GetAuditDigest
-	result = Tspi_TPM_GetAuditDigest(hTPM, hKey, FALSE, &auditDigestLen, &auditDigest, &counterValue, NULL,	NULL, NULL);
+	result = Tspi_TPM_GetAuditDigest(hTPM, hKey, FALSE, &auditDigestLen, &auditDigest,
+					 &counterValue, NULL, NULL, NULL);
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetAuditDigest", result );
@@ -173,9 +164,7 @@ main_v1_2( char version )
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
-	}
-	else
-	{
+	} else {
 		result = Tspi_Context_FreeMemory(hContext, auditDigest);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
