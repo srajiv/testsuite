@@ -2,6 +2,7 @@
 #define TCS_H
 #include <tss/platform.h>
 #include <tss/tss_structs.h>
+#include <tss/tcs_defines.h> /* XXX added by the trousers project */
 #include <tss/tcs_typedef.h>
 #include <tss/tcs_structs.h>
 #include <tss/tcs_error.h>
@@ -146,6 +147,20 @@ extern TSS_RESULT Tcsip_MakeIdentity
     BYTE**                prgbPlatformCredential,                // out
     UINT32*               pcConformanceCredentialSize,           // out
     BYTE**                prgbConformanceCredential              // out
+);
+extern TSS_RESULT Tcsip_MakeIdentity2
+(
+    TCS_CONTEXT_HANDLE    hContext,                              // in
+    TPM_ENCAUTH           identityAuth,                          // in
+    TPM_CHOSENID_HASH     IDLabel_PrivCAHash,                    // in
+    UINT32                idIdentityKeyInfoSize,                 // in
+    BYTE*                 idIdentityKeyInfo,                     // in
+    TPM_AUTH*             pSrkAuth,                              // in, out
+    TPM_AUTH*             pOwnerAuth,                            // in, out
+    UINT32*               idIdentityKeySize,                     // out
+    BYTE**                idIdentityKey,                         // out
+    UINT32*               pcIdentityBindingSize,                 // out
+    BYTE**                prgbIdentityBinding                    // out
 );
 extern TSS_RESULT Tcsi_LogPcrEvent
 (
