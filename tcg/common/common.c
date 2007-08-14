@@ -2025,3 +2025,159 @@ out:
 	return rv;
 }
 
+/* Testsuite_Transport_Init/Final: wrappers for executing APIs inside a logged transport session */
+TSS_RESULT
+Testsuite_Transport_Init(TSS_HCONTEXT hContext,
+			 TSS_HKEY hSRK,
+			 TSS_HTPM hTPM,
+			 TSS_BOOL useKeys,
+			 TSS_BOOL encrypt,
+			 TSS_HKEY *hWrappingKey,
+			 TSS_HKEY *hSigningKey)
+{
+	TSS_RESULT result;
+	TSS_HPOLICY hTPMPolicy, hPolicy;
+	UINT32 pubSRKLen;
+	BYTE* pubSRK;
+
+        result = Tspi_GetPolicyObject( hTPM, TSS_POLICY_USAGE, &hTPMPolicy );
+        if ( result != TSS_SUCCESS )
+        {
+                print_error( "Tspi_GetPolicyObject", result );
+		return result;
+        }
+
+        result = Tspi_Policy_SetSecret( hTPMPolicy, TESTSUITE_OWNER_SECRET_MODE,
+                                        TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
+        if ( result != TSS_SUCCESS )
+        {
+                print_error( "Tspi_Policy_SetSecret", result );
+		return result;
+        }
+
+	/* if the code executing in the transport session uses keys, we must get the SRK pub
+	 * from the TPM to avoid errors when closing the session */
+	if (useKeys) {
+		result = Tspi_TPM_OwnerGetSRKPubKey(hTPM, &pubSRKLen, &pubSRK);
+		if ( result != TSS_SUCCESS )
+		{
+			print_error( "Tspi_TPM_OwnerGetSRKPubKey", result );
+			return result;
+		}
+
+		result = Tspi_Context_FreeMemory(hContext, pubSRK);
+		if ( result != TSS_SUCCESS )
+		{
+			print_error( "Tspi_Context_FreeMemory", result );
+			return result;
+		}
+	}
+
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
+					   TSS_KEY_SIZE_512 | TSS_KEY_TYPE_LEGACY |
+					   TSS_KEY_AUTHORIZATION, hWrappingKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		return result;
+	}
+
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE,
+					   &hPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		return result;
+	}
+
+	result = Tspi_Policy_SetSecret(hPolicy, TESTSUITE_KEY_SECRET_MODE, TESTSUITE_KEY_SECRET_LEN,
+				       TESTSUITE_KEY_SECRET);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error("Tspi_Policy_SetSecret", result);
+		return result;
+	}
+
+	result = Tspi_Policy_AssignToObject(hPolicy, *hWrappingKey);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error("Tspi_Policy_AssignToObject", result);
+		return result;
+	}
+
+	result = Tspi_Key_CreateKey(*hWrappingKey, hSRK, 0);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_CreateKey", result);
+		return result;
+	}
+
+	result = Tspi_Key_LoadKey(*hWrappingKey, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_LoadKey", result);
+		return result;
+	}
+
+	// Create the key used to sign the transport session
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
+					   TSS_KEY_SIZE_512 | TSS_KEY_TYPE_SIGNING |
+					   TSS_KEY_NO_AUTHORIZATION, hSigningKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		return result;
+	}
+
+	result = Tspi_Key_CreateKey(*hSigningKey, hSRK, 0);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_CreateKey", result);
+		return result;
+	}
+
+	result = Tspi_Key_LoadKey(*hSigningKey, hSRK);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Key_LoadKey", result);
+		return result;
+	}
+
+	// Set the encryption key to use to be hWrappingKey
+	result = Tspi_Context_SetTransEncryptionKey(hContext, *hWrappingKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_SetTransEncryptionKey", result);
+		return result;
+	}
+
+	// Enable the transport session
+	result = Tspi_SetAttribUint32(hContext, TSS_TSPATTRIB_CONTEXT_TRANSPORT,
+				      TSS_TSPATTRIB_CONTEXTTRANS_CONTROL,
+				      TSS_TSPATTRIB_ENABLE_TRANSPORT);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_SetAttribUint32", result);
+		return result;
+	}
+
+	/* Turn logging on. Skipping this step would give us TPM_BAD_MODE when we try to close
+	 * the session. */
+	result = Tspi_SetAttribUint32(hContext, TSS_TSPATTRIB_CONTEXT_TRANSPORT,
+				      TSS_TSPATTRIB_CONTEXTTRANS_MODE,
+				      TSS_TSPATTRIB_TRANSPORT_AUTHENTIC_CHANNEL);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_SetAttribUint32", result);
+		return result;
+	}
+
+	if (encrypt) {
+		result = Tspi_SetAttribUint32(hContext, TSS_TSPATTRIB_CONTEXT_TRANSPORT,
+					      TSS_TSPATTRIB_CONTEXTTRANS_MODE,
+					      TSS_TSPATTRIB_TRANSPORT_DEFAULT_ENCRYPTION);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_SetAttribUint32", result);
+			return result;
+		}
+	}
+
+	return TSS_SUCCESS;
+}
+
+
+TSS_RESULT
+Testsuite_Transport_Final(TSS_HCONTEXT hContext, TSS_HKEY hSigningKey)
+{
+        return Tspi_Context_CloseSignTransport(hContext, hSigningKey, NULL);
+}
