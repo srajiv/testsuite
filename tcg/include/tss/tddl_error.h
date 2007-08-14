@@ -37,6 +37,7 @@ TPM Device Driver Library error return codes
 
 // TPM aborted processing of command.
 #define TDLL_E_COMMAND_ABORTED  (UINT32)(TSS_E_BASE + 0x085L)
+#define TDDL_E_COMMAND_ABORTED  (TDLL_E_COMMAND_ABORTED)
 
 //  The request could not be performed because of an I/O device error.
 #define TDDL_E_IOERROR    (UINT32)(TSS_E_BASE + 0x087L)
