@@ -132,7 +132,7 @@ main_v1_1(void){
 		//Pull the SRK out of the TPM (its not kept in PS)
 	result = Tspi_Key_GetPubKey(hSRK, &pubSize, &pub);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_LoadKeyByUUID", result);
+		print_error("Tspi_Key_GetPubKey", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
