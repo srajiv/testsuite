@@ -68,6 +68,7 @@ int main(int argc, char **argv)
 		print_wrongVersion();
 }
 
+int
 main_v1_2(char version)
 {
 	char		*nameOfFunction = "Tspi_TPM_ReadCounter01-trans";

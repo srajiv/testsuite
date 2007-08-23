@@ -80,14 +80,17 @@ int main(int argc, char **argv)
 	char		version;
 
 	version = parseArgs( argc, argv );
-	if (version)
-		main_v1_1();
+	if (version == TESTSUITE_TEST_TSS_1_2)
+		main_v1_2(version);
+	else if (version == TESTSUITE_TEST_TSS_1_1)
+		print_NA();
 	else
 		print_wrongVersion();
 }
 
-main_v1_1(void){
-
+int
+main_v1_2(char version)
+{
 	char		*nameOfFunction = "Tspi_Key_CertifyKey-trans01";
 	TSS_HKEY	hKey;
 	TSS_HKEY	hSRK;
