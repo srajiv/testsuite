@@ -183,6 +183,14 @@ main_v1_2( char version )
 		goto done;
 	}
 
+	// This Verify should succeed since verification count hasn't been changed
+	result = Tspi_TPM_Delegate_VerifyDelegation(hDelegation1);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error_exit( function, err_string(result) );
+		goto done;
+	}
+
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE, &hDelegation2);
 	if ( result != TSS_SUCCESS )
 	{
@@ -232,7 +240,7 @@ main_v1_2( char version )
 	}
 
 	result = Tspi_TPM_Delegate_VerifyDelegation(hDelegation1);
-	if ( result != TSS_SUCCESS )
+	if ( TSS_ERROR_CODE( result ) != TPM_E_FAMILYCOUNT )
 	{
 		print_error_exit( "Tspi_TPM_Delegate_VerifyDelegation", err_string(result) );
 		goto done;
