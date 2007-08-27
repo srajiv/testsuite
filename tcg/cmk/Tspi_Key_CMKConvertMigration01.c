@@ -198,7 +198,6 @@ main_v1_2(char version)
 	TSS_FLAG initFlags;
 	TSS_HKEY hSrcKey;
 	TSS_HKEY hDestKey;
-	TSS_HKEY hVerifyKey;
 	TSS_HKEY hMaKey[MA_KEY_COUNT];
 	TSS_HKEY hCmkKey;
 	TSS_HMIGDATA hMigData;
@@ -252,12 +251,6 @@ main_v1_2(char version)
 	tc_create_object(hContext, TSS_OBJECT_TYPE_RSAKEY, initFlags, &hDestKey);
 	tc_create_key(hContext, hDestKey, hSRK, initFlags);
 	tc_load_key(hContext, hDestKey, hSRK);
-
-	/*****  Create Signing key *****/
-	initFlags = TSS_KEY_STRUCT_KEY12 | TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048 |
-			TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION;
-	tc_create_object(hContext, TSS_OBJECT_TYPE_RSAKEY, initFlags, &hVerifyKey);
-	tc_create_key(hContext, hVerifyKey, hSRK, initFlags);
 
 	/*****  Create MAs and MSA list *****/
 	//Create MigData Object
