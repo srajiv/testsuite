@@ -200,6 +200,7 @@ main_v1_2(char version)
 	TSS_HKEY hDestKey;
 	TSS_HKEY hMaKey[MA_KEY_COUNT];
 	TSS_HKEY hCmkKey;
+	TSS_HKEY hNewKey;
 	TSS_HMIGDATA hMigData;
 	TSS_HHASH hHash;
 	UINT32 blobSize;
@@ -469,7 +470,12 @@ main_v1_2(char version)
 	}
 
 	/***** Migrate the key *****/
-	result = Tspi_Key_CMKConvertMigration(hCmkKey, hDestKey, hMigData, randomSize, random);
+	initFlags = TSS_KEY_STRUCT_KEY12 | TSS_KEY_TYPE_SIGNING | TSS_KEY_SIZE_2048 |
+			TSS_KEY_VOLATILE | TSS_KEY_AUTHORIZATION |
+			TSS_KEY_MIGRATABLE | TSS_KEY_CERTIFIED_MIGRATABLE;
+	tc_create_object(hContext, TSS_OBJECT_TYPE_RSAKEY, initFlags, &hNewKey);
+
+	result = Tspi_Key_CMKConvertMigration(hNewKey, hDestKey, hMigData, randomSize, random);
 	if (result != TSS_SUCCESS) {
 		if (!checkNonAPI(result)) {
 			print_error(nameOfFunction, result);
@@ -483,6 +489,8 @@ main_v1_2(char version)
 			exit(result);
 		}
 	}
+
+	tc_load_key(hContext, hNewKey, hDestKey);
 
 	print_success(nameOfFunction, result);
 	print_end_test(nameOfFunction);
