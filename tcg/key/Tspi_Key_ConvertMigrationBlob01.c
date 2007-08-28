@@ -230,7 +230,7 @@ main_v1_1(void)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	//Assign migration policy
+	//Assign usage policy
 	result = Tspi_Policy_AssignToObject(hUsagePolicy, hKeyToMigrate);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_AssignToObject", result);
