@@ -272,25 +272,6 @@ main_v1_1(void)
 		exit(result);
 	}
 
-	// Migrate the public key
-	result = Tspi_GetAttribData(hKeyToMigrate, TSS_TSPATTRIB_KEY_BLOB,
-				    TSS_TSPATTRIB_KEYBLOB_BLOB, &bs, &b);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_GetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
-	result = Tspi_SetAttribData(hDestChild, TSS_TSPATTRIB_KEY_BLOB,
-				    TSS_TSPATTRIB_KEYBLOB_BLOB, bs, b);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_SetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
-
 	//Create Migration Blob
 	result = Tspi_Key_CreateMigrationBlob(hKeyToMigrate, hSRK,
 					      TicketLength, MigTicket,
