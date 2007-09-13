@@ -78,7 +78,7 @@ main_v1_2( char version )
 	TSS_HKEY		hSRK;
 	TSS_HTPM		hTPM;
 	TSS_HPOLICY		hTPMPolicy;
-	TSS_HDELFAMILY		hFamily = NULL_HDELFAMILY;
+	TSS_HDELFAMILY		hFamily = NULL_HDELFAMILY, hFamily2;
 	UINT32                  familyID;
 	TSS_RESULT		result;
 
@@ -115,20 +115,23 @@ main_v1_2( char version )
 		goto done;
 	}
 
+	/* Keep Family address */
+	hFamily2 = hFamily;
+
 	result = Tspi_TPM_Delegate_GetFamily(hTPM, 0xffffffff, &hFamily);
 	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
+		Tspi_TPM_Delegate_InvalidateFamily(hTPM, hFamily2);
 		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 	else
 	{
-		print_success( function, result );
-
-		if (hFamily != NULL_HDELFAMILY)
-			Tspi_TPM_Delegate_InvalidateFamily(hTPM, hFamily);
+		Tspi_TPM_Delegate_InvalidateFamily(hTPM, hFamily2);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
+
+		print_success( function, result );
 	}
 
 	print_end_test( function );
