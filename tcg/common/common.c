@@ -322,6 +322,7 @@ err_string(TSS_RESULT r)
 			case TPM_E_NEEDS_SELFTEST:		return "TPM_E_NEEDS_SELFTEST";
 			case TPM_E_DOING_SELFTEST:		return "TPM_E_DOING_SELFTEST";
 			case TPM_E_DEFEND_LOCK_RUNNING:		return "TPM_E_DEFEND_LOCK_RUNNING";
+			case TPM_E_DISABLED_CMD:		return "TPM_E_DISABLED_CMD";
 			default:				return "UNKNOWN TPM ERROR";
 		}
 	} else if (TSS_ERROR_LAYER(r) == TSS_LAYER_TDDL) {
@@ -2152,8 +2153,8 @@ Testsuite_Transport_Init(TSS_HCONTEXT hContext,
 		return result;
 	}
 
-	/* Turn logging on. Skipping this step would give us TPM_BAD_MODE when we try to close
-	 * the session. */
+	/* Turn logging on. Skipping this step would give us TPM_BAD_MODE when we call
+	 * CloseSignTransport */
 	result = Tspi_SetAttribUint32(hContext, TSS_TSPATTRIB_CONTEXT_TRANSPORT,
 				      TSS_TSPATTRIB_CONTEXTTRANS_MODE,
 				      TSS_TSPATTRIB_TRANSPORT_AUTHENTIC_CHANNEL);
@@ -2180,4 +2181,38 @@ TSS_RESULT
 Testsuite_Transport_Final(TSS_HCONTEXT hContext, TSS_HKEY hSigningKey)
 {
         return Tspi_Context_CloseSignTransport(hContext, hSigningKey, NULL);
+}
+
+/* Checks a command's resulting TPM signature against validation data */
+TSS_RESULT
+Testsuite_Verify_Signature(TSS_HCONTEXT hContext, TSS_HKEY hIdentKey, TSS_VALIDATION *valData)
+{
+	TSS_RESULT	result;
+	TSS_HHASH	hHash;
+
+	// create hash
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_HASH, TSS_HASH_SHA1, &hHash);
+	if (result != TSS_SUCCESS) {
+		print_error("Testsuite_Verify_Signature : Tspi_Context_CreateObject (hash)",
+			    result);
+		return result;
+	}
+
+	result = Tspi_Hash_UpdateHashValue(hHash, valData->ulDataLength, valData->rgbData);
+	if (result != TSS_SUCCESS) {
+		print_error("Testsuite_Verify_Signature : Tspi_Hash_SetHashValue", result);
+		Tspi_Context_CloseObject(hContext, hHash);
+		return result;
+	}
+
+	result = Tspi_Hash_VerifySignature(hHash, hIdentKey, valData->ulValidationDataLength,
+					   valData->rgbValidationData);
+	if (result != TSS_SUCCESS) {
+		print_error("Testsuite_Verify_Signature : Tspi_Hash_Verify_Signature", result);
+		Tspi_Context_CloseObject(hContext, hHash);
+		return result;
+	}
+
+	Tspi_Context_CloseObject(hContext, hHash);
+	return result;
 }
