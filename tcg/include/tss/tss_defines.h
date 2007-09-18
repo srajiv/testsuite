@@ -557,7 +557,9 @@ Global defines for TSS.
 //    TSS_TSPATTRIB_ENCDATA_SEAL/TSS_TSPATTRIB_ENCDATASEAL_PROTECT_MODE
 //
 #define  TSS_TSPATTRIB_ENCDATASEAL_NO_PROTECT            (0x00000000)
+#define  TSS_TSPATTRIB_ENCDATA_SEAL_NO_PROTECT           TSS_TSPATTRIB_ENCDATASEAL_NO_PROTECT
 #define  TSS_TSPATTRIB_ENCDATASEAL_PROTECT               (0x00000001)
+#define  TSS_TSPATTRIB_ENCDATA_SEAL_PROTECT               TSS_TSPATTRIB_ENCDATASEAL_PROTECT
 
 
 //*************
@@ -863,6 +865,9 @@ Global defines for TSS.
                                                          // used for this key
                                                          // (TPM_KEY or 
                                                          // TPM_KEY12)
+#define TSS_TSPATTRIB_KEYCONTROL_OWNEREVICT (0x00000780) // Get current status
+							 // of owner evict flag
+
 //
 // SubFlags for Flag TSS_TSPATTRIB_RSAKEY_INFO
 //
@@ -1045,6 +1050,7 @@ Global defines for TSS.
 #define TSS_TPMSTATUS_DISABLEPUBSRKREAD      (0x00000016) // persistent flag
 #define TSS_TPMSTATUS_MAINTENANCEUSED        (0x00000017) // persistent flag
 #define TSS_TPMSTATUS_OPERATORINSTALLED      (0x00000018) // persistent flag
+#define TSS_TPMSTATUS_OPERATOR_INSTALLED     (TSS_TPMSTATUS_OPERATORINSTALLED)
 #define TSS_TPMSTATUS_FIPS                   (0x00000019) // persistent flag
 #define TSS_TPMSTATUS_ENABLEREVOKEEK         (0x0000001A) // persistent flag
 #define TSS_TPMSTATUS_ENABLE_REVOKEEK        (TSS_TPMSTATUS_ENABLEREVOKEEK)
@@ -1154,6 +1160,7 @@ Global defines for TSS.
 #define TSS_TSPCAP_PERSSTORAGE           (0x00000012)
 #define TSS_TSPCAP_MANUFACTURER          (0x00000013)
 #define TSS_TSPCAP_RETURNVALUE_INFO      (0x00000015)
+#define TSS_TSPCAP_PLATFORM_INFO         (0x00000016) // XXX Added by trousers
 
 // Sub-Capability Flags for TSS_TSPCAP_MANUFACTURER
 //
@@ -1164,6 +1171,12 @@ Global defines for TSS.
 // Sub-Capability Flags for TSS_TSPCAP_RETURNVALUE_INFO
 //
 #define TSS_TSPCAP_PROP_RETURNVALUE_INFO (0x00000201)
+
+// XXX Added by trousers
+// Sub-Capability Flags for TSS_TSPCAP_PLATFORM_INFO
+//
+#define TSS_TSPCAP_PLATFORM_TYPE         (0x00000301)
+#define TSS_TSPCAP_PLATFORM_VERSION      (0x00000302)
 
 //
 // Event type definitions
