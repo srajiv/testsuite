@@ -117,6 +117,7 @@ int TestSuite_RSA_Public_Encrypt(unsigned char *in, unsigned int inlen, unsigned
 				 unsigned int e, int padding);
 int TestSuite_TPM_RSA_Encrypt(unsigned char *in, unsigned int inlen, unsigned char *out,
 			      unsigned int *outlen, unsigned char *pubkey, unsigned int pubsize);
+TSS_RESULT Testsuite_Verify_Signature(TSS_HCONTEXT, TSS_HKEY, TSS_VALIDATION *);
 
 int main_v1_1();
 int main_v1_2(char);
