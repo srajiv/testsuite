@@ -138,14 +138,14 @@ main_v1_1( void )
 	{
 		print_success( function, result );
 		exitCode = 0;
+
+		fprintf( stderr, "\tThis TPM was manufactured by ");
+
+		for (i = 0; i < pulRespDataLength; i++)
+			fprintf( stderr, "%c", pManufacturer[i] );
+
+		fprintf( stderr, "\n");
 	}
-
-	fprintf( stderr, "\tThis TPM was manufactured by ");
-
-	for (i = 0; i < pulRespDataLength; i++)
-		fprintf( stderr, "%c", pManufacturer[i] );
-
-	fprintf( stderr, "\n");
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
