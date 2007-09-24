@@ -138,9 +138,9 @@ main_v1_1( void )
 	{
 		print_success( function, result );
 		exitCode = 0;
-	}
 
-	fprintf( stderr, "\tThere are %u key slots supported by this TPM\n", *pNumSlots );
+		fprintf( stderr, "\tThere are %u key slots supported by this TPM\n", *pNumSlots );
+	}
 
 	print_end_test( function );
 	Tspi_Context_FreeMemory( hContext, NULL );
