@@ -139,7 +139,9 @@ main_v1_1( void )
 		print_success( function, result );
 		exitCode = 0;
 
-		fprintf( stderr, "\tThere are %u key slots supported by this TPM\n", *pNumSlots );
+		if (pulRespDataLength == sizeof(UINT32))
+			fprintf(stderr, "\tThere are %u key slots supported by this TPM\n",
+				*(UINT32 *)pNumSlots );
 	}
 
 	print_end_test( function );
