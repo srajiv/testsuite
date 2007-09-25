@@ -22,10 +22,10 @@
  *	Tspi_GetAttribData09.c
  *
  * DESCRIPTION
- *	This test will verify Tspi_GetAttribData.
- *	The goal of this test is to return TSS_SUCCESS.
- *		To have it return success, you need to follow the
- *		algorithm described below.
+ *	This test verifies that calling Tspi_Context_LoadKeyByUUID to load the SRK from
+ *	persistent storage, then getting its public key returns bad parameter. Bad paramter
+ *	is returned because the SRK pubkey is not available until Tspi_TPM_GetPubKey is
+ *	called with SRK auth.
  *
  *
  * ALGORITHM
@@ -108,10 +108,8 @@ main_v1_1(void){
 		exit(result);
 	}
 		//Call GetAttribData
-	result = Tspi_GetAttribData(hSRK,
-			TSS_TSPATTRIB_KEY_BLOB,
-			TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
-			&BlobLength, &BLOB);
+	result = Tspi_GetAttribData(hSRK, TSS_TSPATTRIB_KEY_BLOB, TSS_TSPATTRIB_KEYBLOB_PUBLIC_KEY,
+				    &BlobLength, &BLOB);
 	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
