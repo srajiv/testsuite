@@ -2216,3 +2216,38 @@ Testsuite_Verify_Signature(TSS_HCONTEXT hContext, TSS_HKEY hIdentKey, TSS_VALIDA
 	Tspi_Context_CloseObject(hContext, hHash);
 	return result;
 }
+
+TSS_RESULT
+Testsuite_Is_Ordinal_Supported(TSS_HTPM hTPM, TPM_COMMAND_CODE ordinal)
+{
+	TSS_RESULT result = TSS_SUCCESS;
+	UINT32 subCap, pulRespLen;
+	BYTE *prgbRespData;
+
+	subCap = ordinal;
+	result = Tspi_TPM_GetCapability(hTPM, TSS_TPMCAP_ORD, sizeof(UINT32), (BYTE *)&subCap,
+					&pulRespLen, &prgbRespData);
+	if ( result != TSS_SUCCESS )
+	{
+		print_error_exit("Tspi_TPM_GetCapability", err_string(result) );
+		return result;
+	}
+
+	if (pulRespLen == sizeof(TPM_BOOL)) {
+		if (*(TPM_BOOL *)prgbRespData == FALSE) {
+			/* TPM doesn't support this ordinal */
+			result = TSS_E_FAIL;
+		}
+	} else if (pulRespLen == sizeof(UINT32)) {
+		if (*(TPM_BOOL *)prgbRespData == FALSE) {
+			/* TPM doesn't support this ordinal */
+			result = TSS_E_FAIL;
+		}
+	} else {
+		fprintf(stderr, "%s: unknown response size from Tspi_TPM_GetCapability: %u\n",
+			__FUNCTION__, pulRespLen);
+		result = TSS_E_FAIL;
+	}
+
+	return result;
+}
