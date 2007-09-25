@@ -87,7 +87,7 @@ main_v1_2(char version)
 	UINT32		pubSRKLen;
 	BYTE*		pubSRK;
 	TSS_HTPM	hTPM;
-	TSS_VALIDATION  *pValidationData;
+	TSS_VALIDATION  pValidationData;
 
 	print_begin_test(nameOfFunction);
 
@@ -322,9 +322,9 @@ main_v1_2(char version)
 		exit(result);
 	}
 
-	memset(pValidationData, 0, sizeof(*pValidationData));
+	memset(&pValidationData, 0, sizeof(TSS_VALIDATION));
 
-	result = Tspi_Context_CloseSignTransport(hContext, hSigningKey, pValidationData);
+	result = Tspi_Context_CloseSignTransport(hContext, hSigningKey, &pValidationData);
 	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER) {
 		if (!checkNonAPI(result)) {
 			print_error(nameOfFunction, result);
