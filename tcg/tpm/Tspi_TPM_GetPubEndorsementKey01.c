@@ -111,12 +111,6 @@ main_v1_2(char version){
 		return result;
 	}
 
-	result = Tspi_TPM_SetStatus( hTPM, TSS_TPMSTATUS_DISABLEPUBEKREAD, FALSE );
-	if ( result != TSS_SUCCESS ) {
-		print_error( "Tspi_TPM_SetStatus", result );
-		return result;
-	}
-
 		//Get Public EndorsementKey
 	result = Tspi_TPM_GetPubEndorsementKey(hTPM, TRUE, NULL, &hEndorsement);
 	if (result != TSS_SUCCESS) {
