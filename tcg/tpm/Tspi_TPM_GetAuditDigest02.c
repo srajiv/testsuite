@@ -119,7 +119,18 @@ main_v1_2( char version )
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
-	
+
+	/* Check if ordinal auditing is supported on this TPM */
+	result = Testsuite_Is_Ordinal_Supported(hTPM, TPM_ORD_SetOrdinalAuditStatus);
+	if (result != TSS_SUCCESS) {
+		fprintf(stderr, "%s: TPM doesn't support auditing, returning success\n", __FILE__);
+		print_success( function, TSS_SUCCESS );
+		print_end_test( function );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( 0 );
+	}
+
 		//Call GetAuditDigest
 	result = Tspi_TPM_GetAuditDigest(hTPM, NULL_HKEY, FALSE, &auditDigestLen, &auditDigest,
 					 &counterValue, NULL, &ordListLen, &ordList);

@@ -77,8 +77,9 @@ main_v1_2( char version )
 	TSS_HKEY	hSRK;
 	TSS_HTPM	hTPM;
 	TSS_HPOLICY	hTpmPolicy;
-	UINT32		ordinal = TPM_ORD_CreateWrapKey;
+	UINT32		ordinal = TPM_ORD_CreateWrapKey, subCap, pulRespLen;
 	TSS_RESULT	result;
+	BYTE*		prgbRespData;
 
 	print_begin_test( function );
 
@@ -117,6 +118,17 @@ main_v1_2( char version )
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
+	}
+
+	/* Check if ordinal auditing is supported on this TPM */
+	result = Testsuite_Is_Ordinal_Supported(hTPM, TPM_ORD_SetOrdinalAuditStatus);
+	if (result != TSS_SUCCESS) {
+		fprintf(stderr, "%s: TPM doesn't support auditing, returning success\n", __FILE__);
+		print_success( function, TSS_SUCCESS );
+		print_end_test( function );
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( 0 );
 	}
 
 		//Call SetAttribUint32
