@@ -185,7 +185,11 @@ extern TSS_UUID SRK_UUID;
 
 #define print_begin_test(function) printf("\n<<<test_start>>>\nTesting %s\n", function);
 #define print_end_test(function) printf("Cleaning up %s\n<<<end_test>>>\n", function);
+#if 0
 #define print_error_exit(function,errstr) printf("%s testing failed with %s\n", function, errstr);
+#else
+#define print_error_exit(function,errstr)
+#endif
 #define print_verifyerr(v,expected,result) \
 	fprintf(stderr, "Verifying " v " failed. Expected: 0x%x, got 0x%x\n", \
 		expected, result);
