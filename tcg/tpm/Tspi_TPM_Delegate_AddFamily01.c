@@ -104,14 +104,13 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_AddFamily(hTPM, 'a', &hFamily);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		goto done;
 	}
 	else
@@ -119,12 +118,13 @@ main_v1_2( char version )
 		print_success( function, result );
 	}
 
-	print_end_test( function );
 done:
 	/* Invalidate the family to avoid resource exhaustion */
 	if (hFamily != NULL_HDELFAMILY)
 		Tspi_TPM_Delegate_InvalidateFamily(hTPM, hFamily);
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( 0 );
+
+	print_end_test( function );
+	exit( result );
 }

@@ -240,9 +240,9 @@ main_v1_2( char version )
 	else
 	{
 		print_success( function, result );
+		result = 0;
 	}
 
-	print_end_test( function );
 done:
 	/* Invalidate the family to avoid resource exhaustion */
 	if (hFamily != NULL_HDELFAMILY)
@@ -250,5 +250,6 @@ done:
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
 
+	print_end_test( function );
 	exit( result );
 }

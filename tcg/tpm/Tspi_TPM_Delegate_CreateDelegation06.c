@@ -151,11 +151,13 @@ main_v1_2( char version )
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE)
 	{
 		print_error_exit( function, err_string(result) );
+		result = 1;
 		goto done;
 	}
 	else
 	{
 		print_success( function, result );
+		result = 0;
 	}
 
 done:

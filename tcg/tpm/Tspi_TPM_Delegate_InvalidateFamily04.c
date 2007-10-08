@@ -123,20 +123,23 @@ main_v1_2( char version )
 	{
 		Tspi_TPM_Delegate_InvalidateFamily(hTPM2, hFamily);
 		print_error_exit( function, err_string(result) );
+		result = 1;
 		goto done;
 	}
 	else
 	{
 		Tspi_TPM_Delegate_InvalidateFamily(hTPM2, hFamily);
 		print_success( function, result );
+		result = 0;
 	}
 
-	print_end_test( function );
 done:
 	/* Invalidate the family to avoid resource exhaustion */
 	if (hFamily != NULL_HDELFAMILY)
 		Tspi_TPM_Delegate_InvalidateFamily(hTPM, hFamily);
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
-	exit( 0 );
+
+	print_end_test( function );
+	exit( result );
 }

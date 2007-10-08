@@ -111,17 +111,18 @@ main_v1_2( char version )
 	/* Cache the owner delegation in row 0 */
 	result = Tspi_TPM_Delegate_CacheOwnerDelegation(hTPM, 0xffffffff, 0,
 			TSS_DELEGATE_CACHEOWNERDELEGATION_OVERWRITEEXISTING);
-	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE)
+	if (TSS_ERROR_CODE(result) == TSS_E_INVALID_HANDLE)
 	{
-		print_error_exit( function, err_string(result) );
+		print_success( function, result );
+		result = 0;
 		goto done;
 	}
 	else
 	{
-		print_success( function, result );
+		print_error_exit( function, err_string(result) );
+		result = 1;
 	}
 
-	print_end_test( function );
 done:
 	/* Invalidate the family to avoid resource exhaustion */
 	if (hFamily != NULL_HDELFAMILY)
@@ -129,6 +130,7 @@ done:
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
 
+	print_end_test( function );
 	exit( result );
 }
-
+ 

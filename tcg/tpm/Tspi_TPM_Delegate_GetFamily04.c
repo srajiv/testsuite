@@ -134,20 +134,14 @@ main_v1_2( char version )
 	if (TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error_exit( function, err_string(result) );
+		result = 1;
 		goto done;
 	}
 	else
-	{
-		if (hFamily != NULL_HDELFAMILY)
-			Tspi_TPM_Delegate_InvalidateFamily(hTPM, hFamily);
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		
+	{	
 		print_success( function, result );
-
+		result = 0;
 	}
-
-	print_end_test( function );
 
 done:
 	/* Invalidate the family to avoid resource exhaustion */
@@ -156,5 +150,6 @@ done:
 	Tspi_Context_FreeMemory( hContext, NULL );
 	Tspi_Context_Close( hContext );
 
+	print_end_test( function );
 	exit( result );
 }
