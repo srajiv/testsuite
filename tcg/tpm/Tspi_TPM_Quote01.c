@@ -95,7 +95,7 @@ main_v1_1(void){
 	TSS_HKEY	hSRK;
 	TSS_HKEY	hIdentKey;
 	TSS_HPCRS	hPcrComposite;
-	TSS_HPOLICY	srkUsagePolicy;
+	TSS_HPOLICY	srkUsagePolicy, hIdentKeyPolicy;
 
 	print_begin_test(nameOfFunction);
 
@@ -155,13 +155,40 @@ main_v1_1(void){
 		//Create object for the hIdentKey
 	result = Tspi_Context_CreateObject(hContext,
 			TSS_OBJECT_TYPE_RSAKEY,
-			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING, &hIdentKey);
+			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING|TSS_KEY_AUTHORIZATION, &hIdentKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+
+	result = Tspi_Context_CreateObject(hContext,
+			TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE, &hIdentKeyPolicy);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Context_CreateObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	result = Tspi_Policy_SetSecret(hIdentKeyPolicy, TESTSUITE_KEY_SECRET_MODE,
+					TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_SetSecret", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
+	result = Tspi_Policy_AssignToObject(hIdentKeyPolicy, hIdentKey);
+	if (result != TSS_SUCCESS) {
+		print_error("Tspi_Policy_AssignToObject", result);
+		print_error_exit(nameOfFunction, err_string(result));
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
 		//Create hIdentKey
 	result = Tspi_Key_CreateKey(hIdentKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
