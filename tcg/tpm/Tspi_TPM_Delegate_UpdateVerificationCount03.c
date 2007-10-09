@@ -85,7 +85,7 @@ main_v1_2( char version )
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", result );
 		goto done;
 	}
 
@@ -93,7 +93,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -102,14 +101,13 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_UpdateVerificationCount(hTPM, -1);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE)
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		result = 1;
 		goto done;
 	}

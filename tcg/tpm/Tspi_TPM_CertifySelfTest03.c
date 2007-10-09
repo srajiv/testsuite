@@ -103,7 +103,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
@@ -112,7 +111,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -125,7 +123,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject (hKey)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -135,7 +132,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -147,7 +143,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_LoadKeyByUUID (hSRK)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -160,7 +155,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -172,7 +166,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -185,7 +178,6 @@ main_v1_1( void )
 	{
 		print_error( "Tspi_Context_CreateObject (signing key)",
 				result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -195,7 +187,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Key_CreateKey (signing key)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_CloseObject(hContext, hMSigningKey);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -206,7 +197,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Key_LoadKey (signing key)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_CloseObject(hContext, hMSigningKey);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -218,7 +208,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetRandom", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_CloseObject(hContext, hMSigningKey);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -242,7 +231,6 @@ main_v1_1( void )
 		result = Testsuite_Verify_Signature(hContext, hMSigningKey, &ValidationData);
 		if (result != TSS_SUCCESS) {
 			print_error("Error on signature checking", result);
-			print_error_exit(function, err_string(result));
 		} else {
 			fprintf(stderr, "TPM Signature Verification Successful\n");
 			print_success( function, result );

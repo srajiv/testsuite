@@ -86,7 +86,7 @@ main_v1_2( char version )
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", result );
 		goto done;
 	}
 
@@ -94,7 +94,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -103,21 +102,20 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_AddFamily(hTPM, 'a', &hFamily);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_TPM_Delegate_AddFamily", err_string(result) );
+		print_error( "Tspi_TPM_Delegate_AddFamily", result );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_InvalidateFamily(hTPM, hFamily);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		goto done;
 	}
 	else

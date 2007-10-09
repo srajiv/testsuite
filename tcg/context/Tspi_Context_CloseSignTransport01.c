@@ -94,14 +94,12 @@ main_v1_2(char version)
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 
 	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -111,7 +109,6 @@ main_v1_2(char version)
         if ( result != TSS_SUCCESS )
         {
                 print_error( "Tspi_Context_LoadKeyByUUID (hSRK)", result );
-                print_error_exit( nameOfFunction, err_string(result) );
                 Tspi_Context_FreeMemory( hContext, NULL );
                 Tspi_Context_Close( hContext );
                 exit( result );
@@ -123,7 +120,6 @@ main_v1_2(char version)
         if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( nameOfFunction, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -135,7 +131,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -146,7 +141,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( nameOfFunction, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -156,7 +150,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( nameOfFunction, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -167,7 +160,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( nameOfFunction, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -179,7 +171,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_SetStatus", result );
-		print_error_exit( nameOfFunction, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -189,7 +180,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Tspi_Key_GetPubKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -199,7 +189,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Tspi_Context_FreeMemory", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -210,7 +199,6 @@ main_v1_2(char version)
 					   TSS_KEY_AUTHORIZATION, &hWrappingKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -219,7 +207,6 @@ main_v1_2(char version)
 					   TSS_POLICY_USAGE, &hPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -229,7 +216,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -239,7 +225,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -248,7 +233,6 @@ main_v1_2(char version)
 	result = Tspi_Key_CreateKey(hWrappingKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -256,7 +240,6 @@ main_v1_2(char version)
 	result = Tspi_Key_LoadKey(hWrappingKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -266,7 +249,6 @@ main_v1_2(char version)
 					   TSS_KEY_NO_AUTHORIZATION, &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -274,7 +256,6 @@ main_v1_2(char version)
 	result = Tspi_Key_CreateKey(hSigningKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -284,7 +265,6 @@ main_v1_2(char version)
 	result = Tspi_Context_SetTransEncryptionKey(hContext, hWrappingKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -295,7 +275,6 @@ main_v1_2(char version)
 				      TSS_TSPATTRIB_ENABLE_TRANSPORT);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -307,7 +286,6 @@ main_v1_2(char version)
 				      TSS_TSPATTRIB_TRANSPORT_AUTHENTIC_CHANNEL);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -316,7 +294,6 @@ main_v1_2(char version)
 	result = Tspi_Key_LoadKey(hSigningKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}

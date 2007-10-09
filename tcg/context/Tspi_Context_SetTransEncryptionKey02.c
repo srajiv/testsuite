@@ -82,7 +82,6 @@ main_v1_2(char version)
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 

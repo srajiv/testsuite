@@ -100,7 +100,6 @@ main_v1_1(void){
 	result = Tspi_Context_Create(&hWrongContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Connect Wrong Context
@@ -108,14 +107,12 @@ main_v1_1(void){
 	if(result != TSS_SUCCESS){
 		print_error("Tspi_Context_Connect ", result);
 		Tspi_Context_Close(hWrongContext);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Create Context
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hWrongContext);
 		exit(result);
 	}
@@ -125,7 +122,6 @@ main_v1_1(void){
 		print_error("Tspi_Context_Connect ", result);
 		Tspi_Context_Close(hContext);
 		Tspi_Context_Close(hWrongContext);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Create Wrong Object
@@ -135,7 +131,6 @@ main_v1_1(void){
 			&hWrongSignatureKey);
 	if(result != TSS_SUCCESS){
 		print_error("Tspi_Context_CreateObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_Close(hWrongContext);
 		exit(result);
@@ -147,7 +142,6 @@ main_v1_1(void){
 			&hSignatureKey);
 	if(result != TSS_SUCCESS){
 		print_error("Tspi_Context_CreateObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_Close(hWrongContext);
 		result = Tspi_Context_CloseObject(hWrongContext, hWrongSignatureKey);

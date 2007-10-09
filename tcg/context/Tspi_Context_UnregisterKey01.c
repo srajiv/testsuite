@@ -100,14 +100,12 @@ main_v1_1(void){
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Connect
 	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -117,7 +115,6 @@ main_v1_1(void){
 				initFlags, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -127,7 +124,6 @@ main_v1_1(void){
 						SRK_UUID, &hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKeyByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -137,7 +133,6 @@ main_v1_1(void){
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -149,7 +144,6 @@ main_v1_1(void){
 		print_error("Tspi_Policy_SetSecret ", result);
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 #endif
@@ -157,7 +151,6 @@ main_v1_1(void){
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -168,7 +161,6 @@ main_v1_1(void){
 				TSS_PS_TYPE_SYSTEM, SRK_UUID);
 	if (result != TSS_SUCCESS && TSS_ERROR_CODE(result) != TSS_E_KEY_ALREADY_REGISTERED) {
 		print_error("Tspi_Context_RegisterKey ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);

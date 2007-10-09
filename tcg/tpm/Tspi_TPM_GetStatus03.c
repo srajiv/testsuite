@@ -90,7 +90,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
@@ -99,7 +98,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -110,7 +108,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -120,7 +117,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -131,7 +127,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );

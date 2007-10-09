@@ -83,7 +83,6 @@ main_v1_2(char version)
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Connect Context
@@ -91,7 +90,6 @@ main_v1_2(char version)
 					   &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}

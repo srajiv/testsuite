@@ -2229,7 +2229,7 @@ Testsuite_Is_Ordinal_Supported(TSS_HTPM hTPM, TPM_COMMAND_CODE ordinal)
 					&pulRespLen, &prgbRespData);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit("Tspi_TPM_GetCapability", err_string(result) );
+		print_error("Tspi_TPM_GetCapability", result );
 		return result;
 	}
 

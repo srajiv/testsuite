@@ -92,7 +92,7 @@ main_v1_2( char version )
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", result );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -101,7 +101,7 @@ main_v1_2( char version )
 	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hTpmPolicy);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "Tspi_GetPolicyObject", result );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -111,7 +111,7 @@ main_v1_2( char version )
 					TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "Tspi_Policy_SetSecret", result );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -134,7 +134,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetAuditDigest", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -142,7 +141,6 @@ main_v1_2( char version )
 		result = Tspi_Context_FreeMemory(hContext, auditDigest);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(function, err_string(result));
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
@@ -150,7 +148,6 @@ main_v1_2( char version )
 		result = Tspi_Context_FreeMemory(hContext, (BYTE *)ordList);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(function, err_string(result));
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
@@ -159,7 +156,7 @@ main_v1_2( char version )
 	result = create_load_key(hContext, TSS_KEY_TYPE_SIGNING, hSRK, &hKey);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "create_load_key", result );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -171,7 +168,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetAuditDigest", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -179,7 +175,6 @@ main_v1_2( char version )
 		result = Tspi_Context_FreeMemory(hContext, auditDigest);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(function, err_string(result));
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}

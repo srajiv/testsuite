@@ -91,7 +91,7 @@ main_v1_2( char version )
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", result );
 		goto done;
 	}
 
@@ -99,7 +99,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -108,14 +107,13 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE, &hDelegation1);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_Context_CreateObject", err_string(result) );
+		print_error( "Tspi_Context_CreateObject", result );
 		goto done;
 	}
 
@@ -124,7 +122,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -132,7 +129,7 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_TYPE, TSS_DELEGATIONTYPE_OWNER);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", result );
 		goto done;
 	}
 
@@ -140,7 +137,7 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_PER1, 0);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", result );
 		goto done;
 	}
 
@@ -148,14 +145,14 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_PER2, 0);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", result );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_AddFamily(hTPM, 'a', &hFamily);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_TPM_Delegate_AddFamily", err_string(result) );
+		print_error( "Tspi_TPM_Delegate_AddFamily", result );
 		goto done;
 	}
 
@@ -163,14 +160,14 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_DELFAMILYSTATE_ENABLED, TRUE);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", result );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_CreateDelegation(hTPM, 'b', 0, NULL_HPCRS, hFamily, hDelegation1);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_TPM_Delegate_CreateDelegation", err_string(result) );
+		print_error( "Tspi_TPM_Delegate_CreateDelegation", result );
 		goto done;
 	}
 
@@ -178,14 +175,14 @@ main_v1_2( char version )
 	result = Tspi_TPM_Delegate_VerifyDelegation(hDelegation1);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		goto done;
 	}
 
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE, &hDelegation2);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_Context_CreateObject", err_string(result) );
+		print_error( "Tspi_Context_CreateObject", result );
 		goto done;
 	}
 
@@ -194,7 +191,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -202,7 +198,7 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_TYPE, TSS_DELEGATIONTYPE_OWNER);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", result );
 		goto done;
 	}
 
@@ -210,7 +206,7 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_PER1, 0);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", result );
 		goto done;
 	}
 
@@ -218,7 +214,7 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_PER2, 0);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", result );
 		goto done;
 	}
 
@@ -226,7 +222,7 @@ main_v1_2( char version )
 			NULL_HPCRS, hFamily, hDelegation2);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_TPM_Delegate_CreateDelegation", err_string(result) );
+		print_error( "Tspi_TPM_Delegate_CreateDelegation", result );
 		goto done;
 	}
 
@@ -234,7 +230,7 @@ main_v1_2( char version )
 	result = Tspi_TPM_Delegate_VerifyDelegation(hDelegation1);
 	if ( TSS_ERROR_CODE( result ) != TPM_E_FAMILYCOUNT )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		goto done;
 	}
 	else

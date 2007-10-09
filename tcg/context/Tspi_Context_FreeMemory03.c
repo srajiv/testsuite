@@ -86,7 +86,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
