@@ -93,7 +93,7 @@ main_v1_2( char version )
 	result = connect_load_srk(&hContext, &hSRK);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_srk", result );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -102,7 +102,7 @@ main_v1_2( char version )
 	result = create_key(hContext, TSS_KEY_TYPE_BIND, hSRK, &hKey);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "create_key", result );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -184,13 +184,17 @@ main_v1_2( char version )
 	if ( (ulBlobLength != ulDecBlobLength) || (memcmp(rgbBlob, rgbDecBlob, ulDecBlobLength) != 0) ) {
 		if ( ulBlobLength != ulDecBlobLength )
 		{
-			print_error_exit( function, "Original blob length does not equal decoded blob length" );
+			//Original blob length does not equal decoded blob length
+			result = TSS_E_ENC_INVALID_LENGTH;
+			print_error( function,  result );
 		}
 		else
 		{
-			print_error_exit( function, "Original blob does not equal decoded blob" );
+			//Original blob does not equal decoded blob
+			result = TSS_E_FAIL;
+			print_error( function, result );
 		}
-		result = 1;
+		
 	}
 	else
 	{

@@ -167,6 +167,8 @@ main_v1_1(void){
 #endif
 		// generate a software key to wrap
 	if ((rsa = RSA_generate_key(2048, 65537, NULL, NULL)) == NULL) {
+		result = TSS_E_FAIL;
+		print_error( "RSA_generate_key", result );
 		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
@@ -176,6 +178,7 @@ main_v1_1(void){
 		// get the pub key and a prime
 	if ((size_n = BN_bn2bin(rsa->n, n)) <= 0) {
 		fprintf(stderr, "BN_bn2bin failed\n");
+		print_error( "BN_bn2bin(n)", TSS_E_FAIL );
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -184,6 +187,7 @@ main_v1_1(void){
 
         if ((size_p = BN_bn2bin(rsa->p, p)) <= 0) {
 		fprintf(stderr, "BN_bn2bin failed\n");
+		print_error( "BN_bn2bin(p)", TSS_E_FAIL );
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);

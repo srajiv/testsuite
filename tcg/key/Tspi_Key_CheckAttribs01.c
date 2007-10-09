@@ -262,11 +262,9 @@ main_v1_2( char version)
 		if ( keyAttribute != TSS_KEYUSAGE_STORAGE){
 			fprintf( stderr, "\tError(A1): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(A1)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(A1)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -280,11 +278,9 @@ main_v1_2( char version)
 		if ( keyAttribute ){
 			fprintf( stderr, "\tError(A2): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(A2)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(A2)", result);	
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -298,11 +294,9 @@ main_v1_2( char version)
 		if ( !keyAttribute ){
 			fprintf( stderr, "\tError(A3): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(A3)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(A3)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -316,11 +310,9 @@ main_v1_2( char version)
 		if ( !keyAttribute ){
 			fprintf( stderr, "\tError(A4): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(A4)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(A4)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -334,11 +326,9 @@ main_v1_2( char version)
 		if ( keyAttribute ){
 			fprintf( stderr, "\tError(A5): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(A5)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(A5)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -352,11 +342,9 @@ main_v1_2( char version)
 		if ( keyAttribute != 2048 ){
 			fprintf( stderr, "\tError(A6): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(A6)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(A6)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -373,11 +361,9 @@ main_v1_2( char version)
 		if ( keyAttribute != TSS_KEYUSAGE_STORAGE){
 			fprintf( stderr, "\tError(B1): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(B1)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(B1)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -391,11 +377,9 @@ main_v1_2( char version)
 		if ( keyAttribute ){
 			fprintf( stderr, "\tError(B2): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(B2)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(B2)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -409,11 +393,9 @@ main_v1_2( char version)
 		if ( keyAttribute ){
 			fprintf( stderr, "\tError(B3): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(B3)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(B3)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -427,11 +409,9 @@ main_v1_2( char version)
 		if ( keyAttribute ){
 			fprintf( stderr, "\tError(B4): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(B4)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(B4)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -445,11 +425,9 @@ main_v1_2( char version)
 		if ( keyAttribute ){
 			fprintf( stderr, "\tError(B5): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(B5)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(B5)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -463,11 +441,9 @@ main_v1_2( char version)
 		if ( keyAttribute != 512 ){
 			fprintf( stderr, "\tError(B6): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(B6)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(B6)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -481,11 +457,9 @@ main_v1_2( char version)
 		if ( keyAttribute != TPM_LOC_ZERO ){
 			fprintf( stderr, "\tError(B7): Key Attribute value not expected: %u\n",
 					keyAttribute);
-			print_error_exit(nameOfFunction, "key's Attribute Error");
-		}else{
-			print_error("Tspi_GetAttribUint32(B7)", result);
-			print_error_exit(nameOfFunction, err_string(result));
+			result = TSS_E_FAIL;
 		}
+		print_error("Tspi_GetAttribUint32(B7)", result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_Close(hContext);
 		exit(result);

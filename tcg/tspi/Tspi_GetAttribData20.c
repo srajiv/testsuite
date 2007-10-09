@@ -233,9 +233,9 @@ main_v1_1( void )
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit( "Tspi_GetAttribData - "
+		print_error( "Tspi_GetAttribData - "
 						"subflag TSS_TSPATTRIB_ENCDATAPCRLONG_CREATION_SELECTION",
-						err_string(result) );
+						result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -246,7 +246,7 @@ main_v1_1( void )
 		resultFree = Tspi_Context_FreeMemory(hContext, AttribData);
 		if ( resultFree != TSS_SUCCESS )
 		{
-			print_error_exit( "Tspi_Context_FreeMemory", err_string(resultFree) );
+			print_error( "Tspi_Context_FreeMemory", resultFree );
 			print_end_test(function);
 			exit(resultFree);
 		}
@@ -261,9 +261,9 @@ main_v1_1( void )
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit( "Tspi_GetAttribData - "
+		print_error( "Tspi_GetAttribData - "
 						"subflag TSS_TSPATTRIB_ENCDATAPCRLONG_RELEASE_SELECTION",
-						err_string(result) );
+						result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -274,7 +274,7 @@ main_v1_1( void )
 		resultFree = Tspi_Context_FreeMemory(hContext, AttribData);
 		if ( resultFree != TSS_SUCCESS )
 		{
-			print_error_exit( "Tspi_Context_FreeMemory", err_string(resultFree) );
+			print_error( "Tspi_Context_FreeMemory", resultFree );
 			print_end_test(function);
 			exit(resultFree);
 		}
@@ -289,9 +289,9 @@ main_v1_1( void )
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit( "Tspi_GetAttribData - "
+		print_error( "Tspi_GetAttribData - "
 						"subflag TSS_TSPATTRIB_ENCDATAPCRLONG_DIGEST_ATCREATION",
-						err_string(result) );
+						result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -302,7 +302,7 @@ main_v1_1( void )
 		resultFree = Tspi_Context_FreeMemory(hContext, AttribData);
 		if ( resultFree != TSS_SUCCESS )
 		{
-			print_error_exit( "Tspi_Context_FreeMemory", err_string(resultFree) );
+			print_error( "Tspi_Context_FreeMemory", resultFree );
 			print_end_test(function);
 			exit(resultFree);
 		}
@@ -317,9 +317,9 @@ main_v1_1( void )
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit( "Tspi_GetAttribData - "
+		print_error( "Tspi_GetAttribData - "
 						"subflag TSS_TSPATTRIB_ENCDATAPCRLONG_DIGEST_ATRELEASE",
-						err_string(result) );
+						result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -330,7 +330,7 @@ main_v1_1( void )
 		resultFree = Tspi_Context_FreeMemory(hContext, AttribData);
 		if ( resultFree != TSS_SUCCESS )
 		{
-			print_error_exit( "Tspi_Context_FreeMemory", err_string(resultFree) );
+			print_error( "Tspi_Context_FreeMemory", resultFree );
 			print_end_test(function);
 			exit(resultFree);
 		}
@@ -347,9 +347,9 @@ main_v1_1( void )
 			&pulAttrib);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit( "Tspi_GetAttribUint32 - "
+		print_error( "Tspi_GetAttribUint32 - "
 						"subflag TSS_TSPATTRIB_ENCDATAPCRLONG_LOCALITY_ATCREATION",
-						err_string(result) );
+						result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -368,9 +368,9 @@ main_v1_1( void )
 			&pulAttrib);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit( "Tspi_GetAttribUint32 - "
+		print_error( "Tspi_GetAttribUint32 - "
 						"subflag TSS_TSPATTRIB_ENCDATAPCRLONG_LOCALITY_ATRELEASE",
-						err_string(result) );
+						result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -381,7 +381,7 @@ main_v1_1( void )
 		resultFree = Tspi_Context_FreeMemory(hContext, NULL);
 		if ( resultFree != TSS_SUCCESS )
 		{
-			print_error_exit( "Tspi_Context_FreeMemory", err_string(resultFree) );
+			print_error( "Tspi_Context_FreeMemory", resultFree );
 			print_end_test(function);
 			exit(resultFree);
 		}

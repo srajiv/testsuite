@@ -83,7 +83,7 @@ main_v1_2(char version)
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error( "connect_load_all", result );
 		exit(result);
 	}
 

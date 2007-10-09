@@ -216,8 +216,8 @@ main_v1_2( char version )
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit("Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_DIGEST_ATCREATION",
-							err_string(result));
+		print_error("Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_DIGEST_ATCREATION",
+							result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -228,7 +228,7 @@ main_v1_2( char version )
 		resultFree = Tspi_Context_FreeMemory(hContext, AttribData);
 		if ( resultFree != TSS_SUCCESS )
 		{
-			print_error_exit( "Tspi_Context_FreeMemory", err_string(resultFree) );
+			print_error( "Tspi_Context_FreeMemory", resultFree );
 			print_end_test(function);
 			exit(resultFree);
 		}
@@ -243,8 +243,8 @@ main_v1_2( char version )
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_DIGEST_ATRELEASE",
-							err_string(result) );
+		print_error( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_DIGEST_ATRELEASE",
+							result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -255,7 +255,7 @@ main_v1_2( char version )
 		resultFree = Tspi_Context_FreeMemory(hContext, AttribData);
 		if ( resultFree != TSS_SUCCESS )
 		{
-			print_error_exit( "Tspi_Context_FreeMemory", err_string(resultFree) );
+			print_error( "Tspi_Context_FreeMemory", resultFree );
 			print_end_test(function);
 			exit(resultFree);
 		}
@@ -270,8 +270,8 @@ main_v1_2( char version )
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error_exit( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_SELECTION",
-							err_string(result) );
+		print_error( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_SELECTION",
+						result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
@@ -282,7 +282,7 @@ main_v1_2( char version )
 		resultFree = Tspi_Context_FreeMemory(hContext, AttribData);
 		if ( resultFree != TSS_SUCCESS )
 		{
-			print_error_exit( "Tspi_Context_FreeMemory", err_string(resultFree) );
+			print_error( "Tspi_Context_FreeMemory", resultFree );
 			print_end_test(function);
 			exit(resultFree);
 		}
