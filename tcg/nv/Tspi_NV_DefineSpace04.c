@@ -193,7 +193,7 @@ main_v1_2(char version)
 		exit(result);
 	}
 
-      /*Define NV space*/
+	/*Define NV space*/
 	result = Tspi_NV_DefineSpace(hNVStore, 0, 0);
 #ifdef NV_LOCKED
        if (TSS_ERROR_CODE(result)== TSS_E_BAD_PARAMETER)

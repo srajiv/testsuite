@@ -145,8 +145,8 @@ main_v1_2(char version)
 
 		/* Set password */
 	result = Tspi_Policy_SetSecret(hPolicy, TESTSUITE_OWNER_SECRET_MODE,
-					TESTSUITE_WRONG_OWNER_SECRET_LEN, TESTSUITE_WRONG_OWNER_SECRET);
-
+					TESTSUITE_WRONG_OWNER_SECRET_LEN,
+					TESTSUITE_WRONG_OWNER_SECRET);
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Policy_SetSecret", result);
