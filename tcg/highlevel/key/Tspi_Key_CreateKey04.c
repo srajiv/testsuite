@@ -248,7 +248,7 @@ main(int argc, char **argv)
 	return 0;
 
 err:
-	print_error_exit(nameOfFunction, err_string(result));
+	print_error(nameOfFunction, result);
 	Tspi_Context_Close(hContext);
 	exit(result);
 }

@@ -196,7 +196,6 @@ main_v1_1( void )
 		// Create Context
 	if ((result = connect_load_srk(&hContext, &hSRK))) {
 		print_error( "connect_load_srk", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
@@ -205,7 +204,6 @@ main_v1_1( void )
 		    TSS_KEY_NO_AUTHORIZATION;
 	if ((result = create_load_key(hContext, initFlags, hSRK, &hSigningKey))) {
 		print_error( "create_load_key(Signing Key)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -218,7 +216,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetAttribData", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -228,7 +225,6 @@ main_v1_1( void )
 		    TSS_KEY_AUTHORIZATION;
 	if ((result = create_load_key(hContext, initFlags, hSRK, &hBindingKey))) {
 		print_error( "create_load_key(Binding Key)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -241,7 +237,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetAttribData", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -249,7 +244,6 @@ main_v1_1( void )
 	// verify attribs before we close the context
 	if ((result = verify_sign_attribs(hSigningKey))) {
 		print_error( "verify_sign_attribs", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -257,7 +251,6 @@ main_v1_1( void )
 	// verify attribs before we close the context
 	if ((result = verify_bind_attribs(hBindingKey))) {
 		print_error( "verify_bind_attribs", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -265,14 +258,12 @@ main_v1_1( void )
 		// close context, to get rid of all context state
 	if ((result = Tspi_Context_Close(hContext))) {
 		print_error( "Tspi_Context_Close", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
 		// re-connect
 	if ((result = connect_load_srk(&hContext, &hSRK))) {
 		print_error( "connect_load_srk", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -283,7 +274,6 @@ main_v1_1( void )
 						signBlob,
 						&hSigningKey ))) {
 		print_error( "Tspi_Context_LoadKeyByBlob", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -292,7 +282,6 @@ main_v1_1( void )
 						bindBlob,
 						&hBindingKey ))) {
 		print_error( "Tspi_Context_LoadKeyByBlob", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -300,7 +289,6 @@ main_v1_1( void )
 	// verify attribs after we've re-loaded by blob
 	if ((result = verify_sign_attribs(hSigningKey))) {
 		print_error( "verify_sign_attribs", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -308,7 +296,6 @@ main_v1_1( void )
 	// verify attribs after we've re-loaded by blob
 	if ((result = verify_bind_attribs(hBindingKey))) {
 		print_error( "verify_bind_attribs", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -316,7 +303,7 @@ main_v1_1( void )
 
 	// Do a sign/verify test
 	if ((result = sign_and_verify(hContext, hSigningKey))) {
-		print_error_exit( function, err_string(result) );
+		print_error( "sign_and_verify", result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -326,20 +313,20 @@ main_v1_1( void )
 	result = bind_and_unbind(hContext, hBindingKey);
 	if (TSS_ERROR_CODE(result) != TSS_E_POLICY_NO_SECRET) {
 		print_verifyerr("bind and unbind", TSS_E_POLICY_NO_SECRET, result);
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
 
 	// set up policies
 	if ((result = set_secret(hContext, hBindingKey, &hPolicy))) {
-		print_error_exit(function, err_string(result));
+		print_error("set_secret", result);
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
 
 	if ((result = bind_and_unbind(hContext, hBindingKey))) {
-		print_error_exit( function, err_string(result) );
+		print_error( "bind_and_unbind", result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}

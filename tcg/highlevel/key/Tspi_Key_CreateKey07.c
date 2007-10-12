@@ -91,14 +91,12 @@ main_v1_1(void)
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 	//Connect Context
 	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -108,7 +106,6 @@ main_v1_1(void)
 					    &hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKeyByUUID", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -118,7 +115,6 @@ main_v1_1(void)
 	    Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -130,7 +126,6 @@ main_v1_1(void)
 				  TESTSUITE_SRK_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -141,7 +136,6 @@ main_v1_1(void)
 					   initFlags, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -159,7 +153,6 @@ main_v1_1(void)
 				    &blob_size, &blob);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -169,7 +162,6 @@ main_v1_1(void)
 				    &pubblob_size, &pubblob);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -179,7 +171,6 @@ main_v1_1(void)
 				    &privblob_size, &privblob);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -191,7 +182,6 @@ main_v1_1(void)
 				    pubblob_size, pubblob);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -203,7 +193,6 @@ main_v1_1(void)
 				    privblob_size, privblob);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -215,7 +204,6 @@ main_v1_1(void)
 				    blob_size, blob);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -227,7 +215,6 @@ main_v1_1(void)
 				    blob_size, blob);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribData", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -238,7 +225,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_USAGE, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -250,7 +236,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_MIGRATABLE, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -261,7 +246,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_REDIRECTED, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -272,7 +256,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_VOLATILE, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -283,7 +266,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_AUTHDATAUSAGE, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -294,7 +276,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_ALGORITHM, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -306,7 +287,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_ENCSCHEME, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -318,7 +298,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_SIGSCHEME, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -329,7 +308,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_SIZE, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -340,7 +318,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_KEYFLAGS, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -352,7 +329,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_AUTHUSAGE, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else
@@ -363,7 +339,6 @@ main_v1_1(void)
 				    TSS_TSPATTRIB_KEYINFO_RSA_PRIMES, trash);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_OBJ_ACCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	} else

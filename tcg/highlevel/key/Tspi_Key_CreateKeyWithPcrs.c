@@ -98,7 +98,6 @@ main_v1_1(void){
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("connect_load_all", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 
@@ -107,7 +106,6 @@ main_v1_1(void){
 				initFlags, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -115,7 +113,6 @@ main_v1_1(void){
 	result = Tspi_GetPolicyObject(hKey, TSS_POLICY_USAGE, &keyUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -125,7 +122,6 @@ main_v1_1(void){
 				TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -136,7 +132,6 @@ main_v1_1(void){
 					   0, &hPcrs);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -144,7 +139,6 @@ main_v1_1(void){
 	result = Tspi_TPM_PcrRead(hTPM, 1, &pcrLen, &pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_PcrRead", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -152,7 +146,6 @@ main_v1_1(void){
 	result = Tspi_PcrComposite_SetPcrValue(hPcrs, 1, pcrLen, pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -162,7 +155,6 @@ main_v1_1(void){
 	result = Tspi_TPM_PcrRead(hTPM, 15, &pcrLen, &pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_PcrRead", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -170,7 +162,6 @@ main_v1_1(void){
 	result = Tspi_PcrComposite_SetPcrValue(hPcrs, 15, pcrLen, pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -180,7 +171,6 @@ main_v1_1(void){
 	result = Tspi_Key_CreateKey(hKey, hSRK, hPcrs);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -189,7 +179,6 @@ main_v1_1(void){
 	result = Tspi_Key_LoadKey(hKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -198,7 +187,6 @@ main_v1_1(void){
 	result = bind_and_unbind(hContext, hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("bind_and_unbind ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -208,7 +196,6 @@ main_v1_1(void){
 				    &pcrLen, &pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_PcrExtend ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}

@@ -88,7 +88,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
@@ -104,7 +103,6 @@ main_v1_1( void )
 	else
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -114,7 +112,6 @@ main_v1_1( void )
 	if (result != TSS_SUCCESS)
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -132,7 +129,6 @@ main_v1_1( void )
 	else
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -142,7 +138,6 @@ main_v1_1( void )
 	if (result != TSS_SUCCESS)
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -162,7 +157,6 @@ main_v1_1( void )
 		if (result == TSS_SUCCESS)
 			Tspi_Context_CloseObject(hContext, hObject);
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -182,7 +176,6 @@ main_v1_1( void )
 		if (result == TSS_SUCCESS)
 			Tspi_Context_CloseObject(hContext, hObject);
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -202,7 +195,6 @@ main_v1_1( void )
 		if (result == TSS_SUCCESS)
 			Tspi_Context_CloseObject(hContext, hObject);
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );

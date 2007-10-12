@@ -96,7 +96,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
@@ -105,7 +104,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -116,7 +114,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -126,7 +123,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -137,7 +133,6 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLSECRET_LIFETIME_COUNTER, COUNTER );
 	if (result != TSS_SUCCESS){
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -148,7 +143,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -161,10 +155,9 @@ main_v1_2( char version )
 		if ( remainingUsages ){
 			fprintf( stderr, "\tError: Policy Usage is set as always: (%u)\n",
 					remainingUsages );
-			print_error_exit( function, "policy lifetime error" );
+			print_error( function, result );
 		}else{
 			print_error( "Tspi_GetAttribUint32", result );
-			print_error_exit( function, err_string(result) );
 		}
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -177,7 +170,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetStatus(1)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -190,10 +182,9 @@ main_v1_2( char version )
 		if ( remainingUsages != COUNTER-1 ){
 			fprintf( stderr, "\tError: Invalid policy counter after usage: (%u)\n",
 					remainingUsages );
-			print_error_exit( function, "policy lifetime error" );
+			print_error( function, result );
 		}else{
 			print_error( "Tspi_GetAttribUint32", result );
-			print_error_exit( function, err_string(result) );
 		}
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -205,7 +196,6 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLSECRET_LIFETIME_ALWAYS, 0);
 	if (result != TSS_SUCCESS){
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -217,10 +207,9 @@ main_v1_2( char version )
 		if ( !remainingUsages ){
 			fprintf( stderr, "\tError: Policy Usage is not set as always: (%u)\n",
 					remainingUsages );
-			print_error_exit( function, "policy lifetime error" );
+			print_error( function, result );
 		}else{
 			print_error( "Tspi_GetAttribUint32", result );
-			print_error_exit( function, err_string(result) );
 		}
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -233,7 +222,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetStatus(2)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -245,7 +233,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetStatus(3)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -257,7 +244,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetStatus(4)", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -270,10 +256,9 @@ main_v1_2( char version )
 		if ( !remainingUsages ){
 			fprintf( stderr, "\tError: Policy Usage is not set as always: (%u)\n",
 					remainingUsages );
-			print_error_exit( function, "policy lifetime error" );
+			print_error( function, result );
 		}else{
 			print_error( "Tspi_GetAttribUint32", result );
-			print_error_exit( function, err_string(result) );
 		}
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );

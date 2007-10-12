@@ -105,7 +105,6 @@ main_v1_2(char version){
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 
@@ -114,7 +113,6 @@ main_v1_2(char version){
 		result = set_srk_readable(hContext);
 		if (result != TSS_SUCCESS) {
 			print_error("set_srk_readable", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			exit(result);
 		}
 	}
@@ -123,7 +121,6 @@ main_v1_2(char version){
 	result = Tspi_Key_GetPubKey(hSRK, &srkPubLen, &srkPub);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_GetPubKey ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 	Tspi_Context_FreeMemory(hContext, srkPub);
@@ -132,7 +129,6 @@ main_v1_2(char version){
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY, initFlags, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -142,7 +138,6 @@ main_v1_2(char version){
 					   &hPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -152,7 +147,6 @@ main_v1_2(char version){
 				       TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -161,7 +155,6 @@ main_v1_2(char version){
 	result = Tspi_Policy_AssignToObject(hPolicy, hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -170,14 +163,13 @@ main_v1_2(char version){
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_PCRS, 0, &hPcrs);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 
 		// generate a software key to wrap
 	if ((rsa = RSA_generate_key(2048, 65537, NULL, NULL)) == NULL) {
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(-1);
@@ -203,7 +195,6 @@ main_v1_2(char version){
 	result = set_public_modulus(hContext, hKey, size_n, n);
 	if (result != TSS_SUCCESS) {
 		print_error("set_public_modulus", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -215,7 +206,6 @@ main_v1_2(char version){
 			TSS_TSPATTRIB_KEYBLOB_PRIVATE_KEY, size_p, p);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribData ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -225,7 +215,6 @@ main_v1_2(char version){
 	result = Tspi_TPM_PcrRead(hTPM, 1, &pcrLen, &pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_PcrRead", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -233,7 +222,6 @@ main_v1_2(char version){
 	result = Tspi_PcrComposite_SetPcrValue(hPcrs, 1, pcrLen, pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -243,7 +231,6 @@ main_v1_2(char version){
 	result = Tspi_TPM_PcrRead(hTPM, 15, &pcrLen, &pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_PcrRead", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -251,7 +238,6 @@ main_v1_2(char version){
 	result = Tspi_PcrComposite_SetPcrValue(hPcrs, 15, pcrLen, pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -261,7 +247,6 @@ main_v1_2(char version){
 	result = Tspi_Key_WrapKey(hKey, hSRK, hPcrs);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_WrapKey ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -272,7 +257,6 @@ main_v1_2(char version){
 	result = Tspi_Key_LoadKey(hKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -283,7 +267,6 @@ main_v1_2(char version){
 	result = bind_and_unbind(hContext, hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("bind_and_unbind 1", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
@@ -295,7 +278,6 @@ main_v1_2(char version){
 				    &pcrLen, &pcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_PcrExtend ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);

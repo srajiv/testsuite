@@ -131,13 +131,11 @@ create_child_keys(TSS_HKEY hParentKey, struct node *parentNode)
 						   &parentNode->children[i]->handle);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_CreateObject ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 		result = Tspi_Key_CreateKey(parentNode->children[i]->handle, hParentKey, 0);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Key_CreateKey", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 	}
@@ -182,7 +180,6 @@ register_node(struct node *n, UINT32 ps_type)
 		if ((result = Tspi_Context_RegisterKey(hContext, n->handle, ps_type, n->uuid,
 						       parent_ps, *parent_uuid))) {
 			print_error("Tspi_Context_RegisterKey ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 
@@ -276,14 +273,12 @@ main_v1_2(char version){
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Connect
 	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -291,7 +286,6 @@ main_v1_2(char version){
 	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetTpmObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -300,7 +294,6 @@ main_v1_2(char version){
 						SRK_UUID, &hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKeyByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -309,7 +302,6 @@ main_v1_2(char version){
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -318,7 +310,6 @@ main_v1_2(char version){
 			TESTSUITE_SRK_SECRET_LEN, TESTSUITE_SRK_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -341,14 +332,12 @@ main_v1_2(char version){
 					   storeInitFlags, &storage[1].handle);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 	result = Tspi_Key_CreateKey(storage[1].handle, storage[0].handle, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -356,7 +345,6 @@ main_v1_2(char version){
 	result = Tspi_Key_LoadKey(storage[1].handle, storage[0].handle);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -368,14 +356,12 @@ main_v1_2(char version){
 					   storeInitFlags, &storage[2].handle);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 	result = Tspi_Key_CreateKey(storage[2].handle, storage[1].handle, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -383,7 +369,6 @@ main_v1_2(char version){
 	result = Tspi_Key_LoadKey(storage[2].handle, storage[1].handle);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -409,7 +394,6 @@ main_v1_2(char version){
 						      &ppKeyHierarchy);
 	if (TSS_ERROR_CODE(result) != TSS_E_PS_KEY_NOTFOUND) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -425,13 +409,12 @@ main_v1_2(char version){
 						      &pulKeyHierarchySize, &ppKeyHierarchy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		goto done;
 	}
 
 	if (pulKeyHierarchySize != 1) {
 		print_verifyerr("key hierarchy size", 1, pulKeyHierarchySize);
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		goto done;
 	}
 
@@ -439,7 +422,7 @@ main_v1_2(char version){
 	    memcmp(&ppKeyHierarchy->parentKeyUUID, &NULL_UUID, sizeof(TSS_UUID))) {
 		print_verifystr("key hierarchy UUIDs", "NULL_UUID->SRK_UUID",
 				"something else");
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		goto done;
 	}
 
@@ -450,22 +433,19 @@ main_v1_2(char version){
 						      &pulKeyHierarchySize, &ppKeyHierarchy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		goto done;
 	}
 
 	if (verify_hierarchy2(storage[0].children[0], ppKeyHierarchy, pulKeyHierarchySize)) {
 		print_verifystr("key hierarchy", "valid hierarchy", "bad hierarchy");
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 		}
 		goto done;
 	}
 	if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 		print_error("Tspi_Context_FreeMemory ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 	}
 
 	/*********  TEST 4 ****************/
@@ -475,22 +455,19 @@ main_v1_2(char version){
 						      &pulKeyHierarchySize, &ppKeyHierarchy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		goto done;
 	}
 
 	if (verify_hierarchy2(storage[1].children[0], ppKeyHierarchy, pulKeyHierarchySize)) {
 		print_verifystr("key hierarchy", "valid hierarchy", "bad hierarchy");
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 		}
 		goto done;
 	}
 	if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 		print_error("Tspi_Context_FreeMemory ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 	}
 
 	/*********  TEST 5 ****************/
@@ -500,22 +477,19 @@ main_v1_2(char version){
 						      &pulKeyHierarchySize, &ppKeyHierarchy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		goto done;
 	}
 
 	if (verify_hierarchy2(storage[2].children[0], ppKeyHierarchy, pulKeyHierarchySize)) {
 		print_verifystr("key hierarchy", "valid hierarchy", "bad hierarchy");
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 		}
 		goto done;
 	}
 	if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 		print_error("Tspi_Context_FreeMemory ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 	}
 
 
@@ -534,7 +508,6 @@ main_v1_2(char version){
 						      &pulKeyHierarchySize, &ppKeyHierarchy);
 	if (TSS_ERROR_CODE(result) != TSS_E_PS_KEY_NOTFOUND) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -549,23 +522,20 @@ main_v1_2(char version){
 						      &pulKeyHierarchySize, &ppKeyHierarchy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		goto done;
 	}
 
 	if (verify_hierarchy2(storage[0].children[0], ppKeyHierarchy, pulKeyHierarchySize)) {
 		print_verifystr("key hierarchy", "valid hierarchy", "bad hierarchy");
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 		}
 		goto done;
 	}
 
 	if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 		print_error("Tspi_Context_FreeMemory ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 	}
 
 	/*********  TEST 3 ****************/
@@ -575,23 +545,20 @@ main_v1_2(char version){
 						      &pulKeyHierarchySize, &ppKeyHierarchy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		goto done;
 	}
 
 	if (verify_hierarchy2(storage[1].children[0], ppKeyHierarchy, pulKeyHierarchySize)) {
 		print_verifystr("key hierarchy", "valid hierarchy", "bad hierarchy");
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 		}
 		goto done;
 	}
 
 	if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 		print_error("Tspi_Context_FreeMemory ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 	}
 
 	/*********  TEST 4 ****************/
@@ -601,23 +568,20 @@ main_v1_2(char version){
 						      &pulKeyHierarchySize, &ppKeyHierarchy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetRegisteredKeysByUUID ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		goto done;
 	}
 
 	if (verify_hierarchy2(storage[2].children[0], ppKeyHierarchy, pulKeyHierarchySize)) {
 		print_verifystr("key hierarchy", "valid hierarchy", "bad hierarchy");
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error(nameOfFunction, result);
 		if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 		}
 		goto done;
 	}
 
 	if ((result = Tspi_Context_FreeMemory(hContext, (BYTE *)ppKeyHierarchy))) {
 		print_error("Tspi_Context_FreeMemory ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 	}
 
 	print_success( nameOfFunction, result );

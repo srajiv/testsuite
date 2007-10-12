@@ -116,7 +116,6 @@ main_v1_1(void){
 			&hEncData);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -132,7 +131,6 @@ main_v1_1(void){
 			&hPcrs);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -149,7 +147,6 @@ main_v1_1(void){
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_GetCapability", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -162,7 +159,6 @@ main_v1_1(void){
 		if ( result != TSS_SUCCESS )
 		{
 			print_error( "Tspi_TPM_PcrRead", result );
-			print_error_exit( function, err_string(result) );
 			Tspi_Context_FreeMemory( hContext, NULL );
 			Tspi_Context_Close( hContext );
 			exit( result );
@@ -173,7 +169,6 @@ main_v1_1(void){
 		if ( result != TSS_SUCCESS )
 		{
 			print_error( "Tspi_PcrComposite_SetPcrValue", result );
-			print_error_exit( function, err_string(result) );
 			Tspi_Context_FreeMemory( hContext, NULL );
 			Tspi_Context_Close( hContext );
 			exit( result );

@@ -81,7 +81,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
@@ -95,7 +94,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Test 1: TSP object's default policy should exist", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -118,7 +117,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -127,14 +125,13 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
 
 	if (hKeyUsagePolicy != hDefaultPolicy) {
 		print_error( "Test 2: default policy should match new policies", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -150,7 +147,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_KEY_NO_MIGRATION_POLICY )
 	{
 		print_error( "Test 3: Key's migration policy shouldn't exist by default", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -170,7 +167,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -179,14 +175,13 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
 
 	if (hEncdataUsagePolicy != hDefaultPolicy) {
 		print_error( "Test 4: default policy should match new policies", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -204,7 +199,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -213,7 +207,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_GetTpmObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -222,14 +215,13 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
 
 	if (hTPMPolicy == hDefaultPolicy) {
 		print_error( "Test 5: default policy should not match the TPM policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -249,14 +241,13 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
 
 	if (hNewPolicy == hTPMPolicy || hNewPolicy == hDefaultPolicy) {
 		print_error( "Test 6: new policy should not match any other policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -273,7 +264,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_AssignToObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -282,7 +272,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS || hKeyMigPolicy != hNewPolicy)
 	{
 		print_error( "Test 7: Key's migration policy should match new policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -298,7 +288,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 8: TPM should have no migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -314,7 +304,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 9: Encdata should have no migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -333,7 +323,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -342,7 +332,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 10: Hash should have no migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -358,7 +348,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 11: Hash should have no usage policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -377,7 +367,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -386,7 +375,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 12: Pcrs should have no migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -402,7 +391,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 13: Pcrs should have no usage policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -418,7 +407,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 14: Policies should have no migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -434,7 +423,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 15: Policies should have no usage policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -450,7 +439,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 16: Contexts should have no migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -467,7 +456,7 @@ main_v1_1( void )
 	{
 		print_error( "Test 17: Context's policies should not be accessible by "
 			     "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -485,7 +474,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		print_error( "Test 18: TPM should not be assigned a migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -501,7 +490,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		print_error( "Test 19: Encdata should not be assigned a migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -517,7 +506,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		print_error( "Test 20: Hash should not be assigned a migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -533,7 +522,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER)
 	{
 		print_error( "Test 21: Hash should not be assigned a usage policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -549,7 +538,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		print_error( "Test 22: Pcrs should not be assigned a migration policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -565,7 +554,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		print_error( "Test 23: Pcrs should not be assigned a usage policy", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -582,7 +571,7 @@ main_v1_1( void )
 	{
 		print_error( "Test 24: Policies should not be assigned migration policies",
 			     result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -598,7 +587,7 @@ main_v1_1( void )
 	if ( TSS_ERROR_CODE(result) != TSS_E_BAD_PARAMETER )
 	{
 		print_error( "Test 25: Policies should not be assigned usage policies", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -615,7 +604,7 @@ main_v1_1( void )
 	{
 		print_error( "Test 26: Contexts should not be assigned migration policies",
 			     result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else
@@ -631,7 +620,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CloseObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -641,7 +629,7 @@ main_v1_1( void )
 	{
 		print_error( "Test 27: Accessing a closed policy should trigger"
 			     " TSS_E_INTERNAL_ERROR", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	} else

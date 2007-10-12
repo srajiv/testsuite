@@ -106,14 +106,12 @@ main_v1_1(void)
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 	//Connect Context
 	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -121,7 +119,6 @@ main_v1_1(void)
 	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetTpmObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -131,7 +128,6 @@ main_v1_1(void)
 					    SRK_UUID, &hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKeyByUUID for hSRK", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -140,7 +136,6 @@ main_v1_1(void)
 	result = Tspi_GetPolicyObject(hSRK, TSS_POLICY_USAGE, &hPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -150,7 +145,6 @@ main_v1_1(void)
 				       TESTSUITE_SRK_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -160,7 +154,6 @@ main_v1_1(void)
 	    Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &tpmUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -172,7 +165,6 @@ main_v1_1(void)
 				  TESTSUITE_OWNER_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -185,7 +177,6 @@ main_v1_1(void)
 				      &hDestParent);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -193,7 +184,6 @@ main_v1_1(void)
 	result = Tspi_Key_CreateKey(hDestParent, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -206,7 +196,6 @@ main_v1_1(void)
 				      TSS_KEY_MIGRATABLE, &hKeyToMigrate);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -214,7 +203,6 @@ main_v1_1(void)
 					TSS_POLICY_MIGRATION, &hPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -224,7 +212,6 @@ main_v1_1(void)
 				       TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -232,7 +219,6 @@ main_v1_1(void)
 	result = Tspi_Policy_AssignToObject(hPolicy, hKeyToMigrate);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -240,7 +226,6 @@ main_v1_1(void)
 	result = Tspi_Key_CreateKey(hKeyToMigrate, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hKeyToMigrate);
 		exit(result);
@@ -252,7 +237,6 @@ main_v1_1(void)
 					      &TicketLength, &MigTicket);
 	if (result != TSS_SUCCESS) {
 		print_error("Tpsi_TPM_AuthorizeMigrationTicket ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -267,7 +251,6 @@ main_v1_1(void)
 				      &hDestChild);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -279,14 +262,12 @@ main_v1_1(void)
 					      &migBlobLength, &migBlob);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateMigrationBlob", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 	result = Tspi_Key_LoadKey(hDestParent, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -296,7 +277,6 @@ main_v1_1(void)
 					       migBlobLength, migBlob);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_ConvertMigrationBlob", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -305,7 +285,6 @@ main_v1_1(void)
 	result = Tspi_Key_LoadKey(hDestChild, hDestParent);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}

@@ -88,7 +88,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "connect_load_srk", result );
-		print_error_exit( function, err_string(result) );
 		exit( result );
 	}
 
@@ -99,7 +98,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -111,7 +109,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -122,7 +119,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -133,7 +129,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -142,7 +137,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "set_secret", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -151,7 +145,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "set_secret", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -161,7 +154,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Key_CreateKey", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -170,7 +162,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Key_LoadKey", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -180,7 +171,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Key_CreateKey", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -189,7 +179,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Key_LoadKey", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -199,7 +188,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -210,7 +198,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_TPM_PcrRead", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -220,7 +207,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_PcrComposite_SetPcrValue", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -244,7 +230,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Test 1", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -255,7 +241,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Test 2", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -266,7 +252,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Test 3", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -277,7 +263,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Test 4", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -288,7 +274,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Test 5", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -299,7 +285,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Test 6", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -310,7 +296,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Test 7", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}
@@ -321,7 +307,7 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Test 8", result );
-		print_error_exit( function, err_string(result) );
+		print_error( function, result );
 		Tspi_Context_Close( hContext );
 		exit( result );
 	}

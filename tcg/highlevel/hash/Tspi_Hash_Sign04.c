@@ -95,14 +95,12 @@ int main_v1_1(void)
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create", result);
-		print_error_exit(function, err_string(result));
 		exit(result);
 	}
 	// Connect to Context
 	result = Tspi_Context_Connect(hContext, get_server(GLOBALSERVER));
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -112,7 +110,6 @@ int main_v1_1(void)
 					    SRK_UUID, &hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKeyByUUID (hSRK)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -123,7 +120,6 @@ int main_v1_1(void)
 				      &srkUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -136,7 +132,6 @@ int main_v1_1(void)
 				  TESTSUITE_SRK_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -151,7 +146,6 @@ int main_v1_1(void)
 				      &hMSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (signing key)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -162,7 +156,6 @@ int main_v1_1(void)
 					TSS_SS_RSASSAPKCS1V15_DER);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -172,7 +165,6 @@ int main_v1_1(void)
 	result = Tspi_Key_CreateKey(hMSigningKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey (signing key)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -181,7 +173,6 @@ int main_v1_1(void)
 	result = Tspi_Key_LoadKey(hMSigningKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKey (hMSigningKey)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -191,7 +182,6 @@ int main_v1_1(void)
 					   TSS_HASH_OTHER, &hHash);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (hash)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -200,7 +190,6 @@ int main_v1_1(void)
 	result = Tspi_Hash_SetHashValue(hHash, 16, "Je pense, danc e");
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Hash_SetHashValue", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);

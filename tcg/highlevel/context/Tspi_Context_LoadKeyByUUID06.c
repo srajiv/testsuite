@@ -88,7 +88,6 @@ store_keys(TSS_HCONTEXT hContext, TSS_HKEY hParentKey, TSS_UUID *uuidParent0,
 							 *uuids[i], &hKey)) &&
 		    (TSS_ERROR_CODE(result) != TSS_E_PS_KEY_NOTFOUND)) {
 			print_error("Tspi_Context_UnregisterKey", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 	}
@@ -102,20 +101,17 @@ store_keys(TSS_HCONTEXT hContext, TSS_HKEY hParentKey, TSS_UUID *uuidParent0,
 							TSS_OBJECT_TYPE_RSAKEY,
 							initFlags, &hKey))) {
 			print_error("Tspi_Context_CreateObject", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 
 		if ((result = Tspi_Key_CreateKey(hKey, hParentKey, 0))) {
 			print_error("Tspi_Key_CreateKey", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 
 		/* load key so that the child can be created */
 		if ((result = Tspi_Key_LoadKey(hKey, hParentKey))) {
 			print_error("Tspi_Key_LoadKey", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 
@@ -126,7 +122,6 @@ store_keys(TSS_HCONTEXT hContext, TSS_HKEY hParentKey, TSS_UUID *uuidParent0,
 						       TSS_PS_TYPE_SYSTEM,
 						       *uuidParent))) {
 			print_error("Tspi_Context_RegisterKey", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			return result;
 		}
 		hParentKey = hKey;
@@ -155,7 +150,6 @@ main_v1_1(void){
 	result = connect_load_srk(&hContext, &hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 
