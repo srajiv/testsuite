@@ -165,26 +165,15 @@ main_v1_2(char version)
 		exit( result );
 	}
 
-#if 1
-#warning Change these calls to Tspi_TPM_GetSRKPub when it exists
-	result = Tspi_TPM_SetStatus( hTPM, TSS_TPMSTATUS_DISABLEPUBSRKREAD, FALSE );
+	result = Tspi_TPM_OwnerGetSRKPubKey(hSRK, &pubSRKLen, &pubSRK);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error( "Tspi_TPM_SetStatus", result );
-		Tspi_Context_FreeMemory( hContext, NULL );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
-
-	result = Tspi_Key_GetPubKey(hSRK, &pubSRKLen, &pubSRK);
-	if ( result != TSS_SUCCESS )
-	{
-		print_error("Tspi_Key_GetPubKey", result);
+		print_error("Tspi_TPM_OwnerGetSRKPubKey", result);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-#endif
+
 	result = Tspi_Context_FreeMemory(hContext, pubSRK);
 	if ( result != TSS_SUCCESS )
 	{
