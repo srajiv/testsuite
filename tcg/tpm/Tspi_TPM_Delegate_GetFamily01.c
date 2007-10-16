@@ -153,7 +153,7 @@ main_v1_2( char version )
 	{
 		if (familyID != returnedID)
 		{
-			print_error( "Tspi_GetAttribUint32", "Family IDs do not match" );
+			print_error("Tspi_GetAttribUint32: Family IDs do not match", TSS_E_FAIL );
 			result = 1;
 			goto done;
 		}
