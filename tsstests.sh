@@ -125,7 +125,7 @@ do
 	esac
 done
 
-echo "DEBUG DOLLARSTAR: $*"
+#echo "DEBUG DOLLARSTAR: $*"
 
 # Verify the output format
 case "$OUTPUT_FORMAT" in
