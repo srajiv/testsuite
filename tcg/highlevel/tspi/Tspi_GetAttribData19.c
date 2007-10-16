@@ -128,12 +128,14 @@ main_v1_1(void){
 		//Check length and data
 	if (uuidLength != sizeof(TSS_UUID)) {
 		print_verifyerr("uuid length from Tspi_GetAttribData", 0, 1);
+		print_error("uuid length from Tspi_GetAttribData", TSS_E_FAIL);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 	if ((rc = memcmp(uuid, &null_uuid, uuidLength))) {
 		print_verifyerr("a null uuid from Tspi_GetAttribData", 0, rc);
 		print_hex(uuid, sizeof(TSS_UUID));
+		print_error("uuid NULL from Tspi_GetAttribData", TSS_E_FAIL);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -198,12 +200,14 @@ register_key:
 		//Check length and data
 	if (uuidLength != sizeof(TSS_UUID)) {
 		print_verifyerr("uuid length from Tspi_GetAttribData", 0, 1);
+		print_error("uuid length from Tspi_GetAttribData", TSS_E_FAIL);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 	if ((rc = memcmp(uuid, &key_uuid, uuidLength))) {
 		print_verifyerr("key's uuid from Tspi_GetAttribData", 0, rc);
 		print_hex((BYTE *)&key_uuid, sizeof(TSS_UUID));
+		print_error("key's uuid from Tspi_GetAttribData", TSS_E_FAIL);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}

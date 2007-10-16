@@ -382,7 +382,7 @@ done:
 		Tspi_Context_UnregisterKey(hContext, PS_TO_TEST, uuids[i], &hSRK);
 
 	if (result) {
-		print_error_exit( function, err_string(result) );
+		print_error( "Tspi_Context_UnregisterKey", result );
 	} else {
 		print_success( function, result );
 	}

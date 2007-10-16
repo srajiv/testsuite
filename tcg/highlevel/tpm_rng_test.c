@@ -45,6 +45,7 @@ main(int argc, char **argv)
 		seed = 1;
 
 	if ((result = connect_load_all(&hContext, &hSRK, &hTPM))) {
+		print_error( "connect_load_all", result );
 		ERR("connect_load_all failed: %s.", err_string(result));
 		return 1;
 	}
@@ -55,6 +56,7 @@ main(int argc, char **argv)
 
 		if ((f = fopen(RANDOM_DEVICE, "r")) == NULL) {
 			ERR("Opening device failed: %s.", RANDOM_DEVICE);
+			print_error( "Opening device failed ", TSS_E_FAIL);
 			Tspi_Context_Close(hContext);
 			return 1;
 		}
@@ -62,6 +64,7 @@ main(int argc, char **argv)
 		if ((rc = fread(entropy, SEED_SIZE, 1, f)) != 1) {
 			ERR("Reading from device %s failed: %s.", RANDOM_DEVICE, strerror(errno));
 			fclose(f);
+			print_error("Reading from device failed", TSS_E_FAIL);
 			Tspi_Context_Close(hContext);
 			return 1;
 		}
@@ -69,6 +72,7 @@ main(int argc, char **argv)
 
 		if ((result = Tspi_TPM_StirRandom(hTPM, SEED_SIZE, entropy))) {
 			ERR("Tspi_TPM_StirRandom failed: %s.", err_string(result));
+			print_error( "Tspi_TPM_StirRandom", result);
 			Tspi_Context_Close(hContext);
 			return 1;
 		}
@@ -78,12 +82,14 @@ main(int argc, char **argv)
 	for (i = 0; i < LOOPS; i++) {
 		if ((result = Tspi_TPM_GetRandom(hTPM, rnd_len, &rnd))) {
 			ERR("Tspi_TPM_GetRandom failed: %s.", err_string(result));
+			print_error( "Tspi_TPM_GetRandom", result);
 			Tspi_Context_Close(hContext);
 			return 1;
 		}
 
 		if ((nmembers = fwrite(rnd, rnd_len, 1, stdout)) != 1) {
 			ERR("fwrite failed: %s.", strerror(errno));
+			print_error( "fwrite failed", TSS_E_FAIL);
 			Tspi_Context_FreeMemory(hContext, rnd);
 			Tspi_Context_Close(hContext);
 			return 1;

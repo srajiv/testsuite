@@ -180,8 +180,11 @@ main_v1_1( void )
 		if ((pulDataLength == ulDataLength) &&
 			!memcmp(prgbDataToUnBind, rgbDataToBind, pulDataLength))
 			print_success( function, result );
-		else
+		else{
 			printf("Data doesn't match");
+			print_error("Data doestn't match: Tspi_Data_Unbind", TSS_E_FAIL);
+		}
+		
 	}
 
 

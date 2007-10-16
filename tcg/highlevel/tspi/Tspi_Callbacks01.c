@@ -323,14 +323,14 @@ main_v1_2(char version)
 		if (size != sizeof(TSS_CALLBACK)) {
 			print_verifyerr("policy callback size", sizeof(TSS_CALLBACK),
 					size);
-			print_error_exit(nameOfFunction, err_string(result));
+			print_error(nameOfFunction, result );
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
 
 		cb_ptr = (TSS_CALLBACK *)data;
-		if (verify_callback(&policy_cb[i], cb_ptr)) {
-			print_error_exit(nameOfFunction, err_string(result));
+		if ((result = verify_callback(&policy_cb[i], cb_ptr))) {
+			print_error(nameOfFunction, result );
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
@@ -358,14 +358,14 @@ main_v1_2(char version)
 		if (size != sizeof(TSS_CALLBACK)) {
 			print_verifyerr("tpm callback size", sizeof(TSS_CALLBACK),
 					size);
-			print_error_exit(nameOfFunction, err_string(result));
+			print_error(nameOfFunction, TSS_E_FAIL);
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
 
 		cb_ptr = (TSS_CALLBACK *)data;
-		if (verify_callback(&tpm_cb[i], cb_ptr)) {
-			print_error_exit(nameOfFunction, err_string(result));
+		if ((result = verify_callback(&tpm_cb[i], cb_ptr))) {
+			print_error(nameOfFunction, result);
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}
