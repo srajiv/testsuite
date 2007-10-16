@@ -22,7 +22,7 @@
  *
  * DESCRIPTION
  *	This test will verify that Tspi_GetAttribData returns TSS_SUCCESS
- * 					using flag TSS_TSPATTRIB_KEY_PCR.
+ * 					using flag TSS_TSPATTRIB_KEY_PCR_LONG.
  *
  * ALGORITHM
  *	Setup:
@@ -187,6 +187,16 @@ main_v1_2( char version )
 		exit( result );
 	}
 
+	result = Tspi_PcrComposite_SetPcrLocality( hPcrComposite, TPM_LOC_ZERO );
+	if ( result != TSS_SUCCESS )
+	{
+		print_error( "Tspi_PcrComposite_SetPcrLocality", result );
+		print_end_test(function);
+		Tspi_Context_FreeMemory( hContext, NULL );
+		Tspi_Context_Close( hContext );
+		exit( result );
+	}
+
 	result = Tspi_Key_CreateKey(hKey, hSRK, hPcrComposite);
 	if ( result != TSS_SUCCESS )
 	{
@@ -200,14 +210,14 @@ main_v1_2( char version )
 
 	// Checking flag and subflags
 
-		//Call GetAttribData for subFlag TSS_TSPATTRIB_KEYPCR_DIGEST_ATCREATION
+		//Call GetAttribData for subFlag TSS_TSPATTRIB_KEYPCRLONG_DIGEST_ATCREATION
 	result = Tspi_GetAttribData(hKey,
-			TSS_TSPATTRIB_KEY_PCR,
-			TSS_TSPATTRIB_KEYPCR_DIGEST_ATCREATION, 
+			TSS_TSPATTRIB_KEY_PCR_LONG,
+			TSS_TSPATTRIB_KEYPCRLONG_DIGEST_ATCREATION, 
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error("Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_DIGEST_ATCREATION",
+		print_error("Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCRLONG_DIGEST_ATCREATION",
 							result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
@@ -223,18 +233,18 @@ main_v1_2( char version )
 			print_end_test(function);
 			exit(resultFree);
 		}
-		print_success( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_DIGEST_ATCREATION -",
+		print_success( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCRLONG_DIGEST_ATCREATION -",
 						result );
 	}
 
-		//Call GetAttribData for subFlag TSS_TSPATTRIB_KEYPCR_DIGEST_ATRELEASE
+		//Call GetAttribData for subFlag TSS_TSPATTRIB_KEYPCRLONG_DIGEST_ATRELEASE
 	result = Tspi_GetAttribData(hKey,
-			TSS_TSPATTRIB_KEY_PCR,
-			TSS_TSPATTRIB_KEYPCR_DIGEST_ATRELEASE,
+			TSS_TSPATTRIB_KEY_PCR_LONG,
+			TSS_TSPATTRIB_KEYPCRLONG_DIGEST_ATRELEASE,
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_DIGEST_ATRELEASE",
+		print_error( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCRLONG_DIGEST_ATRELEASE",
 							result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
@@ -250,18 +260,18 @@ main_v1_2( char version )
 			print_end_test(function);
 			exit(resultFree);
 		}
-		print_success("Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_DIGEST_ATRELEASE -",
+		print_success("Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCRLONG_DIGEST_ATRELEASE -",
 						result );
 	}
 
-		//Call GetAttribData for subFlag TSS_TSPATTRIB_KEYPCR_SELECTION
+		//Call GetAttribData for subFlag TSS_TSPATTRIB_KEYPCRLONG_CREATION_SELECTION
 	result = Tspi_GetAttribData(hKey,
-			TSS_TSPATTRIB_KEY_PCR,
-			TSS_TSPATTRIB_KEYPCR_SELECTION,
+			TSS_TSPATTRIB_KEY_PCR_LONG,
+			TSS_TSPATTRIB_KEYPCRLONG_CREATION_SELECTION,
 			&AttribDataSize, &AttribData);
 	if ( result != TSS_SUCCESS ) 
 	{
-		print_error( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_SELECTION",
+		print_error( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCRLONG_CREATION_SELECTION",
 						result );
 		print_end_test(function);
 		Tspi_Context_FreeMemory(hContext, NULL);
@@ -277,7 +287,34 @@ main_v1_2( char version )
 			print_end_test(function);
 			exit(resultFree);
 		}
-		print_success( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCR_SELECTION -",
+		print_success( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCRLONG_CREATION_SELECTION -",
+						result );
+	}
+
+		//Call GetAttribData for subFlag TSS_TSPATTRIB_KEYPCRLONG_RELEASE_SELECTION
+	result = Tspi_GetAttribData(hKey,
+			TSS_TSPATTRIB_KEY_PCR_LONG,
+			TSS_TSPATTRIB_KEYPCRLONG_RELEASE_SELECTION,
+			&AttribDataSize, &AttribData);
+	if ( result != TSS_SUCCESS ) 
+	{
+		print_error( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCRLONG_RELEASE_SELECTION",
+						result );
+		print_end_test(function);
+		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+	else
+	{
+		resultFree = Tspi_Context_FreeMemory(hContext, AttribData);
+		if ( resultFree != TSS_SUCCESS )
+		{
+			print_error( "Tspi_Context_FreeMemory", resultFree );
+			print_end_test(function);
+			exit(resultFree);
+		}
+		print_success( "Tspi_GetAttribData - subflag TSS_TSPATTRIB_KEYPCRLONG_RELEASE_SELECTION -",
 						result );
 	}
 
