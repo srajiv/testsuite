@@ -166,7 +166,7 @@ main_v1_2(char version)
 		exit( result );
 	}
 
-	result = Tspi_TPM_OwnerGetSRKPubKey(hSRK, &pubSRKLen, &pubSRK);
+	result = Tspi_TPM_OwnerGetSRKPubKey(hTPM, &pubSRKLen, &pubSRK);
 	if ( result != TSS_SUCCESS )
 	{
 		print_error("Tspi_TPM_OwnerGetSRKPubKey", result);
