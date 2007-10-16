@@ -43,7 +43,7 @@ main( int argc, char **argv )
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", result );
 		goto done;
 	}
 
@@ -51,7 +51,6 @@ main( int argc, char **argv )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -60,14 +59,13 @@ main( int argc, char **argv )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_ReadTables(hContext, &famTableSize, &famTable, &delTableSize, &delTable);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_TPM_Delegate_ReadTables", err_string(result) );
+		print_error( "Tspi_TPM_Delegate_ReadTables", result );
 		goto done;
 	}
 
@@ -78,14 +76,14 @@ main( int argc, char **argv )
 		result = Tspi_TPM_Delegate_GetFamily(hTPM, famEntry.familyID, &hFamily);
 		if ( result != TSS_SUCCESS )
 		{
-			print_error_exit( function, err_string(result) );
+			print_error( function, result );
 			goto done;
 		}
 
 		result = Tspi_TPM_Delegate_InvalidateFamily(hTPM, hFamily);
 		if ( result != TSS_SUCCESS )
 		{
-			print_error_exit( function, err_string(result) );
+			print_error( function, result );
 			goto done;
 		}
 	}

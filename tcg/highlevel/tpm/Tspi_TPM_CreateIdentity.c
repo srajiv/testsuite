@@ -469,7 +469,6 @@ main_v1_1(void){
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("connect_load_all", result);
-		print_error_exit(fn, err_string(result));
 		exit(result);
 	}
 
@@ -477,7 +476,6 @@ main_v1_1(void){
 	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hTPMPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(fn, err_string(result));
 		exit(result);
 	}
 
@@ -485,7 +483,6 @@ main_v1_1(void){
 				       TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(fn, err_string(result));
 		exit(result);
 	}
 
@@ -495,7 +492,6 @@ main_v1_1(void){
 					   initFlags, &hIdentKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -504,7 +500,6 @@ main_v1_1(void){
 	result = Tspi_GetPolicyObject(hIdentKey, TSS_POLICY_USAGE, &hIdPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(fn, err_string(result));
 		exit(result);
 	}
 
@@ -512,14 +507,12 @@ main_v1_1(void){
 				       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(fn, err_string(result));
 		exit(result);
 	}
 
 	result = ca_setup_key(hContext, &hCAKey, &rsa, padding);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -539,7 +532,6 @@ main_v1_1(void){
 						 &identityReqBlob);
 	if (result != TSS_SUCCESS){
 		print_error("Tspi_TPM_CollateIdentityRequest", result);
-		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -552,7 +544,6 @@ main_v1_1(void){
 						    identityReqBlob,
 						    &identityReq))) {
 		print_error("TestSuite_UnloadBlob_IDENTITY_REQ", result);
-		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -572,7 +563,6 @@ main_v1_1(void){
 	if ((result = TestSuite_UnloadBlob_SYMMETRIC_KEY(&offset, utilityBlob,
 						     &symKey))) {
 		print_error("TestSuite_UnloadBlob_SYMMETRIC_KEY", result);
-		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -602,7 +592,6 @@ main_v1_1(void){
 				       identityReq.symBlob, identityReq.symSize, utilityBlob,
 				       &utilityBlobSize))) {
 		print_error("TestSuite_SymDecrypt", result);
-		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -612,7 +601,6 @@ main_v1_1(void){
 	if ((result = TestSuite_UnloadBlob_IDENTITY_PROOF(&offset, utilityBlob,
 						      &identityProof))) {
 		print_error("TestSuite_UnloadBlob_IDENTITY_PROOF", result);
-		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -624,7 +612,7 @@ main_v1_1(void){
 		if (TSS_ERROR_CODE(result) == TSS_E_FAIL)
 			fprintf(stderr, "Identity Binding signature doesn't "
 				"match!\n");
-		print_error_exit(fn, err_string(result));
+		print_error(fn, result);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -632,7 +620,7 @@ main_v1_1(void){
 
 	/* binding is verified, load the identity key into the TPM */
 	if ((result = Tspi_Key_LoadKey(hIdentKey, hSRK))) {
-		print_error_exit(fn, err_string(result));
+		print_error("Tspi_Key_LoadKey", result);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -642,7 +630,7 @@ main_v1_1(void){
 	/* XXX Doesn't yet exist. In 1.2 they should be in NVDATA somewhere */
 
 	if ((result = ca_create_credential(hContext, hTPM, hIdentKey, &b))) {
-		print_error_exit(fn, err_string(result));
+		print_error("ca_create_credential", result);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -656,7 +644,6 @@ main_v1_1(void){
 
 	if (result) {
 		print_error("Tspi_TPM_ActivateIdentity", result);
-		print_error_exit(fn, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -665,7 +652,7 @@ main_v1_1(void){
 	offset = 0;
 	if ((result = TestSuite_UnloadBlob_SYM_CA_ATTESTATION(&offset, cred,
 							  &symAttestation))) {
-		print_error_exit(fn, err_string(result));
+		print_error(fn, result);
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -680,7 +667,7 @@ main_v1_1(void){
 		print_success(fn, result );
 	} else {
 		fprintf(stderr, "credential doesn't match!\n");
-		print_error_exit(fn, err_string(TCPA_E_FAIL));
+		print_error(fn, TCPA_E_FAIL);
 	}
 #else
 	/* verify that the credential is the same */
@@ -689,7 +676,7 @@ main_v1_1(void){
 		result = 0;
 	} else {
 		fprintf(stderr, "credential doesn't match!\n");
-		print_error_exit(fn, err_string(TCPA_E_FAIL));
+		print_error(fn, TCPA_E_FAIL);
 		result = TCPA_E_FAIL;
 	}
 #endif
