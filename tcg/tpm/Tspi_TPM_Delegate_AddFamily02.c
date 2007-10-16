@@ -85,7 +85,7 @@ main_v1_2( char version )
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", result );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -95,7 +95,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -104,14 +103,13 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_AddFamily(0xffffffff, 'a', &hFamily);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE)
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "Tspi_TPM_Delegate_AddFamily", result );
 		result = 1;
 		goto done;
 	}
