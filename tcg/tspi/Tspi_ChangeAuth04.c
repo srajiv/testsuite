@@ -43,7 +43,6 @@
  *
  *	Cleanup:
  *		Free memory associated with the context
- *		Close hMSigningKey Object
  *		Close hMStorageKey Object
  *		Close hKey Object
  *		Close context
@@ -84,7 +83,6 @@ main_v1_1(void){
 	TSS_HKEY	hKey;
 	TSS_HKEY	hSRK;
 	TSS_HPOLICY	hPolicy;
-	TSS_HKEY	hMSigningKey;
 	TSS_HKEY	hMStorageKey;
 	TSS_HCONTEXT	hContext;
 	TSS_RESULT	result;
@@ -165,24 +163,13 @@ main_v1_1(void){
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-		//Create Key for hMSigning Key
-	result = Tspi_Key_CreateKey(hMSigningKey, hSRK, 0);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_CreateKey", result);
-		Tspi_Context_CloseObject(hContext, hMSigningKey);
-		Tspi_Context_CloseObject(hContext, hMStorageKey);
-		Tspi_Context_CloseObject(hContext, hKey);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
 		//Call Change Auth
-	result = Tspi_ChangeAuth(hMSigningKey, hMStorageKey, hPolicy);
+	result = Tspi_ChangeAuth(0xffffffff, hMStorageKey, hPolicy);
 	if (TSS_ERROR_CODE(result) != TSS_E_INVALID_HANDLE) {
 		if(!checkNonAPI(result)){
 			print_error(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
-			Tspi_Context_CloseObject(hContext, hMSigningKey);
 			Tspi_Context_CloseObject(hContext, hMStorageKey);
 			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_Close(hContext);
@@ -192,7 +179,6 @@ main_v1_1(void){
 			print_error_nonapi(nameOfFunction, result);
 			print_end_test(nameOfFunction);
 			Tspi_Context_FreeMemory(hContext, NULL);
-			Tspi_Context_CloseObject(hContext, hMSigningKey);
 			Tspi_Context_CloseObject(hContext, hMStorageKey);
 			Tspi_Context_CloseObject(hContext, hKey);
 			Tspi_Context_Close(hContext);
@@ -203,7 +189,6 @@ main_v1_1(void){
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
 		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_CloseObject(hContext, hMSigningKey);
 		Tspi_Context_CloseObject(hContext, hMStorageKey);
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
