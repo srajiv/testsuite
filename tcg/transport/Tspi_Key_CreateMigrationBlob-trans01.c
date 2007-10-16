@@ -114,7 +114,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -122,7 +121,6 @@ main_v1_2(char version)
 	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &tpmUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -131,7 +129,6 @@ main_v1_2(char version)
 					TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -141,7 +138,6 @@ main_v1_2(char version)
 				&hMigrationAuthorityKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -150,7 +146,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -161,7 +156,6 @@ main_v1_2(char version)
 					&hKeyToMigrate);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -170,7 +164,6 @@ main_v1_2(char version)
 					   TSS_POLICY_USAGE, &hUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -180,7 +173,6 @@ main_v1_2(char version)
 				       TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -188,7 +180,6 @@ main_v1_2(char version)
 	result = Tspi_Policy_AssignToObject(hUsagePolicy, hKeyToMigrate);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -197,7 +188,6 @@ main_v1_2(char version)
 					   TSS_POLICY_MIGRATION, &hMigPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -207,7 +197,6 @@ main_v1_2(char version)
 				       TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -215,7 +204,6 @@ main_v1_2(char version)
 	result = Tspi_Policy_AssignToObject(hMigPolicy, hKeyToMigrate);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -224,7 +212,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hKeyToMigrate);
 		exit(result);
@@ -235,7 +222,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tpsi_TPM_AuthorizeMigrationTicket ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -247,7 +233,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tpsi_TPM_AuthorizeMigrationTicket ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -273,7 +258,6 @@ main_v1_2(char version)
 		result = Tspi_Context_FreeMemory(hContext, migBlob);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}

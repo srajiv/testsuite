@@ -119,7 +119,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -129,7 +128,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -141,7 +139,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Context_GetTpmObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -151,7 +148,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -164,7 +160,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -176,7 +171,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -187,7 +181,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -198,7 +191,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -209,7 +201,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_SetAttribUint32 for setting NV index", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -221,7 +212,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_SetAttribUint32 for setting permission", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);	
@@ -233,7 +223,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_SetAttribUint32 for setting data size", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -248,14 +237,12 @@ main_v1_2(char version)
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Connect Context
 	result = Tspi_Context_Connect(hContext,NULL);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);      
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -266,7 +253,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -277,7 +263,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_SetAttribUint32 for setting NV index", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -300,7 +285,6 @@ main_v1_2(char version)
 #endif
 	{
 		print_error("Tspi_NV_ReadValue", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);

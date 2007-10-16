@@ -89,7 +89,7 @@ main_v1_2(char version)
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "connect_load_all", err_string(result) );
+		print_error( "connect_load_all", (result) );
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -98,7 +98,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -106,7 +105,6 @@ main_v1_2(char version)
 	result = Tspi_TPM_DirRead(hTPM, dirIndex, &pulDirDataLength, &pdirValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_DirRead", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -132,7 +130,6 @@ main_v1_2(char version)
 		result = Tspi_Context_FreeMemory(hContext, pdirValue);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}

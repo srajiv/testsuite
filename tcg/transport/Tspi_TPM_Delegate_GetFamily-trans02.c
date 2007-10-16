@@ -87,7 +87,7 @@ main_v1_2( char version )
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", (result) );
 		goto done;
 	}
 
@@ -95,7 +95,6 @@ main_v1_2( char version )
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -104,7 +103,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -113,14 +111,13 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_AddFamily(hTPM, 'a', &hFamily);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_TPM_Delegate_AddFamily", err_string(result) );
+		print_error( "Tspi_TPM_Delegate_AddFamily", (result) );
 		goto done;
 	}
 
@@ -142,7 +139,7 @@ main_v1_2( char version )
 	result = Tspi_TPM_Delegate_GetFamily(hTPM, familyID, &hFamily);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "Tspi_TPM_Delegate_GetFamily", (result) );
 		goto done;
 	}
 
@@ -150,7 +147,7 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_DELFAMILYINFO_FAMILYID, &returnedID);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_GetAttribUint32", err_string(result) );
+		print_error( "Tspi_GetAttribUint32", (result) );
 		goto done;
 	}
 
@@ -171,7 +168,7 @@ main_v1_2( char version )
 	{
 		if (familyID != returnedID)
 		{
-			print_error_exit( "Tspi_GetAttribUint32", "Family IDs do not match" );
+			print_error( "Tspi_GetAttribUint32: Family IDs do not match", TSS_E_FAIL );
 			result = 1;
 			goto done;
 		}

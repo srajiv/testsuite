@@ -88,7 +88,7 @@ main_v1_2( char version )
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", (result) );
 		goto done;
 	}
 
@@ -96,15 +96,14 @@ main_v1_2( char version )
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+
 	result = Tspi_GetPolicyObject( hTPM, TSS_POLICY_USAGE, &hTPMPolicy );
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -113,7 +112,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -121,14 +119,13 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( function, result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_POLICY, TSS_POLICY_USAGE, &hDelegation);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_Context_CreateObject", err_string(result) );
+		print_error( "Tspi_Context_CreateObject", (result) );
 		goto done;
 	}
 
@@ -137,7 +134,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		goto done;
 	}
 
@@ -145,7 +141,7 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_TYPE, TSS_DELEGATIONTYPE_KEY);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", (result) );
 		goto done;
 	}
 
@@ -153,7 +149,7 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_PER1, 0);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", (result) );
 		goto done;
 	}
 
@@ -161,28 +157,28 @@ main_v1_2( char version )
 			TSS_TSPATTRIB_POLDEL_PER2, 0);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_SetAttribUint32", err_string(result) );
+		print_error( "Tspi_SetAttribUint32", (result) );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_AddFamily(hTPM, 'a', &hFamily);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_TPM_Delegate_AddFamily", err_string(result) );
+		print_error( "Tspi_TPM_Delegate_AddFamily", (result) );
 		goto done;
 	}
 
 	result = Tspi_TPM_Delegate_CreateDelegation(hKey, 'b', 0, NULL_HPCRS, hFamily, hDelegation);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( "Tspi_TPM_Delegate_CreateDelegation", err_string(result) );
+		print_error( "Tspi_TPM_Delegate_CreateDelegation", (result) );
 		goto done;
 	}
 
 	result = Testsuite_Transport_Final(hContext, hSigningKey);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( function, (result) );
 		goto done;
 	}
 	else

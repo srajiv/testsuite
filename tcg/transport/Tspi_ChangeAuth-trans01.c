@@ -102,7 +102,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -118,7 +117,6 @@ main_v1_2(char version)
 			&hKeyChild);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKeyChild);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -129,7 +127,6 @@ main_v1_2(char version)
 					TSS_POLICY_USAGE, &hKeyChildPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -138,7 +135,6 @@ main_v1_2(char version)
 				       TESTSUITE_KEY_SECRET_LEN, TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -146,7 +142,6 @@ main_v1_2(char version)
 	result = Tspi_Policy_AssignToObject(hKeyChildPolicy, hKeyChild);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -154,7 +149,6 @@ main_v1_2(char version)
 	result = Tspi_Key_CreateKey(hKeyChild, hKeyParent, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -162,7 +156,6 @@ main_v1_2(char version)
 	result = Tspi_Key_LoadKey(hKeyChild, hKeyParent);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -175,7 +168,6 @@ main_v1_2(char version)
 					TSS_POLICY_USAGE, &hNewPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetPolicy ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -185,7 +177,6 @@ main_v1_2(char version)
 				       TESTSUITE_NEW_SECRET_LEN, TESTSUITE_NEW_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -194,7 +185,6 @@ main_v1_2(char version)
 	result = Tspi_ChangeAuth(hKeyChild, hKeyParent, hNewPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_ChangeAuth", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}

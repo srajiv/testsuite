@@ -86,7 +86,7 @@ main_v1_2(char version)
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", (result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -96,7 +96,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -105,7 +104,6 @@ main_v1_2(char version)
 	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hTPMPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit(result);
@@ -115,7 +113,6 @@ main_v1_2(char version)
 				       TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit(result);
@@ -125,7 +122,6 @@ main_v1_2(char version)
 	result = Tspi_TPM_KillMaintenanceFeature( hTPM );
 	if ( result != TSS_SUCCESS && TSS_ERROR_CODE(result) != TCPA_E_INACTIVE) {
 		print_error("Tspi_TPM_KillMaintenanceFeature", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit(result);

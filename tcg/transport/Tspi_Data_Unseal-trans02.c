@@ -116,7 +116,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -127,7 +126,6 @@ main_v1_2(char version)
 					   initFlags, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (hKey)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -139,7 +137,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (hEncData)",
 			    result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -149,7 +146,6 @@ main_v1_2(char version)
 					   &hEncUsagePolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -159,7 +155,6 @@ main_v1_2(char version)
 				       TESTSUITE_ENCDATA_SECRET_LEN, TESTSUITE_ENCDATA_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret (hEncUsagePolicy)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -168,7 +163,6 @@ main_v1_2(char version)
 	result = Tspi_Policy_AssignToObject(hEncUsagePolicy, hEncData);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -178,7 +172,6 @@ main_v1_2(char version)
 					   &hKeyPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -189,7 +182,6 @@ main_v1_2(char version)
 				  TESTSUITE_KEY_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret (hKeyPolicy)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -198,7 +190,6 @@ main_v1_2(char version)
 	result = Tspi_Policy_AssignToObject(hKeyPolicy, hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_AssignToObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -207,7 +198,6 @@ main_v1_2(char version)
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey (hKey)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -216,7 +206,6 @@ main_v1_2(char version)
 	result = Tspi_Key_LoadKey(hKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey (hKey)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -227,7 +216,6 @@ main_v1_2(char version)
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (hPcrComposite)",
 			    result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -236,7 +224,6 @@ main_v1_2(char version)
 	result = Tspi_Context_GetTpmObject(hContext, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_GetTpmObject", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -246,7 +233,6 @@ main_v1_2(char version)
 	result = Tspi_TPM_PcrRead(hTPM, PCR_NUM, &ulPcrLen, &rgbPcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_PcrRead", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -257,7 +243,6 @@ main_v1_2(char version)
 					  rgbPcrValue);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_PcrComposite_SetPcrValue", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -268,7 +253,6 @@ main_v1_2(char version)
 			   hPcrComposite);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Data_Seal", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -279,7 +263,6 @@ main_v1_2(char version)
 			     &prgbDataToUnseal);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Data_Unseal", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -315,7 +298,6 @@ main_v1_2(char version)
 		    Tspi_Context_FreeMemory(hContext, prgbDataToUnseal);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(function, err_string(result));
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}

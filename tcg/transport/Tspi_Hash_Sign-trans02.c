@@ -103,7 +103,6 @@ int main_v1_1(void)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -118,7 +117,6 @@ int main_v1_1(void)
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (signing key)",
 			    result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -127,7 +125,6 @@ int main_v1_1(void)
 	result = Tspi_Key_CreateKey(hMSigningKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey (signing key)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -136,7 +133,6 @@ int main_v1_1(void)
 	result = Tspi_Key_LoadKey(hMSigningKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKey (hMSigningKey)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -146,7 +142,6 @@ int main_v1_1(void)
 					   TSS_HASH_SHA1, &hHash);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (hash)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -155,7 +150,6 @@ int main_v1_1(void)
 	result = Tspi_Hash_SetHashValue(hHash, 20, "Je pense, danc je s");
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Hash_SetHashValue", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -165,7 +159,6 @@ int main_v1_1(void)
 				&prgbSignature);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Hash_Sign", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);

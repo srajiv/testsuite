@@ -105,7 +105,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -113,7 +112,6 @@ main_v1_2(char version)
 	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY, initFlags, &hKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -121,7 +119,6 @@ main_v1_2(char version)
 	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_Create Key", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -130,7 +127,6 @@ main_v1_2(char version)
 	result = Tspi_Key_LoadKey(hKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hKey);
 		Tspi_Context_Close(hContext);
 		exit(result);

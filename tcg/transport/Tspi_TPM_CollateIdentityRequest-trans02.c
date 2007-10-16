@@ -98,7 +98,6 @@ main_v1_2(char version)
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if (result != TSS_SUCCESS) {
 		print_error("connect_load_all", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 
@@ -106,7 +105,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -115,7 +113,6 @@ main_v1_2(char version)
 	result = Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hTPMPolicy);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_GetPolicyObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 
@@ -123,7 +120,6 @@ main_v1_2(char version)
 				       TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Policy_SetSecret", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 
@@ -133,7 +129,6 @@ main_v1_2(char version)
 					   initFlags, &hIdentKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -144,14 +139,13 @@ main_v1_2(char version)
 					   &hCAKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 
 		// generate a software key to represent the CA's key
 	if ((rsa = RSA_generate_key(CA_KEY_SIZE_BITS, 65537, NULL, NULL)) == NULL) {
-		print_error_exit(nameOfFunction, err_string(result));
+		print_error("RSA_generate_key", 1);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -168,7 +162,6 @@ main_v1_2(char version)
 	result = set_public_modulus(hContext, hCAKey, size_n, n);
 	if (result != TSS_SUCCESS) {
 		print_error("set_public_modulus", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -180,7 +173,6 @@ main_v1_2(char version)
 				      TSS_ALG_RSA);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -192,7 +184,6 @@ main_v1_2(char version)
 				      2);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_SetAttribUint32", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -213,7 +204,6 @@ main_v1_2(char version)
 						 &rgbTCPAIdentityReq);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_CollateIdentityRequest", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		RSA_free(rsa);
 		exit(result);
@@ -240,7 +230,6 @@ main_v1_2(char version)
 		result = Tspi_Context_FreeMemory(hContext, rgbTCPAIdentityReq);
 		if (result != TSS_SUCCESS) {
 			print_error("Tspi_Context_FreeMemory ", result);
-			print_error_exit(nameOfFunction, err_string(result));
 			Tspi_Context_Close(hContext);
 			exit(result);
 		}

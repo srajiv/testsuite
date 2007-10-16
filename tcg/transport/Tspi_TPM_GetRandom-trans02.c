@@ -85,7 +85,7 @@ main_v1_2(char version)
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( function, err_string(result) );
+		print_error( "connect_load_all", (result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -95,7 +95,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -104,7 +103,6 @@ main_v1_2(char version)
 	result = Tspi_TPM_GetRandom( hTPM, 16, &random );
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_GetRandom", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -112,7 +110,6 @@ main_v1_2(char version)
 	result = Tspi_Context_FreeMemory(hContext, random);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_FreeMemory ", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}

@@ -101,7 +101,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -111,7 +110,6 @@ main_v1_2(char version)
         if ( result != TSS_SUCCESS )
         {
                 print_error( "Tspi_CreateObject (hKey)", result );
-                print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
                 exit( result );
@@ -121,7 +119,6 @@ main_v1_2(char version)
         if ( result != TSS_SUCCESS )
         {
                 print_error( "Tspi_Key_CreateKey (hKey)", result );
-                print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
                 exit( result );
@@ -131,7 +128,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
         {
                 print_error( "Tspi_Key_LoadKey (hKey)", result );
-                print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
                 exit( result );
@@ -142,7 +138,6 @@ main_v1_2(char version)
 	if ( result != TSS_SUCCESS )
         {
                 print_error( "Tspi_Key_UnloadKey (hKey)", result );
-                print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
                 exit( result );

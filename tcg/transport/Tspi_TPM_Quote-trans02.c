@@ -105,7 +105,7 @@ main_v1_2(char version)
 	result = connect_load_all(&hContext, &hSRK, &hTPM);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error_exit( nameOfFunction, err_string(result) );
+		print_error( "connect_load_all", result );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -115,7 +115,6 @@ main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -126,7 +125,6 @@ main_v1_2(char version)
 			TSS_KEY_SIZE_2048 |TSS_KEY_TYPE_SIGNING, &hIdentKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -134,7 +132,6 @@ main_v1_2(char version)
 	result = Tspi_Key_CreateKey(hIdentKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hIdentKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -142,7 +139,6 @@ main_v1_2(char version)
 	result = Tspi_Key_LoadKey(hIdentKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_LoadKey", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hIdentKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -153,7 +149,6 @@ main_v1_2(char version)
 			&hPcrComposite);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_CloseObject(hContext, hIdentKey);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -162,7 +157,6 @@ main_v1_2(char version)
 	result = Tspi_PcrComposite_SelectPcrIndex(hPcrComposite, 1);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_PcrComposite_SelectPcrIndex ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hIdentKey);
 		Tspi_Context_CloseObject(hContext, hPcrComposite);
@@ -172,7 +166,6 @@ main_v1_2(char version)
 	result = Tspi_TPM_Quote(hTPM, hIdentKey, hPcrComposite, NULL);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_PcrComposite_SelectPcrIndex ", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		Tspi_Context_Close(hContext);
 		Tspi_Context_CloseObject(hContext, hIdentKey);
 		Tspi_Context_CloseObject(hContext, hPcrComposite);

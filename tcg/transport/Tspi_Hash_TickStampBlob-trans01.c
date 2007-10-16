@@ -100,7 +100,6 @@ int main_v1_2(char version)
 					  &hSigningKey);
 	if (result != TSS_SUCCESS) {
 		print_error("Testsuite_Transport_Init", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -115,7 +114,6 @@ int main_v1_2(char version)
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (signing key)",
 			    result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -124,7 +122,6 @@ int main_v1_2(char version)
 	result = Tspi_Key_CreateKey(hMSigningKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Key_CreateKey (signing key)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -133,7 +130,6 @@ int main_v1_2(char version)
 	result = Tspi_Key_LoadKey(hMSigningKey, hSRK);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_LoadKey (hMSigningKey)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -143,7 +139,6 @@ int main_v1_2(char version)
 					   TSS_HASH_SHA1, &hHash);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject (hash)", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -152,7 +147,6 @@ int main_v1_2(char version)
 	result = Tspi_Hash_SetHashValue(hHash, 20, "Je pense, danc je s");
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Hash_SetHashValue", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -161,7 +155,6 @@ int main_v1_2(char version)
 	result = Tspi_TPM_GetRandom(hTPM, 20, &nonce);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_TPM_GetRandom", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -173,7 +166,6 @@ int main_v1_2(char version)
 	result = Tspi_Hash_TickStampBlob(hHash, hMSigningKey, &validationData);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Hash_TickStampBlob", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
