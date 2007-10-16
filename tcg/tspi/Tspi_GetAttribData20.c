@@ -99,7 +99,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Create", result );
-		print_error_exit( function, err_string(result) );
 		print_end_test(function);
 		exit( result );
 	}
@@ -109,7 +108,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_Connect", result );
-		print_error_exit( function, err_string(result) );
 		print_end_test(function);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -122,7 +120,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_CreateObject (hEncData)", result );
-		print_error_exit( function, err_string(result) );
 		print_end_test(function);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -135,7 +132,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Context_LoadKeyByUUID (hSRK)", result );
-		print_error_exit( function, err_string(result) );
 		print_end_test(function);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -147,7 +143,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetPolicyObject", result );
-		print_error_exit( function, err_string(result) );
 		print_end_test(function);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -159,7 +154,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_Policy_SetSecret", result );
-		print_error_exit( function, err_string(result) );
 		print_end_test(function);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -173,7 +167,6 @@ main_v1_1( void )
 	{
 		print_error( "Tspi_Context_CreateObject (hPcrComposite)",
 				result );
-		print_error_exit( function, err_string(result) );
 		print_end_test(function);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -183,7 +176,6 @@ main_v1_1( void )
 	result = Tspi_PcrComposite_SetPcrLocality(hPcrComposite, TPM_LOC_ZERO);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_PcrComposite_SetPcrLocality", result);
-		print_error_exit(function, err_string(result));
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);
@@ -193,7 +185,6 @@ main_v1_1( void )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_PcrComposite_SetPcrValue", result );
-		print_error_exit( function, err_string(result) );
 		print_end_test(function);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -207,7 +198,6 @@ main_v1_1( void )
 		if( !(checkNonAPI(result)) )
 		{
 			print_error( "Tspi_Data_Seal", result );
-			print_error_exit( function, err_string(result) );
 			print_end_test(function);
 			Tspi_Context_FreeMemory( hContext, NULL );
 			Tspi_Context_Close( hContext );
@@ -216,7 +206,6 @@ main_v1_1( void )
 		else
 		{
 			print_error_nonapi( function, result );
-			print_error_exit( function, err_string(result) );
 			print_end_test(function);
 			Tspi_Context_FreeMemory( hContext, NULL );
 			Tspi_Context_Close( hContext );

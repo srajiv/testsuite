@@ -116,7 +116,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_GetAttribData", result );
-		print_error_exit( function, err_string(result) );
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
 		exit( result );
@@ -129,7 +128,6 @@ main_v1_2( char version )
 	if ( result != TSS_SUCCESS )
 	{
 		print_error( "Tspi_EncodeDER_TssBlob", result );
-		print_error_exit( function, err_string(result) );
 		free(rgbEncBlob);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -151,7 +149,6 @@ main_v1_2( char version )
 			print_error_nonapi( function, result );
 		}
 
-		print_error_exit( function, err_string(result) );
 		free(rgbEncBlob);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close( hContext );
@@ -172,7 +169,6 @@ main_v1_2( char version )
 			print_error_nonapi( function, result );
 		}
 
-		print_error_exit( function, err_string(result) );
 		free(rgbEncBlob);
 		free(rgbDecBlob);
 		Tspi_Context_FreeMemory( hContext, NULL );

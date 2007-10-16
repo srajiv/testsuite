@@ -90,7 +90,6 @@ main_v1_1(void){
 	result = Tspi_Context_Create(&hContext);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create", result);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Connect Context
@@ -98,7 +97,6 @@ main_v1_1(void){
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect", result);
 		Tspi_Context_Close(hContext);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//Create Object
@@ -107,7 +105,6 @@ main_v1_1(void){
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_CreateObject", result);
 		Tspi_Context_Close(hContext);
-		print_error_exit(nameOfFunction, err_string(result));
 		exit(result);
 	}
 		//SetAttribData
