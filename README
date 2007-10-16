@@ -11,7 +11,7 @@ you can run tpm_takeownership to take ownership of your TPM and set the owner
 and SRK passwords.  If you don't have tpm-tools, run the following test case
 to set the owner and SRK passwords (after building the testsuite):
 
-$ testsuite/tcg/highlevel/tpm/Tspi_TPM_TakeOwnership01 -v 1.1
+$ testsuite/tcg/init/Tspi_TPM_TakeOwnership01 -v 1.1
 
 This test will set the owner and SRK passwords to the value of the environment
 variables TESTSUITE_OWNER_SECRET and TESTSUITE_SRK_SECRET, respectively. During
@@ -49,8 +49,10 @@ to tsstests.sh, for example:
 To run the key tests only (version 1.1 tests will be run by default):
 ./tsstests.sh key
 
-To run the tpm tests against TSS version 1.2:
-./tsstests.sh -v 1.2 tpm
+To run the tests in the tpm directory against TSS version 1.2:
+./tsstests.sh -v 1.2 -d tpm
 
 To run all tests against a TSS version 1.2:
 ./tsstests.sh -v 1.2
+
+Run tsstests.sh -h to see all available options.
