@@ -183,13 +183,20 @@ print_error()
 {
 	case "$OUTPUT_FORMAT" in
 	*standard*)
+		if test $3 -gt 126; then
+			echo "Test segfaulted or returned unknown error (rc=$3): $1" >> $ERR_SUMMARY
+		fi
 		echo $2 >> $ERR_SUMMARY
 		;;
 	*wiki*)
 		echo "$1 | " >> $ERR_SUMMARY
 		echo "  $2 |" >> $ERR_SUMMARY
 		echo "    $3 |" >> $ERR_SUMMARY
-		echo "      . |" >> $ERR_SUMMARY
+		if test $3 -gt 126; then
+			echo "      (segfault counted as failure) |" >> $ERR_SUMMARY
+		else
+			echo "      . |" >> $ERR_SUMMARY
+		fi
 		echo "        ." >> $ERR_SUMMARY
 		;;
 	*)
@@ -253,7 +260,7 @@ execute_test()
 			FAILED=$(( $FAILED + 1))
 		fi
 
-		print_error "$1 -v ${TSS_VERSION}" "$TEST_STDERR" "$RUNRESULT"
+		print_error "$1 -v ${TSS_VERSION}" "$TEST_STDERR" $RUNRESULT
 	else
 		if test $LOGGING -eq 1; then
 			echo $TEST_STDERR >> $LOGFILE
