@@ -151,6 +151,9 @@ print_totals()
 {
 	case "$OUTPUT_FORMAT" in
 	*standard*)
+		if test $LOGGING -eq 1; then
+			echo -e "PASSED: $1\nFAILED: $2 (NOTIMPL: $3)\nNOT APPLICABLE: $4\nSEGFAULTED: $5\n" >> $LOGFILE
+		fi
 		echo -e "PASSED: $1\nFAILED: $2 (NOTIMPL: $3)\nNOT APPLICABLE: $4\nSEGFAULTED: $5\n" >> $ERR_SUMMARY
 		;;
 	*wiki*)
@@ -185,8 +188,9 @@ print_error()
 	*standard*)
 		if test $3 -gt 126; then
 			echo "Test segfaulted or returned unknown error (rc=$3): $1" >> $ERR_SUMMARY
+		elif test $3 -lt 126; then
+			echo $2 >> $ERR_SUMMARY
 		fi
-		echo $2 >> $ERR_SUMMARY
 		;;
 	*wiki*)
 		echo "$1 | " >> $ERR_SUMMARY
