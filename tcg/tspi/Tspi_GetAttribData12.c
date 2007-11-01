@@ -124,6 +124,13 @@ main_v1_1(void){
 		exit(result);
 	}
 #endif
+	result = set_srk_readable(hContext);
+	if (result != TSS_SUCCESS) {
+		print_error("set_srk_readable", result);
+		Tspi_Context_Close(hContext);
+		exit(result);
+	}
+
 		//Pull the SRK out of the TPM (its not kept in PS)
 	result = Tspi_Key_GetPubKey(hSRK, &pubSize, &pub);
 	if (result != TSS_SUCCESS) {
