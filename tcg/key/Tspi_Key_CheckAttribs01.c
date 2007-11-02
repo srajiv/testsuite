@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 	char version;
 
 	version = parseArgs( argc, argv );
-	if (version == TESTSUITE_TEST_TSS_1_2)
+	if (version)
 		main_v1_2( version );
 	else
 		print_wrongVersion();
@@ -209,47 +209,49 @@ main_v1_2( char version)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	/* Create Key B wrapped by SRK */
 
-	result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_PCRS,
-			TSS_PCRS_STRUCT_INFO_LONG, &hPcrComposite );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Context_CreateObject (hPcrComposite)",
-				result );
-		print_error_exit( nameOfFunction, err_string(result) );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
+	if (version == TESTSUITE_TEST_TSS_1_2) {
+		/* Create Key B wrapped by SRK */
+		result = Tspi_Context_CreateObject( hContext, TSS_OBJECT_TYPE_PCRS,
+				TSS_PCRS_STRUCT_INFO_LONG, &hPcrComposite );
+		if ( result != TSS_SUCCESS )
+		{
+			print_error( "Tspi_Context_CreateObject (hPcrComposite)",
+					result );
+			print_error_exit( nameOfFunction, err_string(result) );
+			Tspi_Context_Close( hContext );
+			exit( result );
+		}
 		//Set PCR Locality at release
-	result = Tspi_PcrComposite_SetPcrLocality(hPcrComposite, TPM_LOC_ZERO);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_PcrComposite_SetLocality", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}
+		result = Tspi_PcrComposite_SetPcrLocality(hPcrComposite, TPM_LOC_ZERO);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_PcrComposite_SetLocality", result);
+			print_error_exit(nameOfFunction, err_string(result));
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}
 
-	memset(rgbPcrValue, 0x5a, sizeof(rgbPcrValue));
+		memset(rgbPcrValue, 0x5a, sizeof(rgbPcrValue));
 
-	result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, 9, 20, rgbPcrValue );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_PcrComposite_SetPcrValue", result );
-		print_error_exit( nameOfFunction, err_string(result) );
-		Tspi_Context_Close( hContext );
-		exit( result );
-	}
+		result = Tspi_PcrComposite_SetPcrValue( hPcrComposite, 9, 20, rgbPcrValue );
+		if ( result != TSS_SUCCESS )
+		{
+			print_error( "Tspi_PcrComposite_SetPcrValue", result );
+			print_error_exit( nameOfFunction, err_string(result) );
+			Tspi_Context_Close( hContext );
+			exit( result );
+		}
 
-	result = Tspi_Key_CreateKey(hKeyB, hSRK, hPcrComposite);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_CreateKey(B)", result);
-		print_error_exit(nameOfFunction, err_string(result));
-		Tspi_Context_CloseObject( hContext, hKeyA );
-		Tspi_Context_CloseObject( hContext, hKeyB );
-		Tspi_Context_CloseObject( hContext, hPcrComposite );
-		Tspi_Context_Close(hContext);
-		exit(result);
+		result = Tspi_Key_CreateKey(hKeyB, hSRK, hPcrComposite);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Key_CreateKey(B)", result);
+			print_error_exit(nameOfFunction, err_string(result));
+			Tspi_Context_CloseObject( hContext, hKeyA );
+			Tspi_Context_CloseObject( hContext, hKeyB );
+			Tspi_Context_CloseObject( hContext, hPcrComposite );
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}
 	}
 
 	////////////////////////////////////
@@ -319,21 +321,23 @@ main_v1_2( char version)
 	}else
 		fprintf( stdout, "\tSuccess(A4): Checked if authorization key.\n");
 
+	if (version == TESTSUITE_TEST_TSS_1_2) {
 		//Fifth attrib - CMK key = FALSE
-	result = Tspi_GetAttribUint32(hKeyA, TSS_TSPATTRIB_KEY_INFO,
-			TSS_TSPATTRIB_KEYINFO_CMK, &keyAttribute );
-	if ((result != TSS_SUCCESS) || ( keyAttribute )){
-		if ( keyAttribute ){
-			fprintf( stderr, "\tError(A5): Key Attribute value not expected: %u\n",
-					keyAttribute);
-			result = TSS_E_FAIL;
-		}
-		print_error("Tspi_GetAttribUint32(A5)", result);
-		print_end_test(nameOfFunction);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}else
-		fprintf( stdout, "\tSuccess(A5): Checked if CMK key.\n");
+		result = Tspi_GetAttribUint32(hKeyA, TSS_TSPATTRIB_KEY_INFO,
+				TSS_TSPATTRIB_KEYINFO_CMK, &keyAttribute );
+		if ((result != TSS_SUCCESS) || ( keyAttribute )){
+			if ( keyAttribute ){
+				fprintf( stderr, "\tError(A5): Key Attribute value not expected: %u\n",
+						keyAttribute);
+				result = TSS_E_FAIL;
+			}
+			print_error("Tspi_GetAttribUint32(A5)", result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}else
+			fprintf( stdout, "\tSuccess(A5): Checked if CMK key.\n");
+	}
 
 		//Sixth attrib - key SIZE = 2048 bits
 	result = Tspi_GetAttribUint32(hKeyA, TSS_TSPATTRIB_RSAKEY_INFO,
@@ -351,120 +355,123 @@ main_v1_2( char version)
 	}else
 		fprintf( stdout, "\tSuccess(A6): Checked RSA key size.\n");
 
-	////////////////////////////////////
-	//Start retrieving the key attributes set in initFlags for B
 
-	//First attrib - key type = STORAGE
-	result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
-			TSS_TSPATTRIB_KEYINFO_USAGE, &keyAttribute );
-	if ((result != TSS_SUCCESS) || (keyAttribute != TSS_KEYUSAGE_STORAGE)){
-		if ( keyAttribute != TSS_KEYUSAGE_STORAGE){
-			fprintf( stderr, "\tError(B1): Key Attribute value not expected: %u\n",
-					keyAttribute);
-			result = TSS_E_FAIL;
-		}
-		print_error("Tspi_GetAttribUint32(B1)", result);
-		print_end_test(nameOfFunction);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}else
-		fprintf( stdout, "\tSuccess(B1): Checked key type.\n");
+	if (version == TESTSUITE_TEST_TSS_1_2) {
+		////////////////////////////////////
+		//Start retrieving the key attributes set in initFlags for B
 
-	//Second attrib - Migratable key = FALSE
-	result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
-			TSS_TSPATTRIB_KEYINFO_MIGRATABLE, &keyAttribute );
-	if ((result != TSS_SUCCESS) || ( keyAttribute )){
-		if ( keyAttribute ){
-			fprintf( stderr, "\tError(B2): Key Attribute value not expected: %u\n",
-					keyAttribute);
-			result = TSS_E_FAIL;
-		}
-		print_error("Tspi_GetAttribUint32(B2)", result);
-		print_end_test(nameOfFunction);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}else
-		fprintf( stdout, "\tSuccess(B2): Checked key migration.\n");
+		//First attrib - key type = STORAGE
+		result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
+				TSS_TSPATTRIB_KEYINFO_USAGE, &keyAttribute );
+		if ((result != TSS_SUCCESS) || (keyAttribute != TSS_KEYUSAGE_STORAGE)){
+			if ( keyAttribute != TSS_KEYUSAGE_STORAGE){
+				fprintf( stderr, "\tError(B1): Key Attribute value not expected: %u\n",
+						keyAttribute);
+				result = TSS_E_FAIL;
+			}
+			print_error("Tspi_GetAttribUint32(B1)", result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}else
+			fprintf( stdout, "\tSuccess(B1): Checked key type.\n");
 
-	//Third attrib - VOLATILE key = FALSE
-	result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
-			TSS_TSPATTRIB_KEYINFO_VOLATILE, &keyAttribute );
-	if ((result != TSS_SUCCESS) || ( keyAttribute )){
-		if ( keyAttribute ){
-			fprintf( stderr, "\tError(B3): Key Attribute value not expected: %u\n",
-					keyAttribute);
-			result = TSS_E_FAIL;
-		}
-		print_error("Tspi_GetAttribUint32(B3)", result);
-		print_end_test(nameOfFunction);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}else
-		fprintf( stdout, "\tSuccess(B3): Checked if volatile key.\n");
+		//Second attrib - Migratable key = FALSE
+		result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
+				TSS_TSPATTRIB_KEYINFO_MIGRATABLE, &keyAttribute );
+		if ((result != TSS_SUCCESS) || ( keyAttribute )){
+			if ( keyAttribute ){
+				fprintf( stderr, "\tError(B2): Key Attribute value not expected: %u\n",
+						keyAttribute);
+				result = TSS_E_FAIL;
+			}
+			print_error("Tspi_GetAttribUint32(B2)", result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}else
+			fprintf( stdout, "\tSuccess(B2): Checked key migration.\n");
 
-	//Fourth attrib - Authorization key = FALSE
-	result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
-			TSS_TSPATTRIB_KEYINFO_AUTHDATAUSAGE, &keyAttribute );
-	if ((result != TSS_SUCCESS) || ( keyAttribute )){
-		if ( keyAttribute ){
-			fprintf( stderr, "\tError(B4): Key Attribute value not expected: %u\n",
-					keyAttribute);
-			result = TSS_E_FAIL;
-		}
-		print_error("Tspi_GetAttribUint32(B4)", result);
-		print_end_test(nameOfFunction);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}else
-		fprintf( stdout, "\tSuccess(B4): Checked if authorization key.\n");
+		//Third attrib - VOLATILE key = FALSE
+		result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
+				TSS_TSPATTRIB_KEYINFO_VOLATILE, &keyAttribute );
+		if ((result != TSS_SUCCESS) || ( keyAttribute )){
+			if ( keyAttribute ){
+				fprintf( stderr, "\tError(B3): Key Attribute value not expected: %u\n",
+						keyAttribute);
+				result = TSS_E_FAIL;
+			}
+			print_error("Tspi_GetAttribUint32(B3)", result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}else
+			fprintf( stdout, "\tSuccess(B3): Checked if volatile key.\n");
 
-	//Fifth attrib - CMK key = FALSE
-	result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
-			TSS_TSPATTRIB_KEYINFO_CMK, &keyAttribute );
-	if ((result != TSS_SUCCESS) || ( keyAttribute )){
-		if ( keyAttribute ){
-			fprintf( stderr, "\tError(B5): Key Attribute value not expected: %u\n",
-					keyAttribute);
-			result = TSS_E_FAIL;
-		}
-		print_error("Tspi_GetAttribUint32(B5)", result);
-		print_end_test(nameOfFunction);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}else
-		fprintf( stdout, "\tSuccess(B5): Checked if CMK key.\n");
+		//Fourth attrib - Authorization key = FALSE
+		result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
+				TSS_TSPATTRIB_KEYINFO_AUTHDATAUSAGE, &keyAttribute );
+		if ((result != TSS_SUCCESS) || ( keyAttribute )){
+			if ( keyAttribute ){
+				fprintf( stderr, "\tError(B4): Key Attribute value not expected: %u\n",
+						keyAttribute);
+				result = TSS_E_FAIL;
+			}
+			print_error("Tspi_GetAttribUint32(B4)", result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}else
+			fprintf( stdout, "\tSuccess(B4): Checked if authorization key.\n");
 
-	//Sixth attrib - key SIZE = 512 bits
-	result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_RSAKEY_INFO,
-			TSS_TSPATTRIB_KEYINFO_RSA_KEYSIZE, &keyAttribute );
-	if ((result != TSS_SUCCESS) || ( keyAttribute != 2048 )){
-		if ( keyAttribute != 512 ){
-			fprintf( stderr, "\tError(B6): Key Attribute value not expected: %u\n",
-					keyAttribute);
-			result = TSS_E_FAIL;
-		}
-		print_error("Tspi_GetAttribUint32(B6)", result);
-		print_end_test(nameOfFunction);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}else
-		fprintf( stdout, "\tSuccess(B6): Checked RSA key size.\n");
+		//Fifth attrib - CMK key = FALSE
+		result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_INFO,
+				TSS_TSPATTRIB_KEYINFO_CMK, &keyAttribute );
+		if ((result != TSS_SUCCESS) || ( keyAttribute )){
+			if ( keyAttribute ){
+				fprintf( stderr, "\tError(B5): Key Attribute value not expected: %u\n",
+						keyAttribute);
+				result = TSS_E_FAIL;
+			}
+			print_error("Tspi_GetAttribUint32(B5)", result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}else
+			fprintf( stdout, "\tSuccess(B5): Checked if CMK key.\n");
 
-	//Seventh attrib - keyB PcrComposite LocalityAtRelease = TPM_LOC_ZERO
-	result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_PCR_LONG,
-			TSS_TSPATTRIB_KEYPCRLONG_LOCALITY_ATRELEASE, &keyAttribute );
-	if ((result != TSS_SUCCESS) || ( keyAttribute != TPM_LOC_ZERO )){
-		if ( keyAttribute != TPM_LOC_ZERO ){
-			fprintf( stderr, "\tError(B7): Key Attribute value not expected: %u\n",
-					keyAttribute);
-			result = TSS_E_FAIL;
-		}
-		print_error("Tspi_GetAttribUint32(B7)", result);
-		print_end_test(nameOfFunction);
-		Tspi_Context_Close(hContext);
-		exit(result);
-	}else
-		fprintf( stdout, "\tSuccess(B7): Checked PCR Locality at Release.\n");
+		//Sixth attrib - key SIZE = 512 bits
+		result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_RSAKEY_INFO,
+				TSS_TSPATTRIB_KEYINFO_RSA_KEYSIZE, &keyAttribute );
+		if ((result != TSS_SUCCESS) || ( keyAttribute != 2048 )){
+			if ( keyAttribute != 512 ){
+				fprintf( stderr, "\tError(B6): Key Attribute value not expected: %u\n",
+						keyAttribute);
+				result = TSS_E_FAIL;
+			}
+			print_error("Tspi_GetAttribUint32(B6)", result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}else
+			fprintf( stdout, "\tSuccess(B6): Checked RSA key size.\n");
+
+		//Seventh attrib - keyB PcrComposite LocalityAtRelease = TPM_LOC_ZERO
+		result = Tspi_GetAttribUint32(hKeyB, TSS_TSPATTRIB_KEY_PCR_LONG,
+				TSS_TSPATTRIB_KEYPCRLONG_LOCALITY_ATRELEASE, &keyAttribute );
+		if ((result != TSS_SUCCESS) || ( keyAttribute != TPM_LOC_ZERO )){
+			if ( keyAttribute != TPM_LOC_ZERO ){
+				fprintf( stderr, "\tError(B7): Key Attribute value not expected: %u\n",
+						keyAttribute);
+				result = TSS_E_FAIL;
+			}
+			print_error("Tspi_GetAttribUint32(B7)", result);
+			print_end_test(nameOfFunction);
+			Tspi_Context_Close(hContext);
+			exit(result);
+		}else
+			fprintf( stdout, "\tSuccess(B7): Checked PCR Locality at Release.\n");
+	}
 
 
 	print_success(nameOfFunction, result);

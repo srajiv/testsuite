@@ -80,7 +80,7 @@ main_v1_1(void){
 	TSS_HCONTEXT	hContext;
 	TSS_HPOLICY	srkUsagePolicy;
 	TSS_RESULT	result;
-	TSS_HKEY	hSRK;
+	TSS_HKEY	hSRK, hKey;
 	BYTE*		BLOB, *pub;
 	UINT32		BlobLength, pubSize;
 
@@ -124,24 +124,24 @@ main_v1_1(void){
 		exit(result);
 	}
 #endif
-	result = set_srk_readable(hContext);
+
+	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
+					   TSS_KEY_TYPE_BIND|TSS_KEY_SIZE_512, &hKey);
 	if (result != TSS_SUCCESS) {
-		print_error("set_srk_readable", result);
+		print_error("Tspi_Context_CreateObject", result);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
 
-		//Pull the SRK out of the TPM (its not kept in PS)
-	result = Tspi_Key_GetPubKey(hSRK, &pubSize, &pub);
+	result = Tspi_Key_CreateKey(hKey, hSRK, 0);
 	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_GetPubKey", result);
+		print_error("Tspi_Key_CreateKey", result);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
-	Tspi_Context_FreeMemory(hContext, pub);
 
 		//Call GetAttribData
-	result = Tspi_GetAttribData(hSRK,
+	result = Tspi_GetAttribData(hKey,
 			TSS_TSPATTRIB_RSAKEY_INFO,
 			TSS_TSPATTRIB_KEYINFO_RSA_MODULUS,
 			&BlobLength, &BLOB);
