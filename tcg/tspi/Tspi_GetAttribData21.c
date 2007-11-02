@@ -66,8 +66,10 @@ main( int argc, char **argv )
 	char		version;
 
 	version = parseArgs( argc, argv );
-	if (version)
+	if (version == TESTSUITE_TEST_TSS_1_2)
 		main_v1_2(version);
+	else if (version == TESTSUITE_TEST_TSS_1_1)
+		print_NA();
 	else
 		print_wrongVersion();
 }
