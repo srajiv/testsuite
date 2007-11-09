@@ -2116,25 +2116,27 @@ Testsuite_Transport_Init(TSS_HCONTEXT hContext,
 		return result;
 	}
 
-	// Create the key used to sign the transport session
-	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
-					   TSS_KEY_SIZE_512 | TSS_KEY_TYPE_SIGNING |
-					   TSS_KEY_NO_AUTHORIZATION, hSigningKey);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Context_CreateObject", result);
-		return result;
-	}
+	if (hSigningKey) {
+		// Create the key used to sign the transport session
+		result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_RSAKEY,
+				TSS_KEY_SIZE_512 | TSS_KEY_TYPE_SIGNING |
+				TSS_KEY_NO_AUTHORIZATION, hSigningKey);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Context_CreateObject", result);
+			return result;
+		}
 
-	result = Tspi_Key_CreateKey(*hSigningKey, hSRK, 0);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_CreateKey", result);
-		return result;
-	}
+		result = Tspi_Key_CreateKey(*hSigningKey, hSRK, 0);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Key_CreateKey", result);
+			return result;
+		}
 
-	result = Tspi_Key_LoadKey(*hSigningKey, hSRK);
-	if (result != TSS_SUCCESS) {
-		print_error("Tspi_Key_LoadKey", result);
-		return result;
+		result = Tspi_Key_LoadKey(*hSigningKey, hSRK);
+		if (result != TSS_SUCCESS) {
+			print_error("Tspi_Key_LoadKey", result);
+			return result;
+		}
 	}
 
 	// Set the encryption key to use to be hWrappingKey
@@ -2180,7 +2182,17 @@ Testsuite_Transport_Init(TSS_HCONTEXT hContext,
 TSS_RESULT
 Testsuite_Transport_Final(TSS_HCONTEXT hContext, TSS_HKEY hSigningKey)
 {
-        return Tspi_Context_CloseSignTransport(hContext, hSigningKey, NULL);
+	TSS_RESULT result;
+
+	if (hSigningKey) {
+		result = Tspi_Context_CloseSignTransport(hContext, hSigningKey, NULL);
+	} else {
+		result = Tspi_SetAttribUint32(hContext, TSS_TSPATTRIB_CONTEXT_TRANSPORT,
+					      TSS_TSPATTRIB_CONTEXTTRANS_CONTROL,
+					      TSS_TSPATTRIB_DISABLE_TRANSPORT);
+	}
+
+	return result;
 }
 
 /* Checks a command's resulting TPM signature against validation data */
