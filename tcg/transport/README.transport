@@ -1,0 +1,6 @@
+Each API has 3 different tests associated with a transport session
+
+01: Used inside a logged transport session
+02: Used inside a logged and encrypted transport session
+03: Used inside an encrypted transport session
+
