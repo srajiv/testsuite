@@ -79,7 +79,7 @@ usage()
 }
 
 # Parse the options
-while getopts v:l:f:hqd: arg
+while getopts v:l:f:hqd:e: arg
 do
 	case $arg in
 		v)
