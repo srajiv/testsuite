@@ -244,8 +244,7 @@ execute_test()
 		# capture stderr and send stdout to the logfile
 		TEST_STDERR=$( $1 -v ${TSS_VERSION} 2>&1 >> $LOGFILE )
 	else
-		# capture stderr and send stdout to the terminal
-		TEST_STDERR=$( $1 -v ${TSS_VERSION} 2>&1 >/dev/tty )
+		$1 -v ${TSS_VERSION}
 	fi
 	RUNRESULT=$?
 
@@ -263,14 +262,17 @@ execute_test()
 		else
 			FAILED=$(( $FAILED + 1))
 		fi
-
-		print_error "$1 -v ${TSS_VERSION}" "$TEST_STDERR" $RUNRESULT
+		
+		if test $LOGGING -eq 1; then
+			print_error "$1 -v ${TSS_VERSION}" "$TEST_STDERR" $RUNRESULT
+		fi
 	else
 		if test $LOGGING -eq 1; then
 			echo $TEST_STDERR >> $LOGFILE
 		else
 			echo $TEST_STDERR
 		fi
+
 		PASSED=$(( $PASSED + 1))
 	fi
 }
@@ -299,7 +301,7 @@ main()
 			echo $DIRECTORY
 			cd ${LTPTSSROOT}/${TESTCASEDIR}/$DIRECTORY
 			TESTS_TO_RUN=`ls *.c | sed "s/\.c//g"`
-			cd ../../bin
+			cd ../../bin &> /dev/null
 		else
 			cd ${LTPTSSROOT}/${TESTCASEDIR}/$DIRECTORY &> /dev/null
 			TESTS_TO_RUN=`ls *.c | sed "s/\.c//g"`
