@@ -191,7 +191,8 @@ main_v1_2(char version){
 
 		//Set Ownerevict bit
 	result = Tspi_TPM_KeyControlOwner(hTPM, hKey, TSS_TSPATTRIB_KEYCONTROL_OWNEREVICT,
-					  TRUE, &Uuid);
+					  FALSE, &Uuid);
+
 	if (result != TSS_SUCCESS) {
 		print_error(nameOfFunction, result);
 		print_end_test(nameOfFunction);
@@ -201,6 +202,9 @@ main_v1_2(char version){
 	} else {
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
+		Tspi_TPM_KeyControlOwner(hTPM, hKey, TSS_TSPATTRIB_KEYCONTROL_OWNEREVICT,
+					 FALSE, &Uuid);
+		Tspi_Key_UnloadKey(hKey);
 		Tspi_Context_FreeMemory( hContext, NULL );
 		Tspi_Context_Close(hContext);
 		exit(0);
