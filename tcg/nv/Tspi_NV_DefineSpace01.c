@@ -156,6 +156,8 @@ main_v1_2(char version)
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
+	
+	Tspi_TPM_SetStatus(hTPM, TSS_TPMSTATUS_RESETLOCK, 1);
 #endif
 
 	/* Set the index to be defined. */

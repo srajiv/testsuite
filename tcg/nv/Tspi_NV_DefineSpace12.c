@@ -173,10 +173,20 @@ main_v1_2(char version)
        else{
 		print_error("Tspi_NV_DefineSpace", result);
 	  	print_end_test(nameOfFunction);
+                if ( result == TSS_SUCCESS ) {
+#ifdef CLEAR_TEST_INDEX
+			Tspi_Context_GetTpmObject(hContext, &hTPM);
+			Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hPolicy);
+			Tspi_Policy_SetSecret(hPolicy, TESTSUITE_OWNER_SECRET_MODE,
+							TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
+			Tspi_NV_ReleaseSpace(hNVStore);
+			Tspi_Context_FreeMemory(hContext, NULL);
+			Tspi_Context_Close(hContext);
+#endif
+                	exit(-1);
+		}
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
-                if ( result == TSS_SUCCESS )
-                    exit(-1);
 		exit(result);
      	}
 

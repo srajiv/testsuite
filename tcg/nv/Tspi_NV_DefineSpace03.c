@@ -265,9 +265,6 @@ main_v1_2(char version)
 		print_end_test(nameOfFunction);
 
 	#ifdef CLEAR_TEST_INDEX
-		Tspi_Context_GetTpmObject(hContext, &hTPM);
-		Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hPolicy);
-		Tspi_Policy_SetSecret( hPolicy, TESTSUITE_OWNER_SECRET_MODE,
 					TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
 		Tspi_NV_ReleaseSpace(hNVStore);
 	#endif

@@ -196,6 +196,16 @@ main_v1_2(char version)
       /*Define NV space*/
 	result = Tspi_NV_DefineSpace(-1, 0, 0);
       
+#ifdef CLEAR_TEST_INDEX
+       if (result== TSS_SUCCESS)
+       {
+		Tspi_Context_GetTpmObject(hContext, &hTPM);
+		Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hPolicy);
+		Tspi_Policy_SetSecret( hPolicy, TESTSUITE_OWNER_SECRET_MODE,
+					TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
+		Tspi_NV_ReleaseSpace(hNVStore);
+       }
+#endif
 #ifdef NV_LOCKED	
        if (TSS_ERROR_CODE(result)== TSS_E_INVALID_HANDLE)
        {              
