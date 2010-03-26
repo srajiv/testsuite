@@ -279,9 +279,9 @@ main_v1_2(char version)
 #endif
 
 #ifdef NV_LOCKED
-       if (TSS_ERROR_CODE(result)== TPM_E_AUTH_CONFLICT)
+	if (TSS_ERROR_CODE(result) != TPM_E_AUTH_CONFLICT)
 #else
-       if (result== TSS_SUCCESS)
+	if (result != TSS_SUCCESS)
 #endif
 	{
 		print_error("Tspi_NV_ReadValue", result);
@@ -291,7 +291,7 @@ main_v1_2(char version)
 	}
 
        result = Testsuite_Transport_Final(hContext, hSigningKey);
-	if (result != TSS_SUCCESS)
+	if (result == TSS_SUCCESS)
        {
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);

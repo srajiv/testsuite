@@ -248,7 +248,7 @@ main_v1_2(char version)
        if (TSS_ERROR_CODE(result)== TSS_SUCCESS)
 #endif
 	{
-		print_error("Tspi_NV_WriteValue", result);
+		print_success("Tspi_NV_WriteValue", result);
 		Tspi_Context_FreeMemory(hContext, NULL);
 		Tspi_Context_Close(hContext);
 		exit(result);

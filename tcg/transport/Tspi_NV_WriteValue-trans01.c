@@ -243,9 +243,9 @@ main_v1_2(char version)
 #endif
 
 #ifdef NV_LOCKED
-       if (TSS_ERROR_CODE(result)== TPM_E_AUTH_CONFLICT)
+       if (TSS_ERROR_CODE(result) != TPM_E_AUTH_CONFLICT)
 #else
-       if (TSS_ERROR_CODE(result)== TSS_SUCCESS)
+       if (TSS_ERROR_CODE(result) != TSS_SUCCESS)
 #endif
 	{
 		print_error("Tspi_NV_WriteValue", result);
