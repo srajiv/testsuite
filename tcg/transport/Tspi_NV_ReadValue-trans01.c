@@ -95,6 +95,7 @@ main_v1_2(char version)
 	char	     *nameOfFunction    = "Tspi_Nv_ReadValue-trans01";
 
 	TSS_HCONTEXT hContext           = NULL_HCONTEXT;
+	TSS_HCONTEXT hContext_plain     = NULL_HCONTEXT;
 	TSS_HNVSTORE hNVStore           = 0;//NULL_HNVSTORE
 	TSS_HOBJECT  hPolObject         = NULL_HOBJECT;
 	TSS_HPOLICY  hPolicy            = NULL_HPOLICY;
@@ -234,27 +235,27 @@ main_v1_2(char version)
 
 
 		//Create Context
-	result = Tspi_Context_Create(&hContext);
+	result = Tspi_Context_Create(&hContext_plain);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Create ", result);
 		exit(result);
 	}
 		//Connect Context
-	result = Tspi_Context_Connect(hContext,NULL);
+	result = Tspi_Context_Connect(hContext_plain,NULL);
 	if (result != TSS_SUCCESS) {
 		print_error("Tspi_Context_Connect", result);
-		Tspi_Context_FreeMemory(hContext, NULL);      
-		Tspi_Context_Close(hContext);
+		Tspi_Context_FreeMemory(hContext_plain, NULL);      
+		Tspi_Context_Close(hContext_plain);
 		exit(result);
 	}
 
 	    	/* Create TPM NV object */
-	result = Tspi_Context_CreateObject(hContext, TSS_OBJECT_TYPE_NV, 0,&hNVStore);
+	result = Tspi_Context_CreateObject(hContext_plain, TSS_OBJECT_TYPE_NV, 0,&hNVStore);
 	if (result != TSS_SUCCESS)
 	{
 		print_error("Tspi_Context_CreateObject", result);
-		Tspi_Context_FreeMemory(hContext, NULL);
-		Tspi_Context_Close(hContext);
+		Tspi_Context_FreeMemory(hContext_plain, NULL);
+		Tspi_Context_Close(hContext_plain);
 		exit(result);
 	}
 
@@ -271,7 +272,7 @@ main_v1_2(char version)
 	result = Tspi_NV_ReadValue(hNVStore,/*read_offset*/0, &read_space, &policyData);
 
 #ifdef CLEAR_TEST_INDEX
-	Tspi_Context_GetTpmObject(hContext, &hTPM);
+	Tspi_Context_GetTpmObject(hContext_plain, &hTPM);
 	Tspi_GetPolicyObject(hTPM, TSS_POLICY_USAGE, &hPolicy);
 	Tspi_Policy_SetSecret(hPolicy, TESTSUITE_OWNER_SECRET_MODE,
 			TESTSUITE_OWNER_SECRET_LEN, TESTSUITE_OWNER_SECRET);
@@ -285,7 +286,9 @@ main_v1_2(char version)
 #endif
 	{
 		print_error("Tspi_NV_ReadValue", result);
+		Tspi_Context_FreeMemory(hContext_plain, NULL);
 		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext_plain);
 		Tspi_Context_Close(hContext);
 		exit(result);
 	}
@@ -295,13 +298,17 @@ main_v1_2(char version)
        {
 		print_success(nameOfFunction, result);
 		print_end_test(nameOfFunction);
+		Tspi_Context_FreeMemory(hContext_plain, NULL);
 		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext_plain);
 		Tspi_Context_Close(hContext);
 		exit(0);
        } else {
 		print_error(nameOfFunction, result);
 		print_end_test(nameOfFunction);
+		Tspi_Context_FreeMemory(hContext_plain, NULL);
 		Tspi_Context_FreeMemory(hContext, NULL);
+		Tspi_Context_Close(hContext_plain);
 		Tspi_Context_Close(hContext);
 		if ( result == TSS_SUCCESS )
 			exit(-1);
