@@ -135,7 +135,7 @@ main_v1_1(void){
 			printf("NONE\n");
 		else
 			for (j=0; j<PCREvents[i].ulEventLength; j++)
-				printf("%02x", PCREvents[i].rgbEvent[j] & 0xff);
+				printf("%c", PCREvents[i].rgbEvent[j] & 0xff);
 
 			printf("\n");
 	}
