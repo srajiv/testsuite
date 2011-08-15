@@ -1653,7 +1653,7 @@ print_openssl_errors()
 	ERR_load_crypto_strings();
 	ERR_print_errors_fp(stderr);
 }
-
+#ifdef TESTSUITE_HASH
 TSS_RESULT
 TestSuite_Hash(UINT32 HashType, UINT32 BufSize, BYTE* Buf, BYTE* Digest)
 {
@@ -1697,7 +1697,7 @@ err:
 out:
 	return rv;
 }
-
+#endif
 TSS_RESULT
 TestSuite_SymEncrypt(UINT16 alg, BYTE mode, BYTE *key, BYTE *iv, BYTE *in, UINT32 in_len, BYTE *out,
 		     UINT32 *out_len)
