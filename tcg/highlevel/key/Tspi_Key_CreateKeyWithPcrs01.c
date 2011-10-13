@@ -19,7 +19,7 @@
 
 /*
  * NAME
- *	Tspi_Key_CreateKeyWithPcrs.c
+ *	Tspi_Key_CreateKeyWithPcrs01.c
  *
  * DESCRIPTION
  *	This test will create a key bound to 2 PCRS (1 and 15), bind and
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 
 main_v1_1(void){
 
-	char		*nameOfFunction = "Tspi_Key_CreateKeyWithPcrs";
+	char		*nameOfFunction = "Tspi_Key_CreateKeyWithPcrs01";
 	TSS_HCONTEXT	hContext;
 	TSS_HTPM	hTPM;
 	TSS_FLAG	initFlags;
