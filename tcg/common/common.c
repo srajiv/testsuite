@@ -621,7 +621,6 @@ bind_and_unbind(TSS_HCONTEXT hContext, TSS_HKEY hKey)
 					    TSS_ENCDATA_BIND, &hEncData );
 	if ( result != TSS_SUCCESS )
 	{
-		print_error("Tspi_Context_CreateObject ", result);
 		return result;
 	}
 
@@ -631,7 +630,6 @@ bind_and_unbind(TSS_HCONTEXT hContext, TSS_HKEY hKey)
 	result = Tspi_Data_Bind( hEncData, hKey, ulDataLength, rgbDataToBind );
 	if ( result != TSS_SUCCESS )
 	{
-		print_error( "Tspi_Data_Bind", result );
 		return result;
 	}
 
@@ -640,7 +638,6 @@ bind_and_unbind(TSS_HCONTEXT hContext, TSS_HKEY hKey)
 			&ulEncryptedDataLength, &rgbEncryptedData);
 	if ( result != TSS_SUCCESS )
 	{
-		print_error( "Tspi_GetAttribData", result );
 		return result;
 	}
 
@@ -649,19 +646,7 @@ bind_and_unbind(TSS_HCONTEXT hContext, TSS_HKEY hKey)
 
 	result = Tspi_Data_Unbind( hEncData, hKey, &pulDataLength,
 			&prgbDataToUnBind );
-	if ( result != TSS_SUCCESS )
-	{
-		print_error( "Tspi_Data_Unbind", result );
-		if( !(checkNonAPI(result)) )
-		{
-			print_error( "Tspi_Data_Unbind", result );
-		}
-		else
-		{
-			print_error_nonapi( "Tspi_Data_Unbind", result );
-		}
-	}
-	else
+	if ( result == TSS_SUCCESS )
 	{
 		printf("Data after unbinding:\n");
 		print_hex(prgbDataToUnBind, pulDataLength);
